@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { PrismaClient } = require('../utils/prismaCLients');
 
 class QuizService {
     // Crear una nueva sesión de cuestionario
