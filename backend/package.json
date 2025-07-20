@@ -1,0 +1,28 @@
+{
+  "name": "perrotrader",
+  "version": "1.0.0",
+  "description": "Backend for investment profile quiz",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "uuid": "^9.0.1",
+    "@prisma/client": "^5.7.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "prisma": "^5.7.1"
+  },
+  "keywords": ["investment", "quiz", "financial", "portfolio"],
+  "author": "Javi",
+  "license": "MIT"
+}

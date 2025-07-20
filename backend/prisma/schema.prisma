@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model QuizSession {
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  expiresAt       DateTime
+  currentQuestionId Int?
+  isCompleted     Boolean  @default(false)
+  
+  // Puntuaciones
+  totalScore      Int      @default(0)
+  experienceScore Int      @default(0)
+  cryptoScore     Int      @default(0)
+  timeValue       Int      @default(0)
+  emergencyFund   Int      @default(0)
+  
+  // Perfil y cartera final
+  riskProfile     String?
+  portfolioData   String?  // JSON string con la cartera recomendada
+  
+  answers         QuizAnswer[]
+  
+  @@map("quiz_sessions")
+}
+
+model QuizAnswer {
+  id              String      @id @default(uuid())
+  sessionId       String
+  questionId      Int
+  answerIndex     Int
+  answerText      String
+  points          Int         @default(0)
+  conoPoints      Int         @default(0)
+  exPoints        Int         @default(0)
+  cryptoExposure  Int         @default(0)
+  timeValue       Int         @default(0)
+  fondoEmergencia Int         @default(0)
+  esgValue        Int         @default(0)
+  createdAt       DateTime    @default(now())
+  
+  session         QuizSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@map("quiz_answers")
+}
+
+model QuizStats {
+  id              String   @id @default(uuid())
+  completedAt     DateTime @default(now())
+  riskProfile     String
+  finalScore      Int
+  ageRange        String?
+  patrimonyRange  String?
+  monthlyIncome   String?
+  
+  @@map("quiz_stats")
+}
