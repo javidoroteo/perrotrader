@@ -58,11 +58,11 @@ const questions = [
         question: "¿Cuál es tu ingreso mensual neto?",
         explanation: "Si  tienes varias fuentes de ingreso sumalas todas",
         answers: [
-            { text: "Menos de 1.000€", conopoints: 0 },
-            { text: "Entre 1.001€ y 2.000€", conopoints: 0 },
-            { text: "Entre 2.001€ y 5.000€", conopoints: 1},
-            { text: "Entre 5.001€ y 10.000€", conopoints: 2 },
-            { text: "Más de 10.001€", conopoints: 3 },
+            { text: "Menos de 1.000€", conopoints: 0, nextQuestion: 103 },
+            { text: "Entre 1.001€ y 2.000€", conopoints: 0, nextQuestion: 103 },
+            { text: "Entre 2.001€ y 5.000€", conopoints: 1, nextQuestion: 103},
+            { text: "Entre 5.001€ y 10.000€", conopoints: 2, nextQuestion: 103},
+            { text: "Más de 10.001€", conopoints: 3, nextQuestion: 103},
         ]
     },
     {
@@ -71,11 +71,11 @@ const questions = [
         question: "¿Cuál es tu ahorro mensual aproximado?",
         explanation: "Incluye los destinados a ahorro e inversión",
         answers: [
-            { text: "0% - 5%", conopoints: 0, timeValue: 0 },
-            { text: "6% - 10%", conopoints: 1, timeValue: 0},
-            { text: "11% - 20%", conopoints: 2, timeValue: 0 },
-            { text: "20% - 30%", conopoints: 3 , timeValue: 0},
-            { text: "Más de 30%", conopoints: 4, timeValue: 0 },
+            { text: "0% - 5%", conopoints: 0, timeValue: 0, nextQuestion: 104 },
+            { text: "6% - 10%", conopoints: 1, timeValue: 0, nextQuestion: 104},
+            { text: "11% - 20%", conopoints: 2, timeValue: 0, nextQuestion: 104},
+            { text: "20% - 30%", conopoints: 3 , timeValue: 0, nextQuestion: 104},
+            { text: "Más de 30%", conopoints: 4, timeValue: 0, nextQuestion: 104},
         ]
     },
     {
@@ -84,10 +84,10 @@ const questions = [
         question: "¿Tienes un fondo de emergencia?",
         explanation: "El fondo de emergencia es un dinero ahorrado que debería cubrir los gastos de 6 meses o más",
         answers: [
-            { text: "No, no tengo.", conopoints: 0, fondoemergencia: 0},
-            { text: "Sí, pero es menor a 3 meses de gasto.", conopoints: 1, fondoemergencia: 1 },
-            { text: "Sí, es moderado, es de alrededor de 5 meses.", conopoints: 2, fondoemergencia: 2},
-            { text: "Sí, es suficiente para más de 6 meses.", conopoints: 4, fondoemergencia: 3},
+            { text: "No, no tengo.", conopoints: 0, fondoemergencia: 0, nextQuestion: 106},
+            { text: "Sí, pero es menor a 3 meses de gasto.", conopoints: 1, fondoemergencia: 1, nextQuestion: 106 },
+            { text: "Sí, es moderado, es de alrededor de 5 meses.", conopoints: 2, fondoemergencia: 2, nextQuestion: 106},
+            { text: "Sí, es suficiente para más de 6 meses.", conopoints: 4, fondoemergencia: 3, nextQuestion: 106},
         ]
     },
     {
@@ -96,9 +96,9 @@ const questions = [
         question: "¿Tienes obligaciones financieras futuras significativas?",
         explanation: "",
         answers: [
-            { text: "Sí, son significativas (Hipoteca, Préstamo del coche...) ", conopoints: -1 },
-            { text: "Sí, pero solo requieren pagos moderados u ocasionales (Deuda personal pequeña o vacaciones planificadas).", conopoints: 0 },
-            { text: "No, no tengo ninguna obligación financiera importante.", conopoints: 3 },
+            { text: "Sí, son significativas (Hipoteca, Préstamo del coche...) ", conopoints: -1, nextQuestion: 107 },
+            { text: "Sí, pero solo requieren pagos moderados u ocasionales (Deuda personal pequeña o vacaciones planificadas).", conopoints: 0, nextQuestion: 107 },
+            { text: "No, no tengo ninguna obligación financiera importante.", conopoints: 3, nextQuestion: 107 },
         ]
     },
     {
@@ -107,10 +107,10 @@ const questions = [
         question: "¿Estás dispuesto a invertir mensualmente una parte de tu ingreso?",
         explanation: "",
         answers: [
-            { text: "No, no puedo. Sólo ahorros que ya dispongo.", conopoints: 0 },
-            { text: "Sí, una pequeña cantidad.", conopoints: 1 },
-            { text: "Sí, una cantidad moderada.", conopoints: 2 },
-            { text: "Sí, una cantidad significativa.", conopoints: 3 },
+            { text: "No, no puedo. Sólo ahorros que ya dispongo.", conopoints: 0, nextQuestion: 108},
+            { text: "Sí, una pequeña cantidad.", conopoints: 1, nextQuestion: 108 },
+            { text: "Sí, una cantidad moderada.", conopoints: 2, nextQuestion: 108 },
+            { text: "Sí, una cantidad significativa.", conopoints: 3, nextQuestion: 108 },
         ]
     },
     {
@@ -225,9 +225,9 @@ const questions = [
         question: "Sin experiencia previa, ¿Te planteas tomar tus propias decisiones o delegarlas en un tercero?",
         explanation: "",
         answers: [
-            { text: "Realizarlas yo", Expoints: 2, },
-            { text: "Delegar una parte en un experto y otra realizarlo yo", Expoints: 1},
-            { text: "Delegar mis inversiones en un profesional", Expoints: 0 },
+            { text: "Realizarlas yo", Expoints: 2, nextQuestion: 203},
+            { text: "Delegar una parte en un experto y otra realizarlo yo", Expoints: 1, nextQuestion: 203},
+            { text: "Delegar mis inversiones en un profesional", Expoints: 0, nextQuestion: 203},
         ]
     },
         {
@@ -257,8 +257,8 @@ const questions = [
         explanation: "",
         answers: [
             { text: "No, las delego completamente.", Expoints: 0, nextQuestion: 207 },
-            { text: "Si, una parte las elijo yo y otras las delego.", Expoints: 2 },
-            { text: "Si, todas mis inversiones las eligo yo.", points: 3 },
+            { text: "Si, una parte las elijo yo y otras las delego.", Expoints: 2, nextQuestion: 206 },
+            { text: "Si, todas mis inversiones las eligo yo.", points: 3, nextQuestion: 206},
         ]
     },
     {
@@ -267,10 +267,10 @@ const questions = [
         question: "¿Qué tipo de inversiones has realizado en el pasado?",
         explanation: "",
         answers: [
-            { text: "Cuentas de ahorro.", Expoints: 1 },
-            { text: "Fondos de inversión.", Expoints: 2 },
-            { text: "Acciones o bonos.", Expoints: 3 },
-            { text: "Criptomonedas o start ups.", Expoints: 4 },
+            { text: "Cuentas de ahorro.", Expoints: 1, nextQuestion: 207},
+            { text: "Fondos de inversión.", Expoints: 2, nextQuestion: 207},
+            { text: "Acciones o bonos.", Expoints: 3, nextQuestion: 207},
+            { text: "Criptomonedas o start ups.", Expoints: 4, nextQuestion: 207},
         ]
     },
     {
@@ -279,10 +279,10 @@ const questions = [
         question: "¿Qué tan frecuentemente revisas tus inversiones?",
         explanation: "",
         answers: [
-            { text: "Diariamente.", Expoints: -1 },
-            { text: "Semanalmente.", Expoints: 1 },
-            { text: "Mensualmente.", Expoints: 2 },
-            { text: "Rara vez.", Expoints: 1 },
+            { text: "Diariamente.", Expoints: -1, nextQuestion: 208},
+            { text: "Semanalmente.", Expoints: 1, nextQuestion: 208},
+            { text: "Mensualmente.", Expoints: 2, nextQuestion: 208},
+            { text: "Rara vez.", Expoints: 1, nextQuestion: 208},
         ]
     },
     {
@@ -294,11 +294,11 @@ const questions = [
             { text: "Iniciación, conozco las cuentas de ahorro.", Expoints: 1, nextQuestion:  2017},
             { text: "Lo anterior y entiendo los fondos de inversión y/o los índices bursátiles.", Expoints: 2, nextQuestion: 2017},
             { text: "Lo anterior y entiendo el funcionamiento de las acciones y/o bonos.", Expoints: 3, nextQuestion: 2017 },
-            { text: "Lo anterior y criptomonedas o start ups.", Expoints: 4 },
+            { text: "Lo anterior y criptomonedas o start ups.", Expoints: 4, nextQuestion: 209 },
         ]
     },
     {
-        id: 208,
+        id: 209,
         section: "Experiencia de Inversión",
         question: "¿Dentro de las criptomonedas que nivel de conocimientos tienes?",
         explanation: "",
