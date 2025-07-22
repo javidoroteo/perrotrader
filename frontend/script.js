@@ -1,3 +1,4 @@
+const API_BASE_URL = 'http://localhost:3000/api';
 
 let currentQuestionIndex = 0;
 let selectedAnswers = [];
@@ -219,9 +220,33 @@ function showResult() {
 }
 
 // Agregar un evento al botón de comenzar
-document.getElementById('start-button').addEventListener('click', function() {
-    document.getElementById('quiz-container').querySelector('#start-button').classList.add('hidden');
-    document.getElementById('progress-container').classList.remove('hidden'); // Muestra la barra de progreso
-    document.getElementById('question-container').classList.remove('hidden');
-    showQuestion(); // Inicia el cuestionario
+
+// Initialize quiz
+document.getElementById('start-button').addEventListener('click', async function() {
+    try {
+        // Create session
+        const response = await fetch(`${API_BASE_URL}/quiz/start`, {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            sessionId = data.data.sessionId;
+            localStorage.setItem('quizSessionId', sessionId);
+            
+            // Hide start button and show quiz
+            document.getElementById('start-button').classList.add('hidden');
+            document.getElementById('progress-container').classList.remove('hidden');
+            document.getElementById('question-container').classList.remove('hidden');
+            
+            // Load first question
+            await loadQuestion();
+        } else {
+            alert('Error al iniciar el cuestionario');
+        }
+    } catch (error) {
+        console.error('Error starting quiz:', error);
+        alert('Error de conexión');
+    }
 });

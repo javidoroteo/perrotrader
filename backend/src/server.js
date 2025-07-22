@@ -1,263 +1,301 @@
-// Configuration
-const API_BASE_URL = 'http://localhost:3000/api';
+const express = require('express');
+const cors = require('cors');
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Global variables
-let sessionId = null;
-let currentQuestion = null;
-let questionHistory = [];
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-// Initialize quiz
-document.getElementById('start-button').addEventListener('click', async function() {
-    try {
-        // Create session
-        const response = await fetch(`${API_BASE_URL}/quiz/start`, {
-            method: 'POST'
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            sessionId = data.data.sessionId;
-            localStorage.setItem('quizSessionId', sessionId);
-            
-            // Hide start button and show quiz
-            document.getElementById('start-button').classList.add('hidden');
-            document.getElementById('progress-container').classList.remove('hidden');
-            document.getElementById('question-container').classList.remove('hidden');
-            
-            // Load first question
-            await loadQuestion();
-        } else {
-            alert('Error al iniciar el cuestionario');
-        }
-    } catch (error) {
-        console.error('Error starting quiz:', error);
-        alert('Error de conexión');
-    }
+// Importar preguntas desde tu archivo de datos
+const questions = require('./data/questions.js');
+
+// Simulamos sesiones en memoria (en producción usarías una base de datos)
+const sessions = {};
+
+// Rutas de la API
+app.get('/', (req, res) => {
+    res.json({ message: 'API del cuestionario funcionando' });
 });
 
-// Check for existing session on page load
-window.addEventListener('load', async function() {
-    const savedSessionId = localStorage.getItem('quizSessionId');
-    if (savedSessionId) {
-        sessionId = savedSessionId;
-        try {
-            await loadQuestion();
-            document.getElementById('start-button').classList.add('hidden');
-            document.getElementById('progress-container').classList.remove('hidden');
-            document.getElementById('question-container').classList.remove('hidden');
-        } catch (error) {
-            // Session expired or invalid, clear it
-            localStorage.removeItem('quizSessionId');
-            sessionId = null;
+app.post('/api/quiz/start', (req, res) => {
+    const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    sessions[sessionId] = {
+        currentQuestionId: null, // Se establecerá en la primera pregunta
+        answers: [],
+        history: [],
+        completed: false,
+        // Múltiples sistemas de puntuación
+        scores: {
+            conopoints: 0,
+            timevalue: 0,
+            fondoemergencia: 0,
+            expoints: 0,
+            points: 0,
+            criptoexposure: 0,
+            esg: 0
         }
-    }
+    };
+    
+    res.json({
+        success: true,
+        data: { sessionId }
+    });
 });
 
-// Load current question
-async function loadQuestion() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/quiz/question/${sessionId}`);
-        const data = await response.json();
-        
-        if (data.success) {
-            currentQuestion = data.data;
-            displayQuestion(currentQuestion);
-            updateProgressBar();
-        } else {
-            if (data.message.includes('completado')) {
-                await showResults();
-            } else {
-                throw new Error(data.message);
-            }
-        }
-    } catch (error) {
-        console.error('Error loading question:', error);
-        alert('Error al cargar la pregunta');
-    }
-}
-
-// Display question
-function displayQuestion(questionData) {
-    const { question, progress, canGoBack } = questionData;
-    const questionContainer = document.getElementById('question-container');
-
-    let backButton = '';
-    if (canGoBack) {
-        backButton = '<button id="back-button" onclick="goToPreviousQuestion()" style="background-color: #95a5a6; margin-right: 10px;">← Anterior</button>';
-    }
-
-    questionContainer.innerHTML = `
-        <h4>${question.section}</h4>
-        <p><strong>${question.question}</strong></p>
-        ${question.explanation ? `<p class="explanation">${question.explanation}</p>` : ''}
-        <div id="navigation-buttons">
-            ${backButton}
-        </div>
-        <div id="answers">
-            ${question.answers.map((answer, index) => `
-                <label>
-                    <button onclick="selectAnswer(${index})">${answer.text}</button>
-                </label>
-            `).join('')}
-        </div>
-    `;
-}
-
-// Select answer
-async function selectAnswer(answerIndex) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/quiz/answer`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                sessionId,
-                questionId: currentQuestion.question.id,
-                answerIndex
-            })
+app.get('/api/quiz/question/:sessionId', (req, res) => {
+    const { sessionId } = req.params;
+    const session = sessions[sessionId];
+    
+    if (!session) {
+        return res.json({
+            success: false,
+            message: 'Sesión no encontrada'
         });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            if (data.data.completed) {
-                await showResults();
-            } else {
-                await loadQuestion();
-            }
-        } else {
-            alert('Error al guardar respuesta');
-        }
-    } catch (error) {
-        console.error('Error saving answer:', error);
-        alert('Error de conexión');
     }
-}
-
-// Go to previous question
-async function goToPreviousQuestion() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/quiz/previous`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ sessionId })
+    
+    if (session.completed) {
+        return res.json({
+            success: false,
+            message: 'Cuestionario completado'
         });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            await loadQuestion();
-        } else {
-            alert('No se puede volver a la pregunta anterior');
-        }
-    } catch (error) {
-        console.error('Error going back:', error);
-        alert('Error de conexión');
     }
-}
-
-// Show results
-async function showResults() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/quiz/results/${sessionId}`);
-        const data = await response.json();
-        
-        if (data.success) {
-            displayResults(data.data);
-            // Clean up session
-            localStorage.removeItem('quizSessionId');
-        } else {
-            alert('Error al obtener resultados');
-        }
-    } catch (error) {
-        console.error('Error loading results:', error);
-        alert('Error de conexión');
+    
+    // Encontrar pregunta por ID (no por índice)
+    let question;
+    if (!session.currentQuestionId) {
+        // Primera pregunta
+        question = questions[0];
+        session.currentQuestionId = question.id;
+    } else {
+        question = questions.find(q => q.id === session.currentQuestionId);
     }
-}
+    
+    if (!question) {
+        return res.json({
+            success: false,
+            message: 'Pregunta no encontrada'
+        });
+    }
+    
+    const progress = {
+        current: session.answers.length + 1,
+        total: questions.length,
+        percentage: ((session.answers.length + 1) / questions.length) * 100
+    };
+    
+    res.json({
+        success: true,
+        data: {
+            question,
+            progress,
+            canGoBack: session.history.length > 0
+        }
+    });
+});
 
-// Display results
-function displayResults(results) {
-    const questionContainer = document.getElementById('question-container');
-    const resultContainer = document.getElementById('result');
-    const progressContainer = document.getElementById('progress-container');
+app.post('/api/quiz/answer', (req, res) => {
+    const { sessionId, questionId, answerIndex } = req.body;
+    const session = sessions[sessionId];
+    
+    if (!session) {
+        return res.json({
+            success: false,
+            message: 'Sesión no encontrada'
+        });
+    }
+    
+    // Encontrar pregunta actual
+    const currentQuestion = questions.find(q => q.id === questionId);
+    if (!currentQuestion) {
+        return res.json({
+            success: false,
+            message: 'Pregunta no encontrada'
+        });
+    }
+    
+    const selectedAnswer = currentQuestion.answers[answerIndex];
+    
+    // Guardar respuesta completa
+    session.answers.push({
+        questionId,
+        answerIndex,
+        selectedAnswer: selectedAnswer,
+        timestamp: new Date()
+    });
+    
+    // Actualizar todos los tipos de puntuación
+    const scoreTypes = ['conopoints', 'timevalue', 'fondoemergencia', 'expoints', 'points', 'criptoexposure', 'esg'];
+    scoreTypes.forEach(scoreType => {
+        if (selectedAnswer[scoreType] !== undefined) {
+            session.scores[scoreType] += selectedAnswer[scoreType];
+        }
+    });
+    
+    // Guardar pregunta actual en historial antes de cambiar
+    session.history.push(session.currentQuestionId);
+    
+    // Determinar siguiente pregunta usando nextQuestion
+    if (selectedAnswer.nextQuestion) {
+        const nextQuestion = questions.find(q => q.id === selectedAnswer.nextQuestion);
+        if (nextQuestion) {
+            session.currentQuestionId = selectedAnswer.nextQuestion;
+        } else {
+            // Si nextQuestion no existe, marcar como completado
+            session.completed = true;
+        }
+    } else {
+        // Si no hay nextQuestion, el cuestionario termina
+        session.completed = true;
+    }
+    
+    res.json({
+        success: true,
+        data: { 
+            completed: session.completed,
+            scores: session.scores // Opcionalmente devolver puntuaciones actuales
+        }
+    });
+});
 
-    // Hide question container and progress bar
-    questionContainer.classList.add('hidden');
-    progressContainer.classList.add('hidden');
-    resultContainer.classList.remove('hidden');
+app.post('/api/quiz/previous', (req, res) => {
+    const { sessionId } = req.body;
+    const session = sessions[sessionId];
+    
+    if (!session || session.history.length === 0) {
+        return res.json({
+            success: false,
+            message: 'No se puede volver atrás'
+        });
+    }
+    
+    // Obtener la última respuesta para revertir puntuaciones
+    const lastAnswer = session.answers.pop();
+    if (lastAnswer) {
+        // Revertir puntuaciones
+        const scoreTypes = ['conopoints', 'timevalue', 'fondoemergencia', 'expoints', 'points', 'criptoexposure', 'esg'];
+        scoreTypes.forEach(scoreType => {
+            if (lastAnswer.selectedAnswer[scoreType] !== undefined) {
+                session.scores[scoreType] -= lastAnswer.selectedAnswer[scoreType];
+            }
+        });
+    }
+    
+    // Volver a la pregunta anterior
+    session.currentQuestionId = session.history.pop();
+    session.completed = false;
+    
+    res.json({
+        success: true,
+        data: {
+            scores: session.scores
+        }
+    });
+});
 
-    const { recommendations } = results;
-    const { perfilRiesgo, cartera, explicaciones } = recommendations;
-
-    // Build portfolio display
-    let carteraMessage = '<h4>Tu cartera recomendada:</h4><ul>';
-    Object.entries(cartera).forEach(([asset, percentage]) => {
-        if (percentage > 0) {
-            const assetNames = {
-                bonos: 'Bonos',
-                acciones: 'Acciones',
-                criptomonedas: 'Criptomonedas',
-                bonosVerdes: 'Bonos Verdes',
-                efectivo: 'Efectivo'
+app.get('/api/quiz/results/:sessionId', (req, res) => {
+    const { sessionId } = req.params;
+    const session = sessions[sessionId];
+    
+    if (!session || !session.completed) {
+        return res.json({
+            success: false,
+            message: 'Sesión no completada'
+        });
+    }
+    
+    // Generar recomendaciones basadas en múltiples puntuaciones
+    const { scores } = session;
+    
+    // Lógica de perfil más sofisticada basada en tus puntuaciones
+    let perfilRiesgo = 'Moderado';
+    let cartera = {
+        acciones: 30,
+        bonos: 40,
+        efectivo: 20,
+        criptomonedas: 5,
+        bonosVerdes: 5
+    };
+    
+    // Ajustar perfil basado en puntuaciones múltiples
+    if (scores.expoints > 15) { // Alto conocimiento
+        if (scores.points > 20) { // Alta tolerancia al riesgo
+            perfilRiesgo = 'Agresivo';
+            cartera = {
+                acciones: 60,
+                criptomonedas: scores.criptoexposure > 10 ? 15 : 10,
+                bonos: 15,
+                bonosVerdes: scores.esg > 10 ? 10 : 5,
+                efectivo: 5
             };
-            carteraMessage += `<li>${assetNames[asset]}: ${percentage.toFixed(1)}%</li>`;
+        }
+    } else if (scores.expoints < 5) { // Bajo conocimiento
+        perfilRiesgo = 'Conservador';
+        cartera = {
+            bonos: 50,
+            efectivo: 30,
+            acciones: 15,
+            bonosVerdes: scores.esg > 5 ? 5 : 0,
+            criptomonedas: 0
+        };
+    }
+    
+    // Ajustes adicionales basados en otras puntuaciones
+    if (scores.fondoemergencia < 5) {
+        // Aumentar efectivo si no tiene fondo de emergencia
+        cartera.efectivo += 10;
+        cartera.acciones -= 5;
+        cartera.bonos -= 5;
+    }
+    
+    if (scores.timevalue > 15) {
+        // Más orientado al largo plazo
+        cartera.acciones += 10;
+        cartera.efectivo -= 10;
+    }
+    
+    // ESG considerations
+    if (scores.esg > 15) {
+        cartera.bonosVerdes += 5;
+        cartera.bonos -= 5;
+    }
+    
+    const explicaciones = [
+        `Perfil de conocimiento: ${scores.expoints}/30 puntos`,
+        `Tolerancia al riesgo: ${scores.points}/30 puntos`,
+        `Fondo de emergencia: ${scores.fondoemergencia > 10 ? 'Adecuado' : 'Mejorar'}`,
+        `Horizonte temporal: ${scores.timevalue > 10 ? 'Largo plazo' : 'Corto/Medio plazo'}`,
+        `Interés ESG: ${scores.esg > 10 ? 'Alto' : 'Moderado'}`,
+        `Esta cartera se adapta a tu perfil integral de inversor`
+    ];
+    
+    res.json({
+        success: true,
+        data: {
+            recommendations: {
+                perfilRiesgo,
+                cartera,
+                explicaciones,
+                scores: scores, // Incluir puntuaciones detalladas
+                totalAnswers: session.answers.length
+            }
         }
     });
-    carteraMessage += '</ul>';
+});
 
-    // Build explanations
-    let explicacionesMessage = '<h4>¿Por qué esta cartera?</h4><ul>';
-    explicaciones.forEach(explicacion => {
-        explicacionesMessage += `<li>${explicacion}</li>`;
+// Limpiar sesiones viejas cada hora
+setInterval(() => {
+    const oneHourAgo = Date.now() - (60 * 60 * 1000);
+    Object.keys(sessions).forEach(sessionId => {
+        const sessionTime = parseInt(sessionId.split('_')[1]);
+        if (sessionTime < oneHourAgo) {
+            delete sessions[sessionId];
+        }
     });
-    explicacionesMessage += '</ul>';
+}, 60 * 60 * 1000);
 
-    resultContainer.innerHTML = `
-        <h3>Resultado: ${perfilRiesgo}</h3>
-        ${carteraMessage}
-        ${explicacionesMessage}
-        <div style="margin-top: 20px;">
-            <button onclick="startNewQuiz()" style="background-color: #27ae60;">Hacer nuevo cuestionario</button>
-            <button onclick="downloadResults()" style="background-color: #3498db; margin-left: 10px;">Descargar resultados</button>
-        </div>
-    `;
-}
-
-// Update progress bar
-function updateProgressBar() {
-    if (currentQuestion && currentQuestion.progress) {
-        const progressBar = document.getElementById('progress-bar');
-        progressBar.style.width = `${currentQuestion.progress.percentage}%`;
-    }
-}
-
-// Start new quiz
-function startNewQuiz() {
-    sessionId = null;
-    currentQuestion = null;
-    questionHistory = [];
-    localStorage.removeItem('quizSessionId');
-    
-    // Reset UI
-    document.getElementById('result').classList.add('hidden');
-    document.getElementById('start-button').classList.remove('hidden');
-    
-    // Reset progress bar
-    document.getElementById('progress-bar').style.width = '0%';
-}
-
-// Download results (placeholder)
-function downloadResults() {
-    alert('Función de descarga en desarrollo');
-    // TODO: Implement PDF generation
-}
-
-// Error handling for fetch requests
-function handleFetchError(error) {
-    console.error('Fetch error:', error);
-    alert('Error de conexión. Por favor, verifica tu conexión a internet.');
-}
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`API disponible en http://localhost:${PORT}/api`);
+});
