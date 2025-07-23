@@ -1,0 +1,156 @@
+graph TD
+  q101 -->|Entre 18 y 25 años| q1011
+  q101 -->|Entre 26 y 30 años| q1011
+  q101 -->|Entre 31 y 35 años| q1012
+  q101 -->|Entre 36 y 45 años| q1012
+  q101 -->|Entre 46 y 55 años| q1013
+  q101 -->|Entre 56 y 66 años| q1013
+  q101 -->|66 años o más| q1013
+  q1011 -->|Menos de 5.000€| q102
+  q1011 -->|Entre 5.001€ y 15.000€| q102
+  q1011 -->|Entre 15.001€ y 30.000€| q102
+  q1011 -->|Más de 30.000€| q102
+  q1012 -->|Menos de 10.000€| q102
+  q1012 -->|Entre 10.001€ y 25.000€| q102
+  q1012 -->|Entre 25.001€ y 45.000€| q102
+  q1012 -->|Más de 45.000€| q102
+  q1013 -->|Menos de 15.000€| q102
+  q1013 -->|Entre 15.001€ y 30.000€| q102
+  q1013 -->|Entre 30.001€ y 55.000€| q102
+  q1013 -->|Más de 55.000€| q102
+  q102 -->|Menos de 1.000€| q103
+  q102 -->|Entre 1.001€ y 2.000€| q103
+  q102 -->|Entre 2.001€ y 5.000€| q103
+  q102 -->|Entre 5.001€ y 10.000€| q103
+  q102 -->|Más de 10.001€| q103
+  q103 -->|0% - 5%| q104
+  q103 -->|6% - 10%| q104
+  q103 -->|11% - 20%| q104
+  q103 -->|20% - 30%| q104
+  q103 -->|Más de 30%| q104
+  q104 -->|No, no tengo.| q106
+  q104 -->|Sí, pero es menor a 3 meses de gasto.| q106
+  q104 -->|Sí, es moderado, es de alrededor de 5 meses.| q106
+  q104 -->|Sí, es suficiente para más de 6 meses.| q106
+  q106 -->|Sí, son significativas (Hipoteca, Préstamo del coche...) | q107
+  q106 -->|Sí, pero solo requieren pagos moderados u ocasionales (Deuda personal pequeña o vacaciones planificadas).| q107
+  q106 -->|No, no tengo ninguna obligación financiera importante.| q107
+  q107 -->|No, no puedo. Sólo ahorros que ya dispongo.| q108
+  q107 -->|Sí, una pequeña cantidad.| q108
+  q107 -->|Sí, una cantidad moderada.| q108
+  q107 -->|Sí, una cantidad significativa.| q108
+  q108 -->|Aumentar mi patrimonio a largo plazo| q109
+  q108 -->|Ahorrar para la jubilación| q111
+  q108 -->|Comprar una casa| q112
+  q108 -->|Generar ingresos pasivos| q113
+  q108 -->|Ahorrar para la educación de mis hijos| q115
+  q109 -->|3 años o menos| q201
+  q109 -->|De 3 a 5 años| q201
+  q109 -->|De 5 a 10 años| q201
+  q109 -->|Más de 10 años| q201
+  q110 -->|Sí, estoy dispuesto| q201
+  q110 -->|Tal vez, dependiendo de la situación| q201
+  q110 -->|No, prefiero mantener mi capital seguro| q201
+  q111 -->|3 años o menos| q201
+  q111 -->|De 3 a 5 años| q201
+  q111 -->|De 5 a 10 años| q201
+  q111 -->|Más de 10 años| q201
+  q112 -->|3 años o menos| q201
+  q112 -->|De 3 a 5 años| q201
+  q112 -->|De 5 a 10 años| q201
+  q112 -->|Más de 10 años| q201
+  q113 -->|Sí, estoy dispuesto| q201
+  q113 -->|Tal vez, dependiendo de la situación| q201
+  q113 -->|No, prefiero mantener mi capital seguro| q201
+  q114 -->|3 años o menos| q201
+  q114 -->|De 3 a 5 años| q201
+  q114 -->|De 5 a 10 años| q201
+  q114 -->|Más de 10 años| q201
+  q115 -->|3 años o menos| q201
+  q115 -->|De 3 a 5 años| q201
+  q115 -->|De 5 a 10 años| q201
+  q115 -->|Más de 10 años| q201
+  q201 -->|Ninguna experiencia.| q202
+  q201 -->|He invertido alguna vez, pero no soy experimentado.| q205
+  q201 -->|Soy un inversor experimentado, invierto regularmente.| q205
+  q202 -->|Realizarlas yo| q203
+  q202 -->|Delegar una parte en un experto y otra realizarlo yo| q203
+  q202 -->|Delegar mis inversiones en un profesional| q203
+  q203 -->|Si.| q208
+  q203 -->|No.| q204
+  q204 -->|Si.| q2017
+  q204 -->|No.| q2017
+  q205 -->|No, las delego completamente.| q207
+  q205 -->|Si, una parte las elijo yo y otras las delego.| q206
+  q205 -->|Si, todas mis inversiones las eligo yo.| q206
+  q206 -->|Cuentas de ahorro.| q207
+  q206 -->|Fondos de inversión.| q207
+  q206 -->|Acciones o bonos.| q207
+  q206 -->|Criptomonedas o start ups.| q207
+  q207 -->|Diariamente.| q208
+  q207 -->|Semanalmente.| q208
+  q207 -->|Mensualmente.| q208
+  q207 -->|Rara vez.| q208
+  q208 -->|Iniciación, conozco las cuentas de ahorro.| q2017
+  q208 -->|Lo anterior y entiendo los fondos de inversión y/o los índices bursátiles.| q2017
+  q208 -->|Lo anterior y entiendo el funcionamiento de las acciones y/o bonos.| q2017
+  q208 -->|Lo anterior y criptomonedas o start ups.| q209
+  q209 -->|Conozco Bitcoin y ethereum| q2017
+  q209 -->|Lo anterior y también conozco algunas Altcoins.| q2017
+  q209 -->|Alto, me manejo bien en DeFi.| q2017
+  q2017 -->|Diariamente.| q301
+  q2017 -->|Semanalmente.| q301
+  q2017 -->|Mensualmente.| q301
+  q2017 -->|Rara vez.| q301
+  q301 -->|Mal, me afecta mucho.| q302
+  q301 -->|Regular, pero me cuesta.| q302
+  q301 -->|Bien, lo manejo con estrategias.| q302
+  q301 -->|Muy bien, no me afecta.| q302
+  q302 -->|Actuar rápidamente.| q303
+  q302 -->|A veces planifico, a veces actúo.| q303
+  q302 -->|Prefiero planificar mis inversiones.| q303
+  q302 -->|Siempre planifico todo.| q303
+  q303 -->|Sigo mucho las recomendaciones de otros. | q304
+  q303 -->|Dependo algo de sus consejos.| q304
+  q303 -->|Prefiero tomar mis propias decisiones.| q304
+  q304 -->|Es una fuente de estrés.| q305
+  q304 -->|A veces me estresa.| q305
+  q304 -->|Es una herramienta para alcanzar mis objetivos.| q305
+  q304 -->|Es un recurso que disfruto manejar .| q305
+  q305 -->|Muy incómodo.| q306
+  q305 -->|Algo incómodo.| q306
+  q305 -->|Cómodo.| q306
+  q305 -->|Muy cómodo.| q306
+  q306 -->|El miedo a perder el dinero.| q307
+  q306 -->|Solo por la posibilidad de ganar.| q307
+  q306 -->|Un poco de ambas.| q307
+  q307 -->|Me siento muy incómodo con la incertidumbre.| q401
+  q307 -->|Trato de evitar situaciones inciertas.| q401
+  q307 -->|Puedo manejar la incertidumbre de forma razonable.| q401
+  q307 -->|Me siento cómodo y reacciono bien ante la incertidumbre.| q401
+  q401 -->|Vendería todo para evitar más pérdidas.| q403
+  q401 -->|Vendería una parte para reducir el riesgo.| q402
+  q401 -->|No haría nada, esperaría a que el mercado se recupere.| q402
+  q401 -->|Compraría más, aprovechando la caída.| q402
+  q402 -->|Vendería todo para evitar más pérdidas.| q403
+  q402 -->|Vendería una parte para reducir el riesgo.| q403
+  q402 -->|No haría nada, esperaría a que el mercado se recupere.| q403
+  q402 -->|Volvería a comprar más, aprovechando la caída.| q403
+  q403 -->|Nada.| q501
+  q403 -->|Hasta el 10%.| q404
+  q403 -->|Hasta el 25%.| q404
+  q403 -->|Más del 25%.| q404
+  q404 -->|Nada cómodo, me asusta la volatilidad.| q501
+  q404 -->|Algo cómodo, pero prefiero inversiones más estables.| q501
+  q404 -->|Cómodo, puedo manejar la volatilidad.| q501
+  q404 -->|Muy cómodo, estoy emocionado por las oportunidades que ofrecen.| q501
+  q501 -->|Retorno bajo y seguro.| q502
+  q501 -->|Retorno moderado.| q502
+  q501 -->|Alto retorno, aceptando el riesgo.| q502
+  q501 -->|No tengo expectativas específicas.| q502
+  q502 -->|Nada cómodo, prefiero inversiones a corto plazo.| q503
+  q502 -->|Algo cómodo, pero me gustaría ver resultados rápidos.| q503
+  q502 -->|Cómodo, siempre que tenga un plan claro.| q503
+  q502 -->|Muy cómodo, estoy dispuesto a esperar.| q503
+  q503 -->|Obtener un rendimiento razonable mientras la empresa tiene buenas prácticas sociales y medioambientales.| q504
+  q503 -->|Invertir solo en empresas que demuestren un fuerte compromiso con la sostenibilidad y la responsabilidad social, incluso si el rendimiento es algo menor.| q504

@@ -314,10 +314,10 @@ const questions = [
         question: "¿Lees o sigues noticias económicas y del mercado financiero regularmente?",
         explanation: "",
         answers: [
-            { text: "Diariamente.", Expoints: 3 },
-            { text: "Semanalmente.", Expoints: 2 },
-            { text: "Mensualmente.", Expoints: 1 },
-            { text: "Rara vez.", Expoints: 0 },
+            { text: "Diariamente.", Expoints: 3, nextQuestion: 301 },
+            { text: "Semanalmente.", Expoints: 2, nextQuestion: 301 },
+            { text: "Mensualmente.", Expoints: 1, nextQuestion: 301 },
+            { text: "Rara vez.", Expoints: 0, nextQuestion: 301 },
         ]
     },
     //Sección 3: Perfil psicologico
@@ -327,10 +327,10 @@ const questions = [
         question: "¿Qué tan bien manejas el estrés?",
         explanation: "No sólo aplica en las inversiones",
         answers: [
-            { text: "Mal, me afecta mucho.", points: 0 },
-            { text: "Regular, pero me cuesta.", points: 1 },
-            { text: "Bien, lo manejo con estrategias.", points: 2 },
-            { text: "Muy bien, no me afecta.", points: 3 },
+            { text: "Mal, me afecta mucho.", points: 0, nextQuestion: 302 },
+            { text: "Regular, pero me cuesta.", points: 1, nextQuestion: 302 },
+            { text: "Bien, lo manejo con estrategias.", points: 2, nextQuestion: 302 },
+            { text: "Muy bien, no me afecta.", points: 3, nextQuestion: 302 },
         ]
     },
     {
@@ -339,10 +339,10 @@ const questions = [
         question: "¿Prefieres planificar tus inversiones con antelación o actuar rápidamente?",
         explanation: "Si no tienes inversiones responde como sueles actuar en la vida en general",
         answers: [
-            { text: "Actuar rápidamente.", points: 0 },
-            { text: "A veces planifico, a veces actúo.", points: 1 },
-            { text: "Prefiero planificar mis inversiones.", points: 3 },
-            { text: "Siempre planifico todo.", points: 2 },
+            { text: "Actuar rápidamente.", points: 0, nextQuestion: 303 },
+            { text: "A veces planifico, a veces actúo.", points: 1, nextQuestion: 303 },
+            { text: "Prefiero planificar mis inversiones.", points: 3, nextQuestion: 303 },
+            { text: "Siempre planifico todo.", points: 2, nextQuestion: 303 },
         ]
     },
     {
@@ -351,9 +351,9 @@ const questions = [
         question: "¿Qué papel juega la opinión de otros (familiares, amigos, asesores) en tus decisiones de inversión?",
         explanation: "Si no tienes inversiones responde como sueles actuar en la vida en general",
         answers: [
-            { text: "Sigo mucho las recomendaciones de otros. ", points: 0 },
-            { text: "Dependo algo de sus consejos.", points: 1 },
-            { text: "Prefiero tomar mis propias decisiones.", points: 2 },
+            { text: "Sigo mucho las recomendaciones de otros. ", points: 0, nextQuestion: 304 },
+            { text: "Dependo algo de sus consejos.", points: 1, nextQuestion: 304 },
+            { text: "Prefiero tomar mis propias decisiones.", points: 2, nextQuestion: 304 },
         ]
     },
     {
@@ -362,10 +362,10 @@ const questions = [
         question: "¿Cómo describirías tu relación con el dinero en general?",
         explanation: "",
         answers: [
-            { text: "Es una fuente de estrés.", points: 0 },
-            { text: "A veces me estresa.", points: 1 },
-            { text: "Es una herramienta para alcanzar mis objetivos.", points: 2 },
-            { text: "Es un recurso que disfruto manejar .", points: 3},
+            { text: "Es una fuente de estrés.", points: 0, nextQuestion: 305 },
+            { text: "A veces me estresa.", points: 1, nextQuestion: 305 },
+            { text: "Es una herramienta para alcanzar mis objetivos.", points: 2, nextQuestion: 305 },
+            { text: "Es un recurso que disfruto manejar .", points: 3, nextQuestion: 305},
         ]
     },
     {
@@ -374,10 +374,10 @@ const questions = [
         question: "¿Qué tan cómodo te sientes hablando sobre dinero y finanzas con otras personas?",
         explanation: "",
         answers: [
-            { text: "Muy incómodo.", points: 0 },
-            { text: "Algo incómodo.", points: 1 },
-            { text: "Cómodo.", points: 2 },
-            { text: "Muy cómodo.", points: 3},
+            { text: "Muy incómodo.", points: 0, nextQuestion: 306},
+            { text: "Algo incómodo.", points: 1, nextQuestion: 306 },
+            { text: "Cómodo.", points: 2 , nextQuestion: 306},
+            { text: "Muy cómodo.", points: 3, nextQuestion: 306},
         ]
     },
     {
@@ -386,9 +386,9 @@ const questions = [
         question: "Cuando piensas sobre inversiones, ¿Qué es en lo primero que piensas?",
         explanation: "",
         answers: [
-            { text: "El miedo a perder el dinero.", points: 0 },
-            { text: "Solo por la posibilidad de ganar.", points: 3 },
-            { text: "Un poco de ambas.", points: 2 },
+            { text: "El miedo a perder el dinero.", points: 0, nextQuestion: 307 },
+            { text: "Solo por la posibilidad de ganar.", points: 3, nextQuestion: 307 },
+            { text: "Un poco de ambas.", points: 2, nextQuestion: 307 },
         ]
     },
     {
@@ -397,10 +397,10 @@ const questions = [
         question: "¿Cómo manejas la incertidumbre en los aspectos de tu vida?",
         explanation: "",
         answers: [
-            { text: "Me siento muy incómodo con la incertidumbre.", points: 0 },
-            { text: "Trato de evitar situaciones inciertas.", points: 1 },
-            { text: "Puedo manejar la incertidumbre de forma razonable.", points: 2 },
-            { text: "Me siento cómodo y reacciono bien ante la incertidumbre.", points: 3 },
+            { text: "Me siento muy incómodo con la incertidumbre.", points: 0 , nextQuestion: 401},
+            { text: "Trato de evitar situaciones inciertas.", points: 1, nextQuestion: 401},
+            { text: "Puedo manejar la incertidumbre de forma razonable.", points: 2 , nextQuestion: 401},
+            { text: "Me siento cómodo y reacciono bien ante la incertidumbre.", points: 3, nextQuestion: 401 },
         ]
     },
     // Sección 4: Tolerancia al Riesgo
@@ -411,9 +411,9 @@ const questions = [
         explanation: "Inviertes 10.000€ y ves tu cuenta de inversiones en 8.500€, ¿Qué haces?",
         answers: [
             { text: "Vendería todo para evitar más pérdidas.", points: 0, nextQuestion: 403 },
-            { text: "Vendería una parte para reducir el riesgo.", points: 1},
-            { text: "No haría nada, esperaría a que el mercado se recupere.", points: 2 },
-            { text: "Compraría más, aprovechando la caída.", points: 3 },
+            { text: "Vendería una parte para reducir el riesgo.", points: 1, nextQuestion: 402},
+            { text: "No haría nada, esperaría a que el mercado se recupere.", points: 2, nextQuestion: 402},
+            { text: "Compraría más, aprovechando la caída.", points: 3, nextQuestion: 402 },
         ]
     },
     {
@@ -422,10 +422,10 @@ const questions = [
         question: "¿Y si tus inversiones pierden un 30% de su valor en un año?",
         explanation: "Inviertes 10.000€ y ves tu cuenta de inversiones en 7.000€, ¿Qué haces?",
         answers: [
-            { text: "Vendería todo para evitar más pérdidas.", points: -1 },
-            { text: "Vendería una parte para reducir el riesgo.", points: 0 },
-            { text: "No haría nada, esperaría a que el mercado se recupere.", points: 1 },
-            { text: "Volvería a comprar más, aprovechando la caída.", points: 2 },
+            { text: "Vendería todo para evitar más pérdidas.", points: -1, nextQuestion: 403 },
+            { text: "Vendería una parte para reducir el riesgo.", points: 0, nextQuestion: 403 },
+            { text: "No haría nada, esperaría a que el mercado se recupere.", points: 1, nextQuestion: 403 },
+            { text: "Volvería a comprar más, aprovechando la caída.", points: 2, nextQuestion: 403},
         ]
     },
     {
@@ -435,9 +435,9 @@ const questions = [
         explanation: "",
         answers: [
             { text: "Nada.", points: 0, nextQuestion: 501 },
-            { text: "Hasta el 10%.", points: 4},
-            { text: "Hasta el 25%.", points: 6 },
-            { text: "Más del 25%.", points: 8 },
+            { text: "Hasta el 10%.", points: 4, nextQuestion: 404},
+            { text: "Hasta el 25%.", points: 6 , nextQuestion: 404},
+            { text: "Más del 25%.", points: 8 , nextQuestion: 404},
         ]
     },
     {
@@ -446,10 +446,10 @@ const questions = [
         question: "¿Qué tan cómodo te sientes invirtiendo en activos volátiles como criptomonedas?",
         explanation: "",
         answers: [
-            { text: "Nada cómodo, me asusta la volatilidad.", points: 0, criptoExposure: -1},
-            { text: "Algo cómodo, pero prefiero inversiones más estables.", points: 1, criptoExposure: 1},
-            { text: "Cómodo, puedo manejar la volatilidad.", points: 2, criptoExposure: 2},
-            { text: "Muy cómodo, estoy emocionado por las oportunidades que ofrecen.", points: 3, criptoExposure: 3},
+            { text: "Nada cómodo, me asusta la volatilidad.", points: 0, criptoExposure: -1, nextQuestion: 501},
+            { text: "Algo cómodo, pero prefiero inversiones más estables.", points: 1, criptoExposure: 1, nextQuestion: 501},
+            { text: "Cómodo, puedo manejar la volatilidad.", points: 2, criptoExposure: 2, nextQuestion: 501},
+            { text: "Muy cómodo, estoy emocionado por las oportunidades que ofrecen.", points: 3, criptoExposure: 3, nextQuestion: 501},
         ]
     },
     // Sección 5: Objetivos de Inversión
@@ -459,10 +459,10 @@ const questions = [
         question: "¿Qué tipo de retorno esperas de tus inversiones?",
         explanation: "Recuerda que el riesgo va asociado a rentabilidad. Cuanto mayor rentabilidad indica un mayor riesgo",
         answers: [
-            { text: "Retorno bajo y seguro.", points: 0 },
-            { text: "Retorno moderado.", points: 1 },
-            { text: "Alto retorno, aceptando el riesgo.", points: 3 },
-            { text: "No tengo expectativas específicas.", points: 2 },
+            { text: "Retorno bajo y seguro.", points: 0, nextQuestion: 502 },
+            { text: "Retorno moderado.", points: 1 , nextQuestion: 502},
+            { text: "Alto retorno, aceptando el riesgo.", points: 3, nextQuestion: 502 },
+            { text: "No tengo expectativas específicas.", points: 2, nextQuestion: 502},
         ]
     },
     {
@@ -471,10 +471,10 @@ const questions = [
         question: "¿Qué tan cómodo te sientes invirtiendo a largo plazo?",
         explanation: "",
         answers: [
-            { text: "Nada cómodo, prefiero inversiones a corto plazo.", points: 0 },
-            { text: "Algo cómodo, pero me gustaría ver resultados rápidos.", points: 1 },
-            { text: "Cómodo, siempre que tenga un plan claro.", points: 2 },
-            { text: "Muy cómodo, estoy dispuesto a esperar.", points: 3 },
+            { text: "Nada cómodo, prefiero inversiones a corto plazo.", points: 0, nextQuestion: 503 },
+            { text: "Algo cómodo, pero me gustaría ver resultados rápidos.", points: 1, nextQuestion: 503 },
+            { text: "Cómodo, siempre que tenga un plan claro.", points: 2, nextQuestion: 503},
+            { text: "Muy cómodo, estoy dispuesto a esperar.", points: 3 , nextQuestion: 503},
         ]
     },
     {
@@ -483,7 +483,7 @@ const questions = [
         question: "Al considerar una inversión, ¿qué es más importante para ti?",
         explanation: "",
         answers: [
-            { text: "Obtener el máximo rendimiento financiero, sin importar las prácticas de la empresa.", points: 0, nextQuestion: 601 },
+            { text: "Obtener el máximo rendimiento financiero, sin importar las prácticas de la empresa.", points: 0 },
             { text: "Obtener un rendimiento razonable mientras la empresa tiene buenas prácticas sociales y medioambientales.", esg: 1, nextQuestion: 504 },
             { text: "Invertir solo en empresas que demuestren un fuerte compromiso con la sostenibilidad y la responsabilidad social, incluso si el rendimiento es algo menor.", esg: 2, nextQuestion: 504 },
         ]
