@@ -45,7 +45,7 @@ model QuizAnswer {
   exPoints        Int         @default(0)
   cryptoExposure  Int         @default(0)
   timeValue       Int         @default(0)
-  fondoEmergencia Int         @default(0)
+  emergencyFund   Int         @default(0)
   esgValue        Int         @default(0)
   createdAt       DateTime    @default(now())
   

@@ -84,10 +84,10 @@ const questions = [
         question: "¿Tienes un fondo de emergencia?",
         explanation: "El fondo de emergencia es un dinero ahorrado que debería cubrir los gastos de 6 meses o más",
         answers: [
-            { text: "No, no tengo.", conopoints: 0, fondoemergencia: 0, nextQuestion: 106},
-            { text: "Sí, pero es menor a 3 meses de gasto.", conopoints: 1, fondoemergencia: 1, nextQuestion: 106 },
-            { text: "Sí, es moderado, es de alrededor de 5 meses.", conopoints: 2, fondoemergencia: 2, nextQuestion: 106},
-            { text: "Sí, es suficiente para más de 6 meses.", conopoints: 4, fondoemergencia: 3, nextQuestion: 106},
+            { text: "No, no tengo.", conopoints: 0, emergencyFund: 0, nextQuestion: 106},
+            { text: "Sí, pero es menor a 3 meses de gasto.", conopoints: 1, emergencyFund: 1, nextQuestion: 106 },
+            { text: "Sí, es moderado, es de alrededor de 5 meses.", conopoints: 2, emergencyFund: 2, nextQuestion: 106},
+            { text: "Sí, es suficiente para más de 6 meses.", conopoints: 4, emergencyFund: 3, nextQuestion: 106},
         ]
     },
     {

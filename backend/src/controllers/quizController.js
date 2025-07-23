@@ -119,7 +119,7 @@ class QuizController {
           exPoints: answer.Expoints || 0,
           cryptoExposure: answer.criptoExposure || 0,
           timeValue: answer.timeValue || 0,
-          fondoEmergencia: answer.fondoemergencia || 0,
+          emergencyFund: answer.emergencyFund || 0,
           esgValue: answer.esg || 0
         }
       });
@@ -202,7 +202,7 @@ class QuizController {
           experienceScore: { decrement: lastAnswer.exPoints },
           cryptoScore: { decrement: lastAnswer.cryptoExposure },
           timeValue: { decrement: lastAnswer.timeValue },
-          emergencyFund: { decrement: lastAnswer.fondoEmergencia },
+          emergencyFund: { decrement: lastAnswer.emergencyFund },
           isCompleted: false
         }
       });

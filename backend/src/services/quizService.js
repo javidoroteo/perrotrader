@@ -17,7 +17,7 @@ class QuizService {
                     exscore: 0,
                     criptoencartera: 0,
                     timeValueGlobal: 0,
-                    fondoEmergenciaGlobal: 0
+                    emergencyFund: 0
                 }
             }
         });
@@ -65,7 +65,7 @@ class QuizService {
         }
         if (answerData.criptoExposure) updatedScores.criptoencartera += answerData.criptoExposure;
         if (answerData.timeValue) updatedScores.timeValueGlobal += answerData.timeValue;
-        if (answerData.fondoemergencia) updatedScores.fondoEmergenciaGlobal += answerData.fondoemergencia;
+        if (answerData.emergencyFund) updatedScores.emergencyFund += answerData.emergencyFund;
 
         // Determinar siguiente pregunta
         let nextQuestionId = answerData.nextQuestion || this.getNextQuestionId(questionId);
@@ -108,7 +108,7 @@ class QuizService {
         }
         if (lastAnswer.answerData.criptoExposure) updatedScores.criptoencartera -= lastAnswer.answerData.criptoExposure;
         if (lastAnswer.answerData.timeValue) updatedScores.timeValueGlobal -= lastAnswer.answerData.timeValue;
-        if (lastAnswer.answerData.fondoemergencia) updatedScores.fondoEmergenciaGlobal -= lastAnswer.answerData.fondoemergencia;
+        if (lastAnswer.answerData.emergencyFund) updatedScores.emergencyFund -= lastAnswer.answerData.emergencyFund;
 
         await prisma.quizSession.update({
             where: { id: session.id },
@@ -281,7 +281,7 @@ class QuizService {
         }
 
         // Explicaciones sobre fondo de emergencia
-        if (scores.fondoEmergenciaGlobal === 0) {
+        if (scores.emergencyFund === 0) {
             recomendaciones.explicaciones.push('IMPORTANTE: Te recomendamos encarecidamente crear un fondo de emergencia antes de invertir.');
         }
 
