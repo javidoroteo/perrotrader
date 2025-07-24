@@ -136,7 +136,7 @@ class QuizController {
           experienceScore: { increment: answer.Expoints || 0 },
           cryptoScore: { increment: answer.criptoExposure || 0 },
           timeValue: { increment: answer.timeValue || 0 },
-          emergencyFund: { increment: answer.fondoemergencia || 0 }
+          emergencyFund: { increment: answer.emergencyFund || 0 }
         },
         include: { answers: true }
       });
