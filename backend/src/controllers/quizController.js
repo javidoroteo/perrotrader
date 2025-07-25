@@ -1,8 +1,9 @@
-const { PrismaClient } = require('../utils/prismaCLients');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const { v4: uuidv4 } = require('uuid');
 const quizService = require('../services/quizService');
-const portfolioService = require('../services/portfolioService');
-const { questions } = require('../data/questions');
+const portfolioService = require('../services/portfolioServices');
+const questions = require('../data/questions');
 
 class QuizController {
   

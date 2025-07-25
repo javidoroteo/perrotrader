@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:3001/api';
 
 let sessionId = null;
 let currentQuestion = null;
@@ -18,7 +18,7 @@ document.getElementById('start-button').addEventListener('click', async function
         const data = await response.json();
         
         if (data.success) {
-            sessionId = data.data.sessionId;
+            sessionId = data.sessionId;
             
             // Hide start button and show quiz
             document.getElementById('start-button').classList.add('hidden');
@@ -43,8 +43,8 @@ async function loadQuestion() {
         const data = await response.json();
         
         if (data.success) {
-            currentQuestion = data.data.question;
-            const progress = data.data.progress;
+            currentQuestion = data.question;
+            const progress = data.progress;
             
             displayQuestion(currentQuestion);
             updateProgressBar(progress.percentage);

@@ -1,4 +1,5 @@
 const { PrismaClient } = require('../utils/prismaCLients');
+const questions = require('../data/questions');
 
 class QuizService {
     // Crear una nueva sesión de cuestionario
@@ -122,6 +123,46 @@ class QuizService {
         return previousQuestionId;
     }
 
+// Calcular progreso del cuestionario
+calculateProgress(answeredQuestions, totalQuestions) {
+    const current = answeredQuestions + 1;
+    const percentage = Math.round((current / totalQuestions) * 100);
+    
+    return {
+        current,
+        total: totalQuestions,
+        percentage: Math.min(percentage, 100) // Asegurar que no exceda 100%
+    };
+}
+
+// También agregar esta función auxiliar que usa tu controlador
+getQuestionById(questionId) {
+    const { questions } = require('../data/questions');
+    return questions.find(q => q.id === questionId);
+}
+
+// Y esta función que también necesitas
+isQuizComplete(questionId) {
+    // Retorna true si no hay más preguntas o si llegamos al final
+    return questionId === null || questionId === undefined;
+}
+
+// Función para guardar estadísticas anónimas (que también usa tu controlador)
+async saveAnonymousStats(session, result) {
+    try {
+        // Aquí puedes implementar lógica para guardar estadísticas anónimas
+        // Por ejemplo, contar cuántos usuarios han completado el quiz, etc.
+        console.log('Guardando estadísticas anónimas...', {
+            riskProfile: result.riskProfile,
+            completedAt: new Date(),
+            totalAnswers: session.answers?.length || 0
+        });
+    } catch (error) {
+        console.error('Error saving anonymous stats:', error);
+        // No lanzar error ya que esto es opcional
+    }
+}
+
     // Calcular cartera recomendada
     calculatePortfolio(scores, answers) {
         // Base de cartera inicial
@@ -237,6 +278,10 @@ class QuizService {
             }
         }
         return 0;
+    }
+    // Obtener la siguiente pregunta
+    getQuestionById(id) {
+        return questions.find(q => q.id === id);
     }
 
     getNextQuestionId(currentId) {
