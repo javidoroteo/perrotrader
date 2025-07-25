@@ -82,35 +82,74 @@ function displayQuestion(question) {
 
 // Function to handle answer selection
 async function selectAnswer(answerIndex) {
+    console.log('=== DEBUGGING selectAnswer ===');
+    console.log('answerIndex:', answerIndex);
+    console.log('sessionId:', sessionId);
+    console.log('currentQuestion:', currentQuestion);
+    
     try {
+        // Verificar que currentQuestion existe
+        if (!currentQuestion || !currentQuestion.answers) {
+            throw new Error('No hay pregunta actual o no tiene respuestas');
+        }
+        
+        // Verificar que el índice es válido
+        if (answerIndex >= currentQuestion.answers.length) {
+            throw new Error('Índice de respuesta inválido');
+        }
+        
+        const answerText = currentQuestion.answers[answerIndex].text || 
+                          currentQuestion.answers[answerIndex].answer || 
+                          `Opción ${answerIndex + 1}`;
+        
+        console.log('answerText:', answerText);
+        console.log('URL completa:', `${API_BASE_URL}/quiz/answer`);
+        
+        const requestBody = {
+            sessionId: sessionId,
+            questionId: currentQuestion.id,
+            answerIndex: answerIndex,
+            answerText: answerText
+        };
+        
+        console.log('Request body:', requestBody);
+        
         const response = await fetch(`${API_BASE_URL}/quiz/answer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                sessionId: sessionId,
-                questionId: currentQuestion.id,
-                answerIndex: answerIndex
-            })
+            body: JSON.stringify(requestBody)
         });
         
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('Response data:', data);
         
         if (data.success) {
-            if (data.data.completed) {
-                // Quiz completed, show results
+            if (data.completed) {
+                console.log('Quiz completado, mostrando resultados');
                 await showResults();
             } else {
-                // Load next question
+                console.log('Cargando siguiente pregunta');
                 await loadQuestion();
             }
         } else {
             alert('Error al procesar respuesta: ' + data.message);
         }
     } catch (error) {
-        console.error('Error submitting answer:', error);
-        alert('Error de conexión al enviar respuesta');
+        console.error('=== ERROR COMPLETO ===');
+        console.error('Error type:', error.constructor.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        console.error('=== FIN ERROR ===');
+        alert('Error de conexión al enviar respuesta: ' + error.message);
     }
 }
 
@@ -123,7 +162,7 @@ function updateProgressBar(percentage) {
 // Function to show final results
 async function showResults() {
     try {
-        const response = await fetch(`${API_BASE_URL}/quiz/results/${sessionId}`);
+        const response = await fetch(`${API_BASE_URL}/quiz/result/${sessionId}`);
         const data = await response.json();
         
         if (data.success) {
