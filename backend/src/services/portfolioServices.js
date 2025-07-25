@@ -132,9 +132,21 @@ function generateRecommendations(session) {
     explicaciones
   };
 }
+async function completeFinalResult(session) {
+  const portfolio = calculatePortfolio(session);
+  const result = {
+    riskProfile: portfolio.riskProfile,
+    portfolio: portfolio.allocation,
+    report: generateReport(session),
+    recommendations: generateRecommendations(session)
+  };
+
+  return result;
+}
 
 module.exports = {
   calculatePortfolio,
   generateReport,
-  generateRecommendations
+  generateRecommendations,
+  completeFinalResult
 };

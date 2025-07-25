@@ -144,7 +144,7 @@ class QuizController {
 
       // Verificar si el cuestionario está completo
       if (!nextQuestionId || quizService.isQuizComplete(nextQuestionId)) {
-        const finalResult = await this.completeFinalResult(updatedSession);
+        const finalResult = await portfolioService.completeFinalResult(updatedSession);
         
         return res.json({
           success: true,
