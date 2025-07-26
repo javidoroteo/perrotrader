@@ -137,7 +137,8 @@ class QuizController {
           experienceScore: { increment: answer.Expoints || 0 },
           cryptoScore: { increment: answer.criptoExposure || 0 },
           timeValue: { increment: answer.timeValue || 0 },
-          emergencyFund: { increment: answer.emergencyFund || 0 }
+          emergencyFund: { increment: answer.emergencyFund || 0 },
+          esgValue: { increment: answer.esg || 0 }
         },
         include: { answers: true }
       });
@@ -204,6 +205,7 @@ class QuizController {
           cryptoScore: { decrement: lastAnswer.cryptoExposure },
           timeValue: { decrement: lastAnswer.timeValue },
           emergencyFund: { decrement: lastAnswer.emergencyFund },
+          esgValue: { decrement: lastAnswer.esg },
           isCompleted: false
         }
       });
@@ -269,11 +271,7 @@ class QuizController {
         return res.status(404).json({ error: 'Sesión no encontrada' });
       }
 
-      if (!session.isCompleted) {
-        return res.status(400).json({ error: 'Cuestionario no completado' });
-      }
-
-      const result = JSON.parse(session.portfolioData);
+      const result = await portfolioService.completeFinalResult(session);
       
       res.json({
         success: true,
@@ -306,6 +304,7 @@ class QuizController {
           cryptoScore: 0,
           timeValue: 0,
           emergencyFund: 0,
+          esgValue: 0,
           riskProfile: null,
           portfolioData: null,
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)

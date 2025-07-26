@@ -24,6 +24,7 @@ model QuizSession {
   cryptoScore     Int      @default(0)
   timeValue       Int      @default(0)
   emergencyFund   Int      @default(0)
+  esgValue        Int      @default(0)
   
   // Perfil y cartera final
   riskProfile     String?

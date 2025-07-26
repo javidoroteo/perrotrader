@@ -161,12 +161,22 @@ function updateProgressBar(percentage) {
 
 // Function to show final results
 async function showResults() {
+    console.log('SessionId:', sessionId); // Agrega esta línea
     try {
         const response = await fetch(`${API_BASE_URL}/quiz/result/${sessionId}`);
+        // Agrega esto para ver la respuesta completa
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+
         const data = await response.json();
+        console.log('Response data:', data); // Para ver el mensaje de error del servidor
+
+        console.log('Full data:', data);
+        console.log('data.result:', data.result);
+        console.log('data.success:', data.success);
         
         if (data.success) {
-            const { recommendations } = data.data;
+            const { recommendations } = data.result;
             
             // Hide question container and progress bar
             document.getElementById('question-container').classList.add('hidden');
