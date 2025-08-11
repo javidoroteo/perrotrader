@@ -190,6 +190,7 @@ generateRecommendations(session) {
   return {
     perfilRiesgo: portfolio.riskProfile,
     cartera: portfolio.allocation,
+    informe,
     explicaciones
   };
 }
