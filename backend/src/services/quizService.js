@@ -178,5 +178,6 @@ async saveAnonymousStats(session, result) {
     generateSessionId() {
         return 'quiz_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
     }
-    
+}
+
 module.exports = new QuizService();
