@@ -52,11 +52,27 @@ const PORTFOLIO_CONFIG = {
 
   // Mensajes del fondo de emergencia
   EMERGENCY_FUND_MESSAGES: {
-    0: "Si no tienes fondo de emergencia es muy importante que generes uno con los próximos ahorros que dispongas, al menos deberías tener 6 meses de tus gastos ahorrados antes de plantearte invertir.",
-    1: "Bien, tienes un pequeño fondo de emergencia disponible. Lo recomendado es tener 6 meses de gastos ahorrados, pero depende de cada uno.",
-    2: "Genial, tienes alrededror de 5 meses de gastos ahorrados, lo recomendado son 6 meses así que estás listo para invertir tu excedente de ahorro.",
-    3: "Genial, con más de 6 meses tienes un fondo de emergencia amplio, lo recomendable son 6 meses, pero si te sientes más cómodo puedes disponer de más fondo de emergencia. El resto está listo para ser invertido y obtener rentabilidad."
+    0: {
+    'Bajo Riesgo': "Invertir sin una red de seguridad y con poca tolerancia al riesgo puede generarte más ansiedad que beneficios. Primero, construye un fondo de emergencia que cubra al menos 3–6 meses de gastos. Solo entonces estarás en condiciones de invertir con calma y tomar decisiones sin presión.",
+    'Riesgo Moderado': "No cuentas con un fondo de emergencia, lo cual es fundamental antes de comenzar a invertir. Con un perfil de riesgo moderado, puedes tolerar cierta volatilidad, pero sin un colchón de al menos 6 meses de gastos, cualquier imprevisto podría obligarte a vender tus inversiones en un mal momento. Primero, construye tu fondo; después podrás invertir con más seguridad y aprovechar tu tolerancia al riesgo.",
+    'Alto Riesgo': "Aunque estás dispuesto a asumir algo de riesgo, no contar con un fondo de emergencia limita tu margen de maniobra. Antes de construir tu cartera, asegúrate de tener un colchón que cubra al menos 3–6 meses de gastos. Esto evitará que tengas que vender inversiones en mal momento si surge un imprevisto."
   },
+    1: {
+    'Bajo Riesgo': "Estás en el camino correcto: empezar a construir un fondo de emergencia es una excelente decisión. Aún con perfil conservador, una red de seguridad financiera te permitirá invertir con más confianza. Prioriza completar ese fondo antes de asumir riesgo, y mientras tanto, fórmate y planifica.",
+    'Riesgo Moderado': "Vas por buen camino al empezar a construir tu fondo de emergencia. Con tu perfil moderado, puedes considerar comenzar con inversiones de bajo riesgo mientras completas esa reserva. Una vez que tengas tu colchón financiero, podrás diversificar hacia activos con mayor potencial de rentabilidad sin comprometer tu estabilidad.",
+    'Alto Riesgo': "Tu disposición a asumir riesgo es una ventaja, pero la paciencia será tu mejor aliada ahora. Completa primero tu fondo de emergencia antes de apostar fuerte por inversiones volátiles. Mientras tanto, puedes ir formándote y planificando tu estrategia de inversión para cuando tengas esa base sólida que te permita aprovechar al máximo tu tolerancia al riesgo."
+  },
+    2: {
+  'Bajo Riesgo': "Ya casi alcanzas tu objetivo: con 5 meses de gastos ahorrados, estás a un paso de tener un fondo de emergencia completo. Con tu perfil conservador, lo más prudente es terminar de asegurar ese mes adicional antes de aumentar tu exposición al riesgo. Mientras tanto, mantente en productos muy seguros o en ahorro garantizado.",
+  'Riesgo Moderado': "Con 5 meses de gastos cubiertos, tu fondo de emergencia está prácticamente listo. Con un perfil moderado, puedes ir explorando inversiones de bajo riesgo en paralelo, pero prioriza completar ese último mes para contar con una base totalmente sólida. Esto te permitirá luego diversificar con mayor tranquilidad.",
+  'Alto Riesgo': "Has avanzado mucho: 5 meses de gastos ahorrados te ponen cerca de tu objetivo de seguridad. Con tu alta tolerancia al riesgo, puede ser tentador lanzarte ya a activos más volátiles, pero asegurar ese mes extra de colchón te dará mayor libertad para mantener tus inversiones incluso en momentos de turbulencia. Aunque si te sientes cómodo puedes ir creando tu cartera poco a poco a la vez que terminas tu fondo de emergencia."
+  },
+    3: {
+  'Bajo Riesgo': "Has dado un paso fundamental al construir tu fondo de emergencia. Esto te permite invertir con más confianza, incluso si prefieres mantener un perfil conservador. Una cartera estable y diversificada puede ayudarte a hacer crecer tu dinero sin asumir más riesgo del que te sientas cómodo.",
+  'Riesgo Moderado': "Con tu perfil moderado y un fondo de emergencia ya asegurado, cuentas con la base perfecta para invertir con equilibrio. Puedes combinar activos de bajo y mediano riesgo, buscando un crecimiento sostenido sin poner en peligro tu estabilidad financiera. Aprovecha tu margen de seguridad para diversificar gradualmente y adaptarte a las condiciones del mercado.",
+  'Alto Riesgo' : "Has hecho lo más importante antes de empezar: construir un buen fondo de emergencia. Gracias a eso, puedes invertir con tranquilidad incluso en activos más volátiles aprovechando tu capacidad de asumir riesgo, pero diversifica bien."
+  },
+},
 
   // Recomendaciones personalizadas basadas en respuestas
   RECOMMENDATIONS: {

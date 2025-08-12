@@ -149,20 +149,26 @@ class PortfolioService {
 generateRecommendations(session) {
   const portfolio = this.calculatePortfolio(session);
   const explicaciones = [];
-  
-  // 1. Explicación del perfil de riesgo (siempre)
+
+   // Mensaje del fondo de emergencia (siempre, es muy importante)
+  const emergencyMessage = CONFIG.EMERGENCY_FUND_MESSAGES[session.emergencyFund]?.[portfolio.riskProfile];
+  if (emergencyMessage) {
+    explicaciones.push(emergencyMessage);
+  }
+
+  // Explicación del perfil de riesgo (siempre)
   const riskExplanation = CONFIG.RECOMMENDATIONS.RISK_PROFILE[portfolio.riskProfile];
   if (riskExplanation) {
     explicaciones.push(riskExplanation);
   }
   
-  // 2. Explicación del horizonte temporal
+  // Explicación del horizonte temporal
   const timeExplanation = CONFIG.RECOMMENDATIONS.TIME_HORIZON[session.timeValue];
   if (timeExplanation) {
     explicaciones.push(timeExplanation);
   }
   
-  // 3. Explicación de criptomonedas (solo si tiene exposición)
+  // Explicación de criptomonedas (solo si tiene exposición)
   if (session.cryptoScore > 0) {
     const cryptoExplanation = CONFIG.RECOMMENDATIONS.CRYPTO_LEVEL[session.cryptoScore];
     if (cryptoExplanation) {
@@ -170,7 +176,7 @@ generateRecommendations(session) {
     }
   }
   
-  // 4. Explicación de ESG (solo si tiene preferencia)
+  // Explicación de ESG (solo si tiene preferencia)
   if (session.esgValue > 0) {
     const esgExplanation = CONFIG.RECOMMENDATIONS.ESG_LEVEL[session.esgValue] || 
                          CONFIG.RECOMMENDATIONS.ESG_LEVEL[1]; // Por defecto si >2
@@ -179,19 +185,13 @@ generateRecommendations(session) {
     }
   }
   
-  // 5. Advertencia sobre fondo de emergencia (solo si no tiene)
-  if (session.emergencyFund === 0) {
-    explicaciones.push('IMPORTANTE: Te recomendamos encarecidamente crear un fondo de emergencia antes de invertir en activos de alto riesgo.');
-  }
-  
   // 6. Mensaje general (siempre al final)
   explicaciones.push('La asignación de activos busca equilibrar rentabilidad y seguridad según tu perfil.');
   
   return {
     perfilRiesgo: portfolio.riskProfile,
     cartera: portfolio.allocation,
-    informe,
-    explicaciones
+    explicaciones,
   };
 }
 
