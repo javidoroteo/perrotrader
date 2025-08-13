@@ -120,9 +120,9 @@ const questions = [
         explanation: "",
         answers: [
             { "text": "Aumentar mi patrimonio a largo plazo", nextQuestion: 109 },
-            { "text": "Ahorrar para la jubilación", nextQuestion: 111 },
+            { "text": "Ahorrar para la jubilación", nextQuestion: 111, pensionFund: 1},
             { "text": "Comprar una casa", nextQuestion: 112 },
-            { "text": "Generar ingresos pasivos", nextQuestion: 113 },
+            { "text": "Generar ingresos pasivos", nextQuestion: 113, dividend:1 },
             { "text": "Ahorrar para la educación de mis hijos", nextQuestion: 115 },
         ]
     },
@@ -132,10 +132,10 @@ const questions = [
         question: "¿Cuál consideras que es tu horizonte temporal de largo plazo?",
         explanation: "",
         answers: [
-            { text: "3 años o menos", timeValue: 1, nextQuestion: 201},
-            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 201},
-            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 201},
-            { text: "Más de 10 años", timeValue: 4, nextQuestion: 201}
+            { text: "3 años o menos", timeValue: 1, nextQuestion: 116},
+            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 116},
+            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 116},
+            { text: "Más de 10 años", timeValue: 4, nextQuestion: 116}
         ]
     },
     {
@@ -144,9 +144,9 @@ const questions = [
         question: "¿Estarías dispuesto a asumir un riesgo alto para obtener un mayor rendimiento?",
         explanation: "",
         answers: [
-            { text: "Sí, estoy dispuesto", conopoints: 1, nextQuestion: 201},
-            { text: "Tal vez, dependiendo de la situación", nextQuestion: 201},
-            { text: "No, prefiero mantener mi capital seguro", nextQuestion: 201}
+            { text: "Sí, estoy dispuesto", conopoints: 1, nextQuestion: 116},
+            { text: "Tal vez, dependiendo de la situación", nextQuestion: 116},
+            { text: "No, prefiero mantener mi capital seguro", nextQuestion: 116}
         ]
     },
     {
@@ -155,10 +155,10 @@ const questions = [
         question: "¿En cuántos años planeas jubilarte?",
         explanation: "",
         answers: [
-            { text: "3 años o menos", timeValue: 1, nextQuestion: 201},
-            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 201},
-            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 201},
-            { text: "Más de 10 años", timeValue: 4, nextQuestion: 201}
+            { text: "3 años o menos", timeValue: 1, nextQuestion: 116},
+            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 116},
+            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 116},
+            { text: "Más de 10 años", timeValue: 4, nextQuestion: 116}
         ]
     },
     {
@@ -167,10 +167,10 @@ const questions = [
         question: "¿En cuántos años planeas comprarte una casa?",
         explanation: "",
         answers: [
-            { text: "3 años o menos", timeValue: 1, nextQuestion: 201},
-            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 201},
-            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 201},
-            { text: "Más de 10 años", timeValue: 4, nextQuestion: 201}
+            { text: "3 años o menos", timeValue: 1, nextQuestion: 116},
+            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 116},
+            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 116},
+            { text: "Más de 10 años", timeValue: 4, nextQuestion: 116}
         ]
     },
     {
@@ -190,10 +190,10 @@ const questions = [
         question: "¿En cúantos años querrías empezar a desinvertir?",
         explanation: "Se refiere a cuando vas a necesitar ese dinero para otros usos",
         answers: [
-            { text: "3 años o menos", timeValue: 1, nextQuestion: 201},
-            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 201},
-            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 201},
-            { text: "Más de 10 años", timeValue: 4, nextQuestion: 201}
+            { text: "3 años o menos", timeValue: 1, nextQuestion: 116},
+            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 116},
+            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 116},
+            { text: "Más de 10 años", timeValue: 4, nextQuestion: 116}
         ]
     },
     {
@@ -201,10 +201,20 @@ const questions = [
         section: "Horizonte de Inversión",
         question: "¿Cúantos años le falta a tu hijo/a para empezar su educación?",
         answers: [
-            { text: "3 años o menos", timeValue: 1, nextQuestion: 201},
-            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 201},
-            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 201},
-            { text: "Más de 10 años", timeValue: 4, nextQuestion: 201}
+            { text: "3 años o menos", timeValue: 1, nextQuestion: 116},
+            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 116},
+            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 116},
+            { text: "Más de 10 años", timeValue: 4, nextQuestion: 116}
+        ]
+    },
+    {
+        id: 116,
+        section: "Preferencias de inversión",
+        question: "¿Prefieres recibir dividendos o acumularlos en la inversión?",
+        explanation: "Los dividendos son pagos periódicos que algunas acciones o fondos distribuyen a sus accionistas, mientras que acumularlos significa reinvertir esos dividendos en lugar de recibirlos como efectivo. Recibiendo el dividendo pagas más impuestos",
+        answers: [
+            { text: "Quiero recibir dividendos", dividend: 1, nextQuestion: 201},
+            { text: "Prefiero acumularlos, reinvirtiendolo en el activo", dividend: 0, nextQuestion: 201},
         ]
     },
     // Sección 2: Experiencia de Inversión
@@ -225,7 +235,7 @@ const questions = [
         question: "Sin experiencia previa, ¿Te planteas tomar tus propias decisiones o delegarlas en un tercero?",
         explanation: "",
         answers: [
-            { text: "Realizarlas yo", Expoints: 2, nextQuestion: 203},
+            { text: "Realizarlas yo", Expoints: 1, nextQuestion: 203},
             { text: "Delegar una parte en un experto y otra realizarlo yo", Expoints: 1, nextQuestion: 203},
             { text: "Delegar mis inversiones en un profesional", Expoints: 0, nextQuestion: 203},
         ]
@@ -407,7 +417,7 @@ const questions = [
     {
         id: 401,
         section: "Tolerancia al Riesgo",
-        question: "¿Qué harías si tus inversiones pierden un 15% de su valor en un año?",
+        question: "¿Qué harías si tus inversiones pierden un 20% de su valor en un año?",
         explanation: "Inviertes 10.000€ y ves tu cuenta de inversiones en 8.500€, ¿Qué haces?",
         answers: [
             { text: "Vendería todo para evitar más pérdidas.", points: 0, nextQuestion: 403 },
@@ -419,7 +429,7 @@ const questions = [
     {
         id: 402,
         section: "Tolerancia al Riesgo",
-        question: "¿Y si tus inversiones pierden un 30% de su valor en un año?",
+        question: "¿Y si tus inversiones pierden un 50% de su valor en un año?",
         explanation: "Inviertes 10.000€ y ves tu cuenta de inversiones en 7.000€, ¿Qué haces?",
         answers: [
             { text: "Vendería todo para evitar más pérdidas.", points: -1, nextQuestion: 403 },

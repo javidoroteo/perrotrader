@@ -277,7 +277,7 @@ class QuizController {
         return res.status(404).json({ error: 'Sesión no encontrada' });
       }
 
-      const result = await portfolioService.generateCompleteReport(session);
+      const result = await portfolioService.completeFinalResult(session);
       
       res.json({
         success: true,
