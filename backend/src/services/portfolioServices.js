@@ -100,9 +100,9 @@ class PortfolioService {
   /**
    * Determina el nivel de inversion basado en los puntos de experiencia
    */
-  getExperienceLevel(experiencePoints) {
+  getExperienceLevel(experienceScore) {
     for (const [level, config] of Object.entries(CONFIG.KNOWLEDGE_LEVELS)) {
-      if (experiencePoints >= config.min && experiencePoints <= config.max) {
+      if (experienceScore >= config.min && experienceScore <= config.max) {
         return level;
       }
     }
