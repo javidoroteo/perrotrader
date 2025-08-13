@@ -121,7 +121,9 @@ class QuizController {
           cryptoExposure: answer.criptoExposure || 0,
           timeValue: answer.timeValue || 0,
           emergencyFund: answer.emergencyFund || 0,
-          esgValue: answer.esg || 0
+          esgValue: answer.esg || 0,
+          dividend: answer.dividend || 0,
+          pensionFund: answer.pensionFund || 0
         }
       });
 
@@ -138,7 +140,9 @@ class QuizController {
           cryptoScore: { increment: answer.criptoExposure || 0 },
           timeValue: { increment: answer.timeValue || 0 },
           emergencyFund: { increment: answer.emergencyFund || 0 },
-          esgValue: { increment: answer.esg || 0 }
+          esgValue: { increment: answer.esg || 0 },
+          dividend: { increment: answer.dividend || 0 },
+          pensionFund: { increment: answer.pensionFund || 0 }
         },
         include: { answers: true }
       });
@@ -206,6 +210,8 @@ class QuizController {
           timeValue: { decrement: lastAnswer.timeValue },
           emergencyFund: { decrement: lastAnswer.emergencyFund },
           esgValue: { decrement: lastAnswer.esg },
+          dividend: { decrement: lastAnswer.dividend },
+          pensionFund: { decrement: lastAnswer.pensionFund },
           isCompleted: false
         }
       });
@@ -271,7 +277,7 @@ class QuizController {
         return res.status(404).json({ error: 'Sesión no encontrada' });
       }
 
-      const result = await portfolioService.completeFinalResult(session);
+      const result = await portfolioService.generateCompleteReport(session);
       
       res.json({
         success: true,
@@ -305,6 +311,8 @@ class QuizController {
           timeValue: 0,
           emergencyFund: 0,
           esgValue: 0,
+          dividend  : 0,
+          pensionFund: 0,
           riskProfile: null,
           portfolioData: null,
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)

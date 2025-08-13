@@ -25,6 +25,8 @@ model QuizSession {
   timeValue       Int      @default(0)
   emergencyFund   Int      @default(0)
   esgValue        Int      @default(0)
+  pensionFund     Int      @default(0)
+  dividend        Int      @default(0)
   
   // Perfil y cartera final
   riskProfile     String?
@@ -47,6 +49,8 @@ model QuizAnswer {
   cryptoExposure  Int         @default(0)
   timeValue       Int         @default(0)
   emergencyFund   Int         @default(0)
+  pensionFund     Int         @default(0)
+  dividend        Int         @default(0)
   esgValue        Int         @default(0)
   createdAt       DateTime    @default(now())
   
