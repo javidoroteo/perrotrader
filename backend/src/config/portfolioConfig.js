@@ -16,7 +16,12 @@ const PORTFOLIO_CONFIG = {
     MODERATE: { min: 31, max: 60, name: 'Riesgo Moderado' },
     HIGH: { min: 61, max: 94, name: 'Alto Riesgo' }
   },
-
+// Rangos de conocimiento
+  KNOWLEDGE_LEVELS: {
+    BEGINNER: { min: 0, max: 6, name: 'Principiante' },
+    INTERMEDIATE: { min: 7, max: 13, name: 'Intermedio' },
+    ADVANCED: { min: 14, max: 20, name: 'Avanzado' }
+  },
   // Ajustes por horizonte temporal
   TIME_ADJUSTMENTS: {
     1: { bonos: +20, acciones: -10 }, // 3 años o menos
@@ -71,6 +76,20 @@ const PORTFOLIO_CONFIG = {
   'Bajo Riesgo': "Has dado un paso fundamental al construir tu fondo de emergencia. Esto te permite invertir con más confianza, incluso si prefieres mantener un perfil conservador. Una cartera estable y diversificada puede ayudarte a hacer crecer tu dinero sin asumir más riesgo del que te sientas cómodo.",
   'Riesgo Moderado': "Con tu perfil moderado y un fondo de emergencia ya asegurado, cuentas con la base perfecta para invertir con equilibrio. Puedes combinar activos de bajo y mediano riesgo, buscando un crecimiento sostenido sin poner en peligro tu estabilidad financiera. Aprovecha tu margen de seguridad para diversificar gradualmente y adaptarte a las condiciones del mercado.",
   'Alto Riesgo' : "Has hecho lo más importante antes de empezar: construir un buen fondo de emergencia. Gracias a eso, puedes invertir con tranquilidad incluso en activos más volátiles aprovechando tu capacidad de asumir riesgo, pero diversifica bien."
+  },
+},
+EQUITY_MARKET_MESSAGES: {
+  'Principiante': {
+    0: "",
+    1: "",
+  },
+  'Intermedio': {
+    0: "",
+    1: "",
+  },
+  'Avanzado': {
+    0: "",
+    1: "",
   },
 },
 

@@ -97,6 +97,17 @@ class PortfolioService {
     }
     return 'MODERATE'; // Por defecto
   }
+  /**
+   * Determina el nivel de inversion basado en los puntos de experiencia
+   */
+  getExperienceLevel(experiencePoints) {
+    for (const [level, config] of Object.entries(CONFIG.KNOWLEDGE_LEVELS)) {
+      if (experiencePoints >= config.min && experiencePoints <= config.max) {
+        return level;
+      }
+    }
+    return 'INTERMEDIATE'; // Por defecto
+  }
 
   /**
    * Asegura que todos los valores sean positivos
@@ -155,12 +166,18 @@ generateRecommendations(session) {
   if (emergencyMessage) {
     explicaciones.push(emergencyMessage);
   }
+  // Mensaje de la renta variable según nivel de experiencia
+  const equityMessage = CONFIG.EQUITY_MARKET_MESSAGES[portfolio.riskProfile]?.[session];
+  if (equityMessage) {
+    explicaciones.push(equityMessage);
+  }
 
   // Explicación del perfil de riesgo (siempre)
   const riskExplanation = CONFIG.RECOMMENDATIONS.RISK_PROFILE[portfolio.riskProfile];
   if (riskExplanation) {
     explicaciones.push(riskExplanation);
   }
+  
   
   // Explicación del horizonte temporal
   const timeExplanation = CONFIG.RECOMMENDATIONS.TIME_HORIZON[session.timeValue];
