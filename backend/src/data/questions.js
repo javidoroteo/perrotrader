@@ -289,10 +289,10 @@ const questions = [
         question: "¿Qué tan frecuentemente revisas tus inversiones?",
         explanation: "",
         answers: [
-            { text: "Diariamente.", Expoints: -1, nextQuestion: 208},
-            { text: "Semanalmente.", Expoints: 1, nextQuestion: 208},
-            { text: "Mensualmente.", Expoints: 2, nextQuestion: 208},
-            { text: "Rara vez.", Expoints: 1, nextQuestion: 208},
+            { text: "Diariamente.", Expoints: -1, nextQuestion: 2017},
+            { text: "Semanalmente.", Expoints: 1, nextQuestion: 2017},
+            { text: "Mensualmente.", Expoints: 2, nextQuestion: 2017},
+            { text: "Rara vez.", Expoints: 1, nextQuestion: 2017},
         ]
     },
     {
@@ -504,10 +504,9 @@ const questions = [
         question: "¿Qué tan familiarizado estás con las inversiones ESG?",
         explanation:"ESG son las siglas de inversiones con criterios Medioambientales, Sociales y de Gobernanza).",
         answers: [
-            { text: "No estoy familiarizado y no tengo interés", points: 0 },
-            { text: "No estoy familiarizado pero quiero aprender más sobre ello", esg: 1 },
-            { text: "Estoy familiarizado con los conceptos ESG y he investigado algunas opciones de inversión.", esg: 2 },
-            { text: "Estoy muy familiarizado y he invertido previamente en productos ESG.", esg: 3 },
+            { text: "No estoy familiarizado pero quiero aprender más sobre ello", esg: 0 },
+            { text: "Estoy familiarizado con los conceptos ESG y he investigado algunas opciones de inversión.", esg: 1 },
+            { text: "Estoy muy familiarizado y he invertido previamente en productos ESG.", esg: 2 },
         ]
     },
 ];

@@ -166,11 +166,51 @@ generateRecommendations(session) {
   if (emergencyMessage) {
     explicaciones.push(emergencyMessage);
   }
-  // Mensaje de la renta variable según nivel de experiencia
-  const equityMessage = CONFIG.EQUITY_MARKET_MESSAGES[portfolio.riskProfile]?.[session];
+  // Mensaje de la renta variable según nivel de experiencia y dividendos
+  const equityMessage = CONFIG.EQUITY_MARKET_MESSAGES[portfolio.KNOWLEDGE_LEVELS]?.[session.dividend];
   if (equityMessage) {
     explicaciones.push(equityMessage);
   }
+
+  // Mensaje de bonos según tiempo de inversión y perfil de riesgo
+  const bondMessage = CONFIG.EQUITY_MARKET_MESSAGES[portfolio.riskProfile]?.[session.timeValue];
+  if (bondMessage) {
+    explicaciones.push(bondMessage);
+  }
+
+  // Explicación de ESG (solo si tiene preferencia)
+  if (session.esgValue > 0) {
+    const esgExplanation = CONFIG.ESG_LEVEL[portfolio.KNOWLEDGE_LEVELS]?.[session.esgValue] || 
+                         CONFIG.ESG_LEVEL[1]; // Por defecto si >2
+    if (esgExplanation) {
+      explicaciones.push(esgExplanation);
+    }
+  }
+  // Mensaje de largo plazo (solo si existe texto)
+  const longTermMessage = CONFIG.LONG_TERM_MESSAGE[portfolio.KNOWLEDGE_LEVELS]?.[session.timeValue] || null;
+    if (longTermMessage !== null) {
+    explicaciones.push(longTermMessage);
+  }
+
+  // Mensaje de tecnología (solo si existe texto)
+    const techMessage = CONFIG.TECHNOLOGY_MESSAGE[portfolio.KNOWLEDGE_LEVELS]?.[session.cryptoScore] || null;
+    if (techMessage) {
+  explicaciones.push(techMessage);
+  }
+
+  // Explicación de criptomonedas (solo si tiene exposición)
+  if (session.cryptoScore > 0) {
+  const cryptoExplanation = CONFIG.CRYPTO_LEVEL?.[portfolio.KNOWLEDGE_LEVELS]?.[session.cryptoScore];
+  if (cryptoExplanation) {
+    explicaciones.push(cryptoExplanation);
+  }
+}
+  // Mensaje de estrategia de inversión según nivel y riesgo
+  const strategyExplanation = CONFIG.STRATEGY_MESSAGES[portfolio.riskProfile]?.[portfolio.KNOWLEDGE_LEVELS];
+    if (strategyExplanation) {
+      explicaciones.push(strategyExplanation);
+  }
+
 
   // Explicación del perfil de riesgo (siempre)
   const riskExplanation = CONFIG.RECOMMENDATIONS.RISK_PROFILE[portfolio.riskProfile];
@@ -185,22 +225,6 @@ generateRecommendations(session) {
     explicaciones.push(timeExplanation);
   }
   
-  // Explicación de criptomonedas (solo si tiene exposición)
-  if (session.cryptoScore > 0) {
-    const cryptoExplanation = CONFIG.RECOMMENDATIONS.CRYPTO_LEVEL[session.cryptoScore];
-    if (cryptoExplanation) {
-      explicaciones.push(cryptoExplanation);
-    }
-  }
-  
-  // Explicación de ESG (solo si tiene preferencia)
-  if (session.esgValue > 0) {
-    const esgExplanation = CONFIG.RECOMMENDATIONS.ESG_LEVEL[session.esgValue] || 
-                         CONFIG.RECOMMENDATIONS.ESG_LEVEL[1]; // Por defecto si >2
-    if (esgExplanation) {
-      explicaciones.push(esgExplanation);
-    }
-  }
   
   // 6. Mensaje general (siempre al final)
   explicaciones.push('La asignación de activos busca equilibrar rentabilidad y seguridad según tu perfil.');

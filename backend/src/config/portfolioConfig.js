@@ -92,6 +92,146 @@ EQUITY_MARKET_MESSAGES: {
     1: "",
   },
 },
+BOND_MARKET_MESSAGES: {
+  'Bajo Riesgo': {
+    1: "",
+    2: "",
+    3: "",
+    4: "",
+  },
+  'Riesgo Moderado': {
+    1: "",
+    2: "",
+    3: "",
+    4: "",
+  },
+  'Alto Riesgo': {
+    1: "",
+    2: "",
+    3: "",
+    4: "",
+  },
+},
+
+// Recomendaciones por ESG
+    ESG_LEVEL: {
+      'Principiante': {
+    0: null, // No mencionar ESG si no tiene interés
+    1: "",
+    2: "",
+    3: "",
+    4: "",
+  },
+  'Intermedio': {
+    0: null, // No mencionar ESG si no tiene interés
+    1: "",
+    2: "",
+    3: "",
+    4: "",
+  },
+  'Avanzado': {
+    0: null, // No mencionar ESG si no tiene interés
+    1: "",
+    2: "",
+    3: "",
+    4: "",
+  },
+    },
+  
+  // Mensaje de largo plazo
+  LONG_TERM_MESSAGE: {
+      'Principiante': {
+    1: null,
+    2: null,
+    3: null,
+    4 : "",
+  },
+  'Intermedio': {
+    1: null,
+    2: null,
+    3: null,
+    4: "",
+  },
+  'Avanzado': {
+    1: null,
+    2: null,
+    3: null,
+    4: "",
+  },
+    },
+    // Mensaje de si quieren tecnología
+  TECHNOLOGY_MESSAGE: {
+      'Principiante': {
+    0: null,
+    1 : "",
+    2 : "",
+    3 : "",
+    4 : "",
+    5 : "",
+  },
+  'Intermedio': {
+    0: null,
+    1 : "",
+    2 : "",
+    3 : "",
+    4 : "",
+    5 : "",
+  },
+  'Avanzado': {
+    0: null,
+    1 : "",
+    2 : "",
+    3 : "",
+    4 : "",
+    5 : "",
+  },
+    },
+  
+    // Recomendaciones por nivel de criptomonedas
+    CRYPTO_LEVEL: {
+          'Principiante': {
+    0: null,
+    1 : "",
+    2 : "",
+    3 : "",
+    4 : "",
+    5 : "",
+  },
+  'Intermedio': {
+    0: null,
+    1 : "",
+    2 : "",
+    3 : "",
+    4 : "",
+    5 : "",
+  },
+  'Avanzado': {
+    0: null,
+    1 : "",
+    2 : "",
+    3 : "",
+    4 : "",
+    5 : "",
+    },
+  },
+  //Recomendaciones de estrategias de inversión
+  STRATEGY_MESSAGES: {
+  'Bajo Riesgo': {
+    'Principiante': "DCA, PERIODIC",
+    'Intermedio': "DCA, PERIODIC",
+    'Avanzado': "DCA, PERIODIC",
+  },
+  'Riesgo Moderado': {
+    'Principiante': "DCA, VALUE AVERAGING",
+    'Intermedio': "DCA, VALUE AVERAGING, CORE&SATELLITE",
+    'Avanzado': "DCA, VALUE AVERAGING, CORE&SATELLITE, REBALANCING",
+  },
+  'Alto Riesgo': {
+    'Principiante': "DCA, VALUE AVERAGING",
+    'Intermedio': "DCA, VALUE AVERAGING, CORE&SATELLITE",
+    'Avanzado': "DCA, VALUE AVERAGING, CORE&SATELLITE, REBALANCING, BUY THE DIP",
+  },
+},
 
   // Recomendaciones personalizadas basadas en respuestas
   RECOMMENDATIONS: {
@@ -109,23 +249,6 @@ EQUITY_MARKET_MESSAGES: {
       3: 'Tu horizonte de 5-10 años permite aprovechar mejor el potencial de crecimiento de las acciones.',
       4: 'Con más de 10 años de inversión, puedes maximizar el potencial de crecimiento a largo plazo.'
     },
-
-    // Recomendaciones por nivel de criptomonedas
-    CRYPTO_LEVEL: {
-      0: null, // No mencionar criptos si no las quiere
-      1: 'Hemos incluido una pequeña exposición a criptomonedas (5%) como diversificación alternativa.',
-      2: 'Incluimos un 7% en criptomonedas según tu comodidad con estos activos digitales.',
-      3: 'Tu cartera incluye un 10% en criptomonedas para aprovechar su potencial de alto crecimiento.',
-      4: 'Hemos asignado un 15% a criptomonedas dados tus conocimientos y tolerancia al riesgo en este sector.',
-      5: 'Con un 20% en criptomonedas, tu cartera refleja una alta confianza en los activos digitales.'
-    },
-
-    // Recomendaciones por ESG
-    ESG_LEVEL: {
-      0: null, // No mencionar ESG si no le interesa
-      1: 'Hemos incluido bonos verdes en tu cartera según tu interés en inversiones sostenibles.',
-      2: 'Tu cartera prioriza inversiones con fuerte compromiso social y medioambiental a través de bonos verdes.'
-    }
   }
 };
 
