@@ -1,0 +1,53 @@
+# Keep environment variables out of version control
+.env
+
+/generated/prisma
+
+
+# Dependencias
+node_modules/
+.pnp/
+.pnp.js
+
+# Archivos de logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Salidas de build
+dist/
+build/
+out/
+
+# Configuración local de Vite
+.vite/
+
+# Configuración de dependencias
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Archivos del editor/IDE
+.vscode/
+.idea/
+*.sw?
+*.swo
+*.swp
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Pruebas y cobertura
+coverage/
+*.lcov
+
+# Temporal
+*.tmp
+*.temp
+
+# Otros caches
+.cache/
+.parcel-cache/

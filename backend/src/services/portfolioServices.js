@@ -1,6 +1,8 @@
 // backend/src/services/portfolioServices.js
 
+
 const CONFIG = require('../config/portfolioConfig');
+const { ASSET_EDUCATION } = require('../config/assetEducation');
 
 class PortfolioService {
   
@@ -153,7 +155,12 @@ class PortfolioService {
     return informe;
   }
 
-
+/**
+ * Genera la guía educativa de activos
+ */
+generateEducationalGuide(session) {
+  return this.generateAssetEducation(session);
+}
 /**
  * Genera recomendaciones personalizadas basadas en respuestas específicas
  */
@@ -247,7 +254,8 @@ generateRecommendations(session) {
       riskProfile: portfolio.riskProfile,
       portfolio: portfolio.allocation,
       report: this.generateReport(session),
-      recommendations: this.generateRecommendations(session)
+      recommendations: this.generateRecommendations(session),
+      educationalGuide: this.generateEducationalGuide(session)
     };
   }
 }
