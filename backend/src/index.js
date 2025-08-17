@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const quizRoutes = require('./routes/quizRoutes');
+const portfolioRoutes = require('./routes/portfolioRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // Rutas
 app.use('/api/quiz', quizRoutes);
+app.use('/api/portfolio', portfolioRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {

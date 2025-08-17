@@ -6,7 +6,6 @@ import {
   BarChart3,
   TrendingUp,
   ChevronDown,
-  ChevronUp,
   AlertCircle,
   Target,
   Lightbulb,
@@ -16,10 +15,68 @@ import {
   Rocket,
   Sparkles,
   Eye,
-  EyeOff
+  EyeOff,
+  BookOpen,
+  Info
 } from 'lucide-react';
+import { DataMapper } from '../utils/dataMapper';
 
-// Componente base para secciones con glassmorphism
+// Servicio para API calls
+const ReportService = {
+  async generateReport(sessionData) {
+    try {
+      const response = await fetch('/api/portfolio/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sessionData)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error generating report:', error);
+      throw error;
+    }
+  }
+};
+
+// Hook personalizado para manejar el estado del reporte
+const useReportData = (sessionData) => {
+  const [reportData, setReportData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const generateReport = async (data) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const backendResponse = await ReportService.generateReport(data);
+      const transformedData = DataMapper.transformBackendResponse(backendResponse);
+      setReportData(transformedData);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error loading report:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (sessionData) {
+      generateReport(sessionData);
+    }
+  }, [sessionData]);
+
+  return { reportData, loading, error, generateReport };
+};
+
+// Componente base para secciones
 const ModernSection = ({
   title,
   icon: Icon,
@@ -27,8 +84,7 @@ const ModernSection = ({
   defaultOpen = true,
   gradient = 'from-blue-500 to-purple-600',
   glow = 'blue',
-  priority = false,
-  index
+  priority = false
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [isHovered, setIsHovered] = useState(false);
@@ -48,10 +104,8 @@ const ModernSection = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Superposición de gradiente */}
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-5 transition-opacity duration-300 ${isHovered ? 'opacity-10' : ''}`} />
 
-      {/* Encabezado moderno */}
       <div
         onClick={() => setIsOpen(!isOpen)}
         className="relative cursor-pointer px-8 py-6 bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm hover:from-white/10 hover:to-white/15 transition-all duration-300"
@@ -91,7 +145,6 @@ const ModernSection = ({
         </div>
       </div>
 
-      {/* Contenido con animación */}
       <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
         <div className="relative px-8 py-6">
           {children}
@@ -101,9 +154,8 @@ const ModernSection = ({
   );
 };
 
-// Componente súper moderno para el perfil del inversor
-const ModernInvestorProfile = ({ profileData: { riskScale, profile } }) => {
-  // Animación del riesgo con gradiente dinámico
+// Componente del perfil del inversor
+const ModernInvestorProfile = ({ profileData }) => {
   const RiskMeter = ({ value, color }) => {
     const [animatedValue, setAnimatedValue] = useState(0);
 
@@ -133,7 +185,7 @@ const ModernInvestorProfile = ({ profileData: { riskScale, profile } }) => {
         </div>
         <div className="text-center mt-3">
           <div className={`inline-flex items-center px-4 py-2 rounded-full font-bold text-sm`} style={{ backgroundColor: `${color}20`, color }}>
-            {value > 66 ? '🚀' : value > 33 ? '⚡' : '🐌'} {value}/100 {profile.investorType}
+            {value > 66 ? '🚀' : value > 33 ? '⚡' : '🐌'} {value}/100 {profileData.profile.investorType}
           </div>
         </div>
       </div>
@@ -147,25 +199,22 @@ const ModernInvestorProfile = ({ profileData: { riskScale, profile } }) => {
       gradient="from-purple-500 via-pink-500 to-red-500"
       glow="purple"
       priority={true}
-      index={0}
     >
-      {/* Medidor de riesgo súper moderno */}
       <div className="mb-8 p-6 rounded-2xl bg-gradient-to-br from-gray-900/10 to-gray-800/5 backdrop-blur-sm border border-white/10">
         <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
           <Zap className="w-5 h-5 text-yellow-500 mr-2" />
           Nivel de Tolerancia al Riesgo
         </h4>
-        <RiskMeter value={riskScale.value} color={riskScale.color} />
+        <RiskMeter value={profileData.riskScale.value} color={profileData.riskScale.color} />
       </div>
 
-      {/* Cards del perfil en grid moderno */}
       <div className="grid md:grid-cols-3 gap-4">
         <div className="group p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-200/20 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10">
           <div className="flex items-center mb-2">
             <Trophy className="w-4 h-4 text-blue-500 mr-2 group-hover:animate-bounce" />
             <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">Tipo</span>
           </div>
-          <p className="font-bold text-gray-800">{profile.investorType}</p>
+          <p className="font-bold text-gray-800">{profileData.profile.investorType}</p>
         </div>
 
         <div className="group p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-600/5 border border-green-200/20 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10">
@@ -173,7 +222,7 @@ const ModernInvestorProfile = ({ profileData: { riskScale, profile } }) => {
             <Target className="w-4 h-4 text-green-500 mr-2 group-hover:animate-spin" />
             <span className="text-xs font-medium text-green-600 uppercase tracking-wide">Objetivo</span>
           </div>
-          <p className="font-bold text-gray-800">{profile.mainObjective}</p>
+          <p className="font-bold text-gray-800">{profileData.profile.mainObjective}</p>
         </div>
 
         <div className="group p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-200/20 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10">
@@ -181,7 +230,7 @@ const ModernInvestorProfile = ({ profileData: { riskScale, profile } }) => {
             <Rocket className="w-4 h-4 text-purple-500 mr-2 group-hover:animate-pulse" />
             <span className="text-xs font-medium text-purple-600 uppercase tracking-wide">Experiencia</span>
           </div>
-          <p className="font-bold text-gray-800">{profile.experienceLevel}</p>
+          <p className="font-bold text-gray-800">{profileData.profile.experienceLevel}</p>
         </div>
 
         <div className="group p-4 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-600/5 border border-orange-200/20 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10">
@@ -189,7 +238,7 @@ const ModernInvestorProfile = ({ profileData: { riskScale, profile } }) => {
             <TrendingUp className="w-4 h-4 text-orange-500 mr-2 group-hover:animate-bounce" />
             <span className="text-xs font-medium text-orange-600 uppercase tracking-wide">Tolerancia</span>
           </div>
-          <p className="font-bold text-gray-800">{profile.riskTolerance}</p>
+          <p className="font-bold text-gray-800">{profileData.profile.riskTolerance}</p>
         </div>
 
         <div className="group p-4 rounded-xl bg-gradient-to-br from-indigo-500/10 to-indigo-600/5 border border-indigo-200/20 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10">
@@ -197,16 +246,16 @@ const ModernInvestorProfile = ({ profileData: { riskScale, profile } }) => {
             <AlertCircle className="w-4 h-4 text-indigo-500 mr-2 group-hover:animate-pulse" />
             <span className="text-xs font-medium text-indigo-600 uppercase tracking-wide">Plazo</span>
           </div>
-          <p className="font-bold text-gray-800">{profile.timeHorizon}</p>
+          <p className="font-bold text-gray-800">{profileData.profile.timeHorizon}</p>
         </div>
 
-        {profile.esgSensitivity && (
+        {profileData.profile.esgSensitivity && (
           <div className="group p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-200/20 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10">
             <div className="flex items-center mb-2">
               <Sparkles className="w-4 h-4 text-emerald-500 mr-2 group-hover:animate-spin" />
               <span className="text-xs font-medium text-emerald-600 uppercase tracking-wide">ESG</span>
             </div>
-            <p className="font-bold text-gray-800">{profile.esgSensitivity}</p>
+            <p className="font-bold text-gray-800">{profileData.profile.esgSensitivity}</p>
           </div>
         )}
       </div>
@@ -214,7 +263,7 @@ const ModernInvestorProfile = ({ profileData: { riskScale, profile } }) => {
   );
 };
 
-// Gráfico de cartera ultra moderno
+// Componente del gráfico de cartera
 const ModernPortfolioChart = ({ portfolio }) => {
   if (!portfolio) return null;
 
@@ -295,9 +344,7 @@ const ModernPortfolioChart = ({ portfolio }) => {
       icon={BarChart3}
       gradient="from-cyan-400 via-purple-500 to-pink-500"
       glow="purple"
-      index={1}
     >
-      {/* Gráfico principal */}
       <div className="relative mb-8">
         <div className="h-80 relative">
           <ResponsiveContainer width="100%" height="100%">
@@ -333,7 +380,6 @@ const ModernPortfolioChart = ({ portfolio }) => {
             </PieChart>
           </ResponsiveContainer>
 
-          {/* Centro del donut con información */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-center">
               <div className="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -345,7 +391,6 @@ const ModernPortfolioChart = ({ portfolio }) => {
         </div>
       </div>
 
-      {/* Assets cards modernos */}
       <div className="grid gap-4">
         {portfolioArray.map((asset, index) => (
           <div
@@ -356,7 +401,6 @@ const ModernPortfolioChart = ({ portfolio }) => {
               borderColor: selectedSegment === index ? asset.color : 'rgba(255,255,255,0.2)'
             }}
           >
-            {/* Glow effect */}
             <div
               className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl"
               style={{ backgroundColor: asset.color }}
@@ -388,7 +432,6 @@ const ModernPortfolioChart = ({ portfolio }) => {
               </div>
             </div>
 
-            {/* Progress bar bottom */}
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200/50">
               <div
                 className="h-full transition-all duration-1000 ease-out"
@@ -406,7 +449,7 @@ const ModernPortfolioChart = ({ portfolio }) => {
   );
 };
 
-// Sección de recomendaciones estilo gaming
+// Componente de recomendaciones
 const ModernRecommendations = ({ recommendations }) => {
   if (!recommendations?.explicaciones) return null;
 
@@ -416,7 +459,6 @@ const ModernRecommendations = ({ recommendations }) => {
       icon={Lightbulb}
       gradient="from-yellow-400 via-orange-500 to-red-500"
       glow="orange"
-      index={2}
     >
       <div className="space-y-4">
         {recommendations.explicaciones.map((explanation, index) => (
@@ -444,8 +486,111 @@ const ModernRecommendations = ({ recommendations }) => {
   );
 };
 
-// Componente principal ultra moderno
-const UltraModernReport = ({ data }) => {
+// Componente para el reporte del fondo de emergencia
+const EmergencyFundReport = ({ report }) => {
+  if (!report) return null;
+
+  return (
+    <ModernSection
+      title="Fondo de Emergencia 🛡️"
+      icon={Shield}
+      gradient="from-emerald-400 via-teal-500 to-cyan-500"
+      glow="green"
+    >
+      <div className="prose prose-lg max-w-none">
+        <div 
+          className="text-gray-800 leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: report }}
+        />
+      </div>
+    </ModernSection>
+  );
+};
+
+// Componente para la guía educativa
+const EducationalGuide = ({ guide }) => {
+  if (!guide?.assets) return null;
+
+  return (
+    <ModernSection
+      title="Guía Educativa 📚"
+      icon={BookOpen}
+      gradient="from-indigo-400 via-blue-500 to-purple-500"
+      glow="blue"
+    >
+      <div className="space-y-6">
+        <div className="text-center mb-8">
+          <h4 className="text-xl font-bold text-gray-800 mb-2">{guide.title}</h4>
+          <p className="text-gray-600">{guide.description}</p>
+        </div>
+
+        {guide.assets.map((asset, index) => (
+          <div
+            key={index}
+            className="group p-6 rounded-2xl bg-gradient-to-br from-white/40 to-white/20 backdrop-blur-sm border border-white/30 hover:scale-[1.02] transition-all duration-300"
+          >
+            <h5 className="text-lg font-bold text-gray-800 mb-3 flex items-center">
+              <Info className="w-5 h-5 text-blue-500 mr-2" />
+              {asset.title}
+            </h5>
+            
+            <div className="space-y-4 text-gray-700">
+              <p className="leading-relaxed">{asset.description}</p>
+              
+              <div className="bg-blue-50/50 p-4 rounded-xl">
+                <h6 className="font-semibold text-blue-800 mb-2">Función en tu cartera:</h6>
+                <p className="text-blue-700">{asset.role}</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-green-50/50 p-4 rounded-xl">
+                  <h6 className="font-semibold text-green-800 mb-2">Ventajas:</h6>
+                  <ul className="text-green-700 space-y-1">
+                    {asset.pros.map((pro, proIndex) => (
+                      <li key={proIndex} className="flex items-start">
+                        <span className="text-green-500 mr-2">✓</span>
+                        {pro}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-red-50/50 p-4 rounded-xl">
+                  <h6 className="font-semibold text-red-800 mb-2">Consideraciones:</h6>
+                  <ul className="text-red-700 space-y-1">
+                    {asset.cons.map((con, conIndex) => (
+                      <li key={conIndex} className="flex items-start">
+                        <span className="text-red-500 mr-2">⚠</span>
+                        {con}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="bg-gray-50/50 p-4 rounded-xl">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h6 className="font-semibold text-gray-800 mb-1">Rentabilidad esperada:</h6>
+                    <p className="text-gray-700 text-sm">{asset.expectedReturn}</p>
+                  </div>
+                  <div>
+                    <h6 className="font-semibold text-gray-800 mb-1">Comportamiento:</h6>
+                    <p className="text-gray-700 text-sm">{asset.behavior}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </ModernSection>
+  );
+};
+
+// Componente principal
+const IntegratedReport = ({ sessionData, onGenerateReport }) => {
+  const { reportData, loading, error, generateReport } = useReportData(sessionData);
   const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
@@ -459,12 +604,57 @@ const UltraModernReport = ({ data }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  if (!data) {
+  // Loading state
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
         <div className="text-center">
           <div className="w-20 h-20 border-4 border-white/20 border-t-white animate-spin rounded-full mb-4 mx-auto" />
-          <p className="text-white/80 text-lg">Cargando tu future financiero...</p>
+          <p className="text-white/80 text-lg">Generando tu futuro financiero...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-900 via-pink-900 to-purple-900 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mb-4 mx-auto">
+            <AlertCircle className="w-10 h-10 text-red-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Oops! Algo salió mal</h2>
+          <p className="text-white/80 mb-6">{error}</p>
+          <button
+            onClick={() => generateReport(sessionData)}
+            className="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full font-semibold hover:scale-105 transition-transform duration-300"
+          >
+            Intentar de nuevo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (!reportData && !sessionData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-4 mx-auto">
+            <BarChart3 className="w-10 h-10 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">¡Crea tu Reporte!</h2>
+          <p className="text-gray-600 mb-6">Proporciona tus datos de sesión para generar un reporte personalizado</p>
+          {onGenerateReport && (
+            <button
+              onClick={onGenerateReport}
+              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-semibold hover:scale-105 transition-transform duration-300"
+            >
+              Comenzar Evaluación
+            </button>
+          )}
         </div>
       </div>
     );
@@ -487,16 +677,24 @@ const UltraModernReport = ({ data }) => {
       </header>
 
       <div className="max-w-6xl mx-auto py-12 space-y-8 relative z-10">
-        {data.investorProfile && (
-          <ModernInvestorProfile profileData={data.investorProfile} />
+        {reportData?.investorProfile && (
+          <ModernInvestorProfile profileData={reportData.investorProfile} />
         )}
 
-        {data.portfolio && (
-          <ModernPortfolioChart portfolio={data.portfolio} />
+        {reportData?.portfolio && (
+          <ModernPortfolioChart portfolio={reportData.portfolio} />
         )}
 
-        {data.recommendations && (
-          <ModernRecommendations recommendations={data.recommendations} />
+        {reportData?.recommendations && (
+          <ModernRecommendations recommendations={reportData.recommendations} />
+        )}
+
+        {reportData?.emergencyFundReport && (
+          <EmergencyFundReport report={reportData.emergencyFundReport} />
+        )}
+
+        {reportData?.educationalGuide && (
+          <EducationalGuide guide={reportData.educationalGuide} />
         )}
       </div>
 
@@ -522,36 +720,28 @@ const UltraModernReport = ({ data }) => {
   );
 };
 
-// Export con datos de demo
-export default function ModernReportDemo() {
-  const sampleData = {
-    investorProfile: {
-      riskScale: { value: 72, color: '#ef4444' },
-      profile: {
-        investorType: 'Agresivo',
-        riskTolerance: 'Alta',
-        timeHorizon: 'Largo plazo (>10 años)',
-        mainObjective: 'Aumentar patrimonio a largo plazo',
-        experienceLevel: 'Intermedio',
-        esgSensitivity: 'Media'
-      }
-    },
-    portfolio: {
-      acciones: 65,
-      bonos: 25,
-      efectivo: 10,
-      criptomonedas: 0,
-      bonosVerdes: 0
-    },
-    recommendations: {
-      explicaciones: [
-        'Tu perfil agresivo permite mayor exposición a acciones para maximizar el potencial de crecimiento.',
-        'El horizonte largo plazo favorece estrategias de inversión en activos más volátiles pero con mayor retorno esperado.',
-        'Considera el Dollar Cost Averaging (DCA) para reducir el impacto de la volatilidad del mercado.',
-        'Diversifica tu cartera entre diferentes sectores y geografías para minimizar riesgos específicos.'
-      ]
-    }
+// Demo component con datos de muestra para testing
+export default function ReportDemo() {
+  // Datos de sesión de ejemplo para testing
+  const sampleSessionData = {
+    totalScore: 65,
+    timeValue: 4,
+    cryptoScore: 2,
+    esgValue: 1,
+    emergencyFund: 3,
+    dividend: 1,
+    experienceScore: 10
   };
 
-  return <UltraModernReport data={sampleData} />;
+  const handleGenerateReport = () => {
+    console.log('Generar nuevo reporte...');
+    // Aquí podrías abrir un modal o navegar a un formulario
+  };
+
+  return (
+    <IntegratedReport 
+      sessionData={sampleSessionData}
+      onGenerateReport={handleGenerateReport}
+    />
+  );
 }
