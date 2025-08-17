@@ -1,9 +1,12 @@
 import React from 'react';
-import Quiz from 'frontend/components/Quiz'; // ¡Importamos el componente Quiz que acabas de crear!
+import Quiz from './components/quiz';
+import Report from './components/report';
+
 
 function App() {
   return (
     <div>
+      <Report />
       <Quiz />
     </div>
   );
