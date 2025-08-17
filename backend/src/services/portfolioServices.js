@@ -154,7 +154,38 @@ class PortfolioService {
     
     return informe;
   }
-
+/**
+   * Genera educación sobre los activos en la cartera
+   * Este es el método que faltaba y causaba el error
+   */
+  generateAssetEducation(session) {
+    const portfolio = this.calculatePortfolio(session);
+    const activeAssets = [];
+    
+    // Determinar qué activos están presentes en la cartera
+    if (portfolio.allocation.acciones > 0) {
+      activeAssets.push(ASSET_EDUCATION.RENTA_VARIABLE);
+    }
+    
+    if (portfolio.allocation.bonos > 0 || portfolio.allocation.bonosVerdes > 0) {
+      activeAssets.push(ASSET_EDUCATION.RENTA_FIJA);
+    }
+    
+    if (portfolio.allocation.criptomonedas > 0) {
+      activeAssets.push(ASSET_EDUCATION.CRIPTOMONEDAS);
+    }
+    
+    if (portfolio.allocation.efectivo > 0) {
+      activeAssets.push(ASSET_EDUCATION.EFECTIVO);
+    }
+    
+    return {
+      title: "Guía Educativa de tu Cartera",
+      description: "Conoce los activos que componen tu cartera personalizada",
+      assets: activeAssets,
+      riskProfile: portfolio.riskProfile
+    };
+  }
 /**
  * Genera la guía educativa de activos
  */
