@@ -1,6 +1,5 @@
 // backend/src/services/portfolioServices.js
 
-
 const CONFIG = require('../config/portfolioConfig');
 const { ASSET_EDUCATION } = require('../config/assetEducation');
 
@@ -99,8 +98,9 @@ class PortfolioService {
     }
     return 'MODERATE'; // Por defecto
   }
+
   /**
-   * Determina el nivel de inversion basado en los puntos de experiencia
+   * Determina el nivel de experiencia basado en los puntos de experiencia
    */
   getExperienceLevel(experienceScore) {
     for (const [level, config] of Object.entries(CONFIG.KNOWLEDGE_LEVELS)) {
@@ -137,27 +137,21 @@ class PortfolioService {
    * Genera el reporte del fondo de emergencia
    */
   generateReport(session) {
+    const portfolio = this.calculatePortfolio(session);
     let informe = `<p>El fondo de emergencia es muy importante como colchón ante imprevistos y permite al inversor invertir con mucha comodidad el resto de su dinero liquido. El fondo de emergencia no es parte de la liquidez disponible dentro de la cartera.</p>`;
     
-    if (session.emergencyFund === 0) {
-      informe += `<p>${CONFIG.EMERGENCY_FUND_MESSAGES[0]}</p>`;
-    }
-    if (session.emergencyFund === 1) {
-      informe += `<p>${CONFIG.EMERGENCY_FUND_MESSAGES[1]}</p>`;
-    }
-    if (session.emergencyFund === 2) {
-      informe += `<p>${CONFIG.EMERGENCY_FUND_MESSAGES[2]}</p>`;
-    }
-    if (session.emergencyFund === 3) {
-      informe += `<p>${CONFIG.EMERGENCY_FUND_MESSAGES[3]}</p>`;
+    // Obtener el mensaje del fondo de emergencia según perfil de riesgo
+    const emergencyMessage = CONFIG.EMERGENCY_FUND_MESSAGES[session.emergencyFund]?.[portfolio.riskProfile];
+    if (emergencyMessage) {
+      informe += `<p>${emergencyMessage}</p>`;
     }
     
     return informe;
   }
-/**
-   * Genera educación sobre los activos en la cartera
-   * Este es el método que faltaba y causaba el error
-   */
+
+  
+   //Genera educación sobre los activos en la cartera
+  
   generateAssetEducation(session) {
     const portfolio = this.calculatePortfolio(session);
     const activeAssets = [];
@@ -186,94 +180,96 @@ class PortfolioService {
       riskProfile: portfolio.riskProfile
     };
   }
-/**
- * Genera la guía educativa de activos
- */
-generateEducationalGuide(session) {
-  return this.generateAssetEducation(session);
-}
-/**
- * Genera recomendaciones personalizadas basadas en respuestas específicas
- */
-generateRecommendations(session) {
-  const portfolio = this.calculatePortfolio(session);
-  const explicaciones = [];
 
-   // Mensaje del fondo de emergencia (siempre, es muy importante)
-  const emergencyMessage = CONFIG.EMERGENCY_FUND_MESSAGES[session.emergencyFund]?.[portfolio.riskProfile];
-  if (emergencyMessage) {
-    explicaciones.push(emergencyMessage);
-  }
-  // Mensaje de la renta variable según nivel de experiencia y dividendos
-  const equityMessage = CONFIG.EQUITY_MARKET_MESSAGES[portfolio.KNOWLEDGE_LEVELS]?.[session.dividend];
-  if (equityMessage) {
-    explicaciones.push(equityMessage);
+  /**
+   * Genera la guía educativa de activos
+   */
+  generateEducationalGuide(session) {
+    return this.generateAssetEducation(session);
   }
 
-  // Mensaje de bonos según tiempo de inversión y perfil de riesgo
-  const bondMessage = CONFIG.EQUITY_MARKET_MESSAGES[portfolio.riskProfile]?.[session.timeValue];
-  if (bondMessage) {
-    explicaciones.push(bondMessage);
-  }
+  /**
+   * Genera recomendaciones personalizadas basadas en respuestas específicas
+   */
+  generateRecommendations(session) {
+    const portfolio = this.calculatePortfolio(session);
+    const experienceLevel = this.getExperienceLevel(session.experienceScore);
+    const explicaciones = [];
 
-  // Explicación de ESG (solo si tiene preferencia)
-  if (session.esgValue > 0) {
-    const esgExplanation = CONFIG.ESG_LEVEL[portfolio.KNOWLEDGE_LEVELS]?.[session.esgValue] || 
-                         CONFIG.ESG_LEVEL[1]; // Por defecto si >2
-    if (esgExplanation) {
-      explicaciones.push(esgExplanation);
+    // Mensaje del fondo de emergencia (siempre, es muy importante)
+    const emergencyMessage = CONFIG.EMERGENCY_FUND_MESSAGES[session.emergencyFund]?.[portfolio.riskProfile];
+    if (emergencyMessage) {
+      explicaciones.push(emergencyMessage);
     }
-  }
-  // Mensaje de largo plazo (solo si existe texto)
-  const longTermMessage = CONFIG.LONG_TERM_MESSAGE[portfolio.KNOWLEDGE_LEVELS]?.[session.timeValue] || null;
-    if (longTermMessage !== null) {
-    explicaciones.push(longTermMessage);
-  }
 
-  // Mensaje de tecnología (solo si existe texto)
-    const techMessage = CONFIG.TECHNOLOGY_MESSAGE[portfolio.KNOWLEDGE_LEVELS]?.[session.cryptoScore] || null;
-    if (techMessage) {
-  explicaciones.push(techMessage);
-  }
+    // Mensaje de la renta variable según nivel de experiencia y dividendos
+    const equityMessage = CONFIG.EQUITY_MARKET_MESSAGES[experienceLevel]?.[session.dividend];
+    if (equityMessage && equityMessage.trim() !== "") {
+      explicaciones.push(equityMessage);
+    }
 
-  // Explicación de criptomonedas (solo si tiene exposición)
-  if (session.cryptoScore > 0) {
-  const cryptoExplanation = CONFIG.CRYPTO_LEVEL?.[portfolio.KNOWLEDGE_LEVELS]?.[session.cryptoScore];
-  if (cryptoExplanation) {
-    explicaciones.push(cryptoExplanation);
-  }
-}
-  // Mensaje de estrategia de inversión según nivel y riesgo
-  const strategyExplanation = CONFIG.STRATEGY_MESSAGES[portfolio.riskProfile]?.[portfolio.KNOWLEDGE_LEVELS];
-    if (strategyExplanation) {
+    // Mensaje de bonos según tiempo de inversión y perfil de riesgo
+    const bondMessage = CONFIG.BOND_MARKET_MESSAGES[portfolio.riskProfile]?.[session.timeValue];
+    if (bondMessage && bondMessage.trim() !== "") {
+      explicaciones.push(bondMessage);
+    }
+
+    // Explicación de ESG (solo si tiene preferencia)
+    if (session.esgValue > 0) {
+      const esgExplanation = CONFIG.ESG_LEVEL[experienceLevel]?.[session.esgValue];
+      if (esgExplanation && esgExplanation.trim() !== "") {
+        explicaciones.push(esgExplanation);
+      }
+    }
+
+    // Mensaje de largo plazo (solo si existe texto)
+    const longTermMessage = CONFIG.LONG_TERM_MESSAGE[experienceLevel]?.[session.timeValue];
+    if (longTermMessage && longTermMessage.trim() !== "") {
+      explicaciones.push(longTermMessage);
+    }
+
+    // Mensaje de tecnología (solo si existe texto)
+    const techMessage = CONFIG.TECHNOLOGY_MESSAGE[experienceLevel]?.[session.cryptoScore];
+    if (techMessage && techMessage.trim() !== "") {
+      explicaciones.push(techMessage);
+    }
+
+    // Explicación de criptomonedas (solo si tiene exposición)
+    if (session.cryptoScore > 0) {
+      const cryptoExplanation = CONFIG.CRYPTO_LEVEL[experienceLevel]?.[session.cryptoScore];
+      if (cryptoExplanation && cryptoExplanation.trim() !== "") {
+        explicaciones.push(cryptoExplanation);
+      }
+    }
+
+    // Mensaje de estrategia de inversión según nivel y riesgo
+    const strategyExplanation = CONFIG.STRATEGY_MESSAGES[portfolio.riskProfile]?.[experienceLevel];
+    if (strategyExplanation && strategyExplanation.trim() !== "") {
       explicaciones.push(strategyExplanation);
-  }
+    }
 
-
-  // Explicación del perfil de riesgo (siempre)
-  const riskExplanation = CONFIG.RECOMMENDATIONS.RISK_PROFILE[portfolio.riskProfile];
-  if (riskExplanation) {
-    explicaciones.push(riskExplanation);
+    // Explicación del perfil de riesgo (siempre)
+    const riskExplanation = CONFIG.RECOMMENDATIONS.RISK_PROFILE[portfolio.riskProfile];
+    if (riskExplanation) {
+      explicaciones.push(riskExplanation);
+    }
+    
+    // Explicación del horizonte temporal
+    const timeExplanation = CONFIG.RECOMMENDATIONS.TIME_HORIZON[session.timeValue];
+    if (timeExplanation) {
+      explicaciones.push(timeExplanation);
+    }
+    
+    // Mensaje general (siempre al final)
+    explicaciones.push('La asignación de activos busca equilibrar rentabilidad y seguridad según tu perfil.');
+    
+    return {
+      perfilRiesgo: portfolio.riskProfile,
+      experienceLevel,
+      cartera: portfolio.allocation,
+      explicaciones,
+    };
   }
-  
-  
-  // Explicación del horizonte temporal
-  const timeExplanation = CONFIG.RECOMMENDATIONS.TIME_HORIZON[session.timeValue];
-  if (timeExplanation) {
-    explicaciones.push(timeExplanation);
-  }
-  
-  
-  // 6. Mensaje general (siempre al final)
-  explicaciones.push('La asignación de activos busca equilibrar rentabilidad y seguridad según tu perfil.');
-  
-  return {
-    perfilRiesgo: portfolio.riskProfile,
-    cartera: portfolio.allocation,
-    explicaciones,
-  };
-}
-
 
   /**
    * Genera el resultado final completo
@@ -283,6 +279,7 @@ generateRecommendations(session) {
     
     return {
       riskProfile: portfolio.riskProfile,
+      experienceLevel: this.getExperienceLevel(session.experienceScore),
       portfolio: portfolio.allocation,
       report: this.generateReport(session),
       recommendations: this.generateRecommendations(session),
