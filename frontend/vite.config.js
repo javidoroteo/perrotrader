@@ -1,22 +1,28 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [
     react({
-      // Configuración específica para React
-      jsxRuntime: 'automatic', // Permite JSX sin importar React
+      jsxRuntime: 'automatic', // Soporte para JSX sin importar React
       babel: {
-        plugins: []
-      }
-    })
+        plugins: [],
+      },
+    }),
   ],
   server: {
     port: 5173,
-    host: true
+    host: true,
   },
-  // Asegurar que se resuelvan correctamente los módulos
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx']
-  }
-})
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+  },
+  esbuild: {
+    // Configura esbuild para manejar JSX en archivos .js
+    include: /\.(js|jsx)$/,
+    loader: 'jsx', // Esto especifica que los archivos .js y .jsx se traten como JSX
+  },
+  css: {
+    postcss: './postcss.config.js', // Vincula explícitamente el archivo de PostCSS
+  },
+});

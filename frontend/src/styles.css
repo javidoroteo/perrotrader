@@ -1,59 +1,79 @@
 
-@tailwind base; 
-@tailwind components; 
-@tailwind utilities; 
+@tailwind utilities;
+@reference "tailwindcss";
 
-/* Estilos básicos */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Fonts base */
+@layer base {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    @apply antialiased text-indigo-900;
+  }
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  color: #333;
+/* Custom components */
+@layer components {
+  .btn-primary {
+    @apply relative inline-flex items-center gap-4 px-10 py-5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-xl rounded-3xl shadow-2xl shadow-indigo-500/25 transition-all duration-500 hover:scale-105 hover:shadow-indigo-500/40 disabled:opacity-50 disabled:hover:scale-100;
+  }
+  .card-feature {
+    @apply p-8 bg-white/30 border border-white/20 rounded-3xl hover:scale-105 transition-all duration-500 hover:shadow-2xl shadow-lg backdrop-blur-lg;
+  }
+  .answer-btn {
+    @apply relative p-6 text-left rounded-2xl border transition-all duration-500 hover:scale-[1.02] disabled:hover:scale-100 bg-white/40 hover:bg-white/60 border-indigo-200 hover:border-indigo-300 hover:shadow-lg;
+  }
+  .answer-selected {
+    @apply bg-gradient-to-r from-indigo-100 to-blue-100 border-indigo-300 scale-[1.02] shadow-lg;
+  }
 }
 
-/* Utilidades básicas como Tailwind */
-.min-h-screen { min-height: 100vh; }
-.bg-gray-50 { background-color: #f9fafb; }
-.max-w-2xl { max-width: 42rem; }
-.mx-auto { margin-left: auto; margin-right: auto; }
-.px-4 { padding-left: 1rem; padding-right: 1rem; }
-.py-8 { padding-top: 2rem; padding-bottom: 2rem; }
-.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
-.font-bold { font-weight: 700; }
-.text-center { text-align: center; }
-.text-gray-800 { color: #1f2937; }
-.mb-8 { margin-bottom: 2rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-.bg-white { background-color: white; }
-.rounded-lg { border-radius: 0.5rem; }
-.shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-.p-8 { padding: 2rem; }
-.text-gray-600 { color: #4b5563; }
-.bg-blue-500 { background-color: #3b82f6; }
-.hover\:bg-blue-600:hover { background-color: #2563eb; }
-.text-white { color: white; }
-.font-semibold { font-weight: 600; }
-.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
-.transition { transition-property: all; transition-duration: 200ms; }
-
-/* Botones */
-button {
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  animation: ripple 0.6s linear;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes spin-reverse {
+  to { transform: rotate(-360deg); }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+.spinner-reverse {
+  animation: spin-reverse 1s linear infinite;
+}
+
+/* Confetti */
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: currentColor;
+  opacity: 0.8;
+  animation: confetti-fall 3s ease-out infinite;
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-100vh) rotate(0deg); }
+  100% { transform: translateY(100vh) rotate(720deg); }
 }
