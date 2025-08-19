@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const quizRoutes = require('./routes/quizRoutes');
 const portfolioRoutes = require('./routes/portfolioRoutes');
 
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -35,4 +36,10 @@ app.use((err, req, res, next) => {
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en puerto ${PORT}`);
+});
+
+// Cierra Prisma al salir
+process.on('SIGTERM', async () => {
+  await prisma.$disconnect();
+  process.exit(0);
 });
