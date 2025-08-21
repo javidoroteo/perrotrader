@@ -1,0 +1,182 @@
+// backend/src/config/strategiesEducation.js
+
+const STRATEGIES_EDUCATION = {
+  DCA: {
+    name: "Dollar Cost Averaging (DCA)",
+    shortDescription: "Inversión periódica de cantidades fijas",
+    description: "El Dollar Cost Averaging consiste en invertir una cantidad fija de dinero de forma regular (mensual, trimestral, etc.) independientemente de las condiciones del mercado. Esta estrategia elimina la necesidad de intentar predecir el mejor momento para invertir.",
+    howItWorks: "Inviertes la misma cantidad cada periodo, comprando más participaciones cuando los precios están bajos y menos cuando están altos, promediando el costo de compra a lo largo del tiempo.",
+    advantages: [
+      "Reduce el riesgo de timing del mercado",
+      "Disciplina automática de inversión",
+      "Ideal para principiantes sin experiencia en análisis de mercados",
+      "Reduce el impacto emocional de la volatilidad",
+      "Permite invertir sin necesidad de grandes sumas iniciales"
+    ],
+    disadvantages: [
+      "Puede ser menos rentable que una inversión de suma global en mercados alcistas",
+      "No aprovecha oportunidades puntuales del mercado",
+      "Requiere constancia y disciplina a largo plazo"
+    ],
+    suitability: {
+      'Bajo Riesgo': {
+        'Principiante': "Perfect para ti: elimina la presión de decidir cuándo invertir y reduce la ansiedad asociada con la volatilidad del mercado.",
+        'Intermedio': "Excelente estrategia que complementa tu perfil conservador, permitiendo una entrada gradual y controlada al mercado.",
+        'Avanzado': "Aunque tengas experiencia, esta estrategia te permite mantener un enfoque disciplinado sin asumir riesgos de timing."
+      },
+      'Riesgo Moderado': {
+        'Principiante': "Ideal para construir confianza mientras aprendes sobre los mercados, reduciendo el riesgo de tomar decisiones emocionales.",
+        'Intermedio': "Te permite mantener una estrategia consistente mientras desarrollas tu comprensión de los ciclos del mercado.",
+        'Avanzado': "Una base sólida que puedes combinar con otras estrategias más sofisticadas según las oportunidades del mercado."
+      },
+      'Alto Riesgo': {
+        'Principiante': "Te ayuda a entrar al mercado de forma controlada, evitando la tentación de apostar todo en momentos de alta volatilidad.",
+        'Intermedio': "Proporciona estabilidad a tu estrategia general, complementando posibles inversiones más arriesgadas.",
+        'Avanzado': "Una estrategia core que te permite mantener disciplina mientras exploras oportunidades más agresivas con parte de tu capital."
+      }
+    }
+  },
+
+  PERIODIC: {
+    name: "Inversión Periódica Simple",
+    shortDescription: "Aportes regulares sin estrategia específica de timing",
+    description: "Similar al DCA, pero más flexible en cuanto a montos y frecuencia. Consiste en realizar aportes regulares a tu cartera sin una estrategia específica de timing o promediado de costos.",
+    howItWorks: "Realizas aportes de forma regular (que pueden variar en cantidad) a tu cartera, manteniendo la disciplina de inversión pero con mayor flexibilidad que el DCA estricto.",
+    advantages: [
+      "Mayor flexibilidad que el DCA puro",
+      "Mantiene la disciplina de ahorro e inversión",
+      "Permite ajustar montos según tu situación financiera",
+      "Simple de implementar y mantener"
+    ],
+    disadvantages: [
+      "Menos sistemático que el DCA",
+      "Mayor riesgo de inconsistencia en los aportes",
+      "No aprovecha el efecto de promediado de costos de forma óptima"
+    ],
+    suitability: {
+      'Bajo Riesgo': {
+        'Principiante': "Perfecta para comenzar con inversiones regulares sin la presión de montos fijos, adaptándose a tu comodidad financiera.",
+        'Intermedio': "Te permite mantener consistencia en tus inversiones con la flexibilidad que tu experiencia te permite manejar.",
+        'Avanzado': "Una estrategia base simple que puedes ajustar según tu análisis del mercado y situación personal."
+      }
+    }
+  },
+
+  VALUE_AVERAGING: {
+    name: "Value Averaging",
+    shortDescription: "Estrategia que ajusta aportes según el rendimiento",
+    description: "Una estrategia más sofisticada que el DCA donde ajustas tus aportes basándote en el rendimiento de tu cartera. El objetivo es que tu cartera crezca en una cantidad específica cada periodo.",
+    howItWorks: "Estableces un objetivo de crecimiento (por ejemplo, €100 mensuales). Si tu cartera ha subido mucho, aportas menos o incluso vendes. Si ha bajado, aportas más para alcanzar tu objetivo de crecimiento.",
+    advantages: [
+      "Matemáticamente superior al DCA en la mayoría de escenarios",
+      "Compra más en mínimos y menos en máximos de forma automática",
+      "Disciplina mejorada con rebalanceo implícito",
+      "Mejor rendimiento a largo plazo que el DCA tradicional"
+    ],
+    disadvantages: [
+      "Más complejo de implementar que el DCA",
+      "Requiere mayor capital disponible para aportes variables",
+      "Puede requerir vender en algunos periodos",
+      "Mayor carga administrativa y seguimiento"
+    ],
+    suitability: {
+      'Riesgo Moderado': {
+        'Principiante': "Una evolución natural del DCA que puedes implementar una vez que te sientas cómodo con las inversiones periódicas.",
+        'Intermedio': "Ideal para tu perfil: combina disciplina con un enfoque más sofisticado que puede mejorar tus rendimientos.",
+        'Avanzado': "Excelente estrategia que aprovecha tu experiencia para optimizar el timing de aportes de forma sistemática."
+      },
+      'Alto Riesgo': {
+        'Principiante': "Considera dominar primero el DCA antes de implementar esta estrategia más compleja.",
+        'Intermedio': "Una estrategia valiosa que puede complementar tu tolerancia al riesgo con un enfoque más disciplinado.",
+        'Avanzado': "Perfecta para maximizar el potencial de tu estrategia, combinando sofisticación con disciplina."
+      }
+    }
+  },
+
+  CORE_SATELLITE: {
+    name: "Core & Satellite",
+    shortDescription: "Combinación de inversión pasiva (core) con oportunidades activas (satélites)",
+    description: "Estrategia que divide tu cartera en dos partes: un 'core' o núcleo de inversiones pasivas y diversificadas (70-90% de la cartera), y 'satélites' que son inversiones más específicas o activas (10-30%).",
+    howItWorks: "El core está formado por ETFs diversificados de bajo costo que forman la base estable de tu cartera. Los satélites son inversiones en sectores específicos, acciones individuales, o temas de inversión que crees que pueden superar al mercado.",
+    advantages: [
+      "Combina los beneficios de la inversión pasiva con oportunidades activas",
+      "Reduce riesgos manteniendo un núcleo diversificado",
+      "Permite expresar tus convicciones de inversión de forma controlada",
+      "Flexibilidad para adaptarse a oportunidades del mercado",
+      "Costos controlados en la parte core"
+    ],
+    disadvantages: [
+      "Requiere más conocimiento para gestionar los satélites",
+      "Mayor complejidad de seguimiento y rebalanceo",
+      "Riesgo de que los satélites no superen al core",
+      "Puede generar overconfidence en las habilidades de selección"
+    ],
+    suitability: {
+      'Riesgo Moderado': {
+        'Intermedio': "Perfecta para tu nivel: te permite mantener estabilidad con el core mientras exploras oportunidades específicas con los satélites.",
+        'Avanzado': "Ideal para aprovechar tu experiencia en la selección de satélites mientras mantienes una base sólida y diversificada."
+      },
+      'Alto Riesgo': {
+        'Intermedio': "Te permite canalizar tu tolerancia al riesgo de forma inteligente, concentrando las apuestas arriesgadas en los satélites.",
+        'Avanzado': "Excelente para maximizar oportunidades mientras mantienes un enfoque disciplinado en la parte principal de tu cartera."
+      }
+    }
+  },
+
+  REBALANCING: {
+    name: "Rebalanceo Sistemático",
+    shortDescription: "Mantener las proporciones objetivo de tu cartera",
+    description: "Estrategia de mantenimiento que consiste en ajustar periódicamente tu cartera para mantener las proporciones originales entre diferentes activos o clases de activos.",
+    howItWorks: "Estableces proporciones objetivo (ej: 70% acciones, 30% bonos) y periódicamente (trimestral, anual) vendes lo que ha subido más y compras lo que ha bajado para volver a esas proporciones.",
+    advantages: [
+      "Disciplina automática de 'comprar barato, vender caro'",
+      "Mantiene el nivel de riesgo objetivo de la cartera",
+      "Reduce la deriva del riesgo a lo largo del tiempo",
+      "Aprovecha la reversión a la media de los mercados",
+      "Sistema objetivo sin emociones"
+    ],
+    disadvantages: [
+      "Puede generar fricciones fiscales por las ventas",
+      "Interrumpe tendencias alcistas fuertes",
+      "Requiere disciplina para vender activos que van bien",
+      "Costos de transacción en cada rebalanceo"
+    ],
+    suitability: {
+      'Riesgo Moderado': {
+        'Avanzado': "Esencial para tu estrategia: te permite mantener el equilibrio riesgo-retorno que buscas sin deriva temporal."
+      },
+      'Alto Riesgo': {
+        'Avanzado': "Fundamental para evitar que tu cartera se vuelva demasiado concentrada en activos que han subido mucho, manteniendo la diversificación."
+      }
+    }
+  },
+
+  BUY_THE_DIP: {
+    name: "Buy the Dip",
+    shortDescription: "Aprovechar caídas del mercado para invertir más",
+    description: "Estrategia que consiste en aumentar las inversiones durante las caídas significativas del mercado (generalmente 10% o más desde máximos recientes).",
+    howItWorks: "Mantienes efectivo de reserva para aprovechar caídas del mercado. Cuando los precios bajan significativamente, utilizas este efectivo para comprar a precios más bajos.",
+    advantages: [
+      "Aprovecha la volatilidad del mercado a tu favor",
+      "Puede mejorar significativamente los retornos a largo plazo",
+      "Permite comprar activos de calidad a descuento",
+      "Psicológicamente satisfactorio cuando funciona"
+    ],
+    disadvantages: [
+      "Requiere mantener efectivo improductivo esperando oportunidades",
+      "Muy difícil determinar cuándo es realmente 'el fondo'",
+      "Puede llevar a intentar 'market timing' de forma emocional",
+      "Los 'dips' pueden convertirse en caídas prolongadas",
+      "Requiere disciplina y control emocional excepcional"
+    ],
+    suitability: {
+      'Alto Riesgo': {
+        'Avanzado': "Tu experiencia y tolerancia al riesgo te permiten implementar esta estrategia, pero úsala solo con una pequeña parte de tu capital y con mucha disciplina. Recuerda que 'catching a falling knife' puede ser peligroso incluso para expertos."
+      }
+    }
+  }
+};
+
+module.exports = {
+  STRATEGIES_EDUCATION
+};

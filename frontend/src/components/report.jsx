@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import InvestorProfileSection from './InvestorProfileSection';
 import ModernPortfolioChart from './ModernPortfolioChart';
 import EmergencyFundReport from './EmergencyFundReport';
+import StrategiesSection from './strategiesSection';
 import EducationalGuide from './EducationalGuide';
 import RecommendationsSection from './RecommendationSection';
 
@@ -17,8 +18,11 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [result]);
-// Prueba del investorProfileSection.jsx
-console.log("InvestorProfile:", result?.investorProfile);
+
+  // Prueba del investorProfileSection.jsx
+  console.log("InvestorProfile:", result?.investorProfile);
+  console.log("Investment Strategies:", result?.investmentStrategies);
+  
   if (!result) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
@@ -48,6 +52,7 @@ console.log("InvestorProfile:", result?.investorProfile);
         {result.portfolio && <ModernPortfolioChart portfolio={result.portfolio} />}
         {result.recommendations && <RecommendationsSection recommendations={result.recommendations} />}
         {result.report && <EmergencyFundReport report={result.report} />}
+        {result.investmentStrategies && <StrategiesSection strategies={result.investmentStrategies} />}
         {result.educationalGuide && <EducationalGuide guide={result.educationalGuide} />}
       </div>
 

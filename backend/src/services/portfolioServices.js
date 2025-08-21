@@ -2,6 +2,7 @@
 
 const CONFIG = require('../config/portfolioConfig');
 const { ASSET_EDUCATION } = require('../config/assetEducation');
+const { STRATEGIES_EDUCATION } = require('../config/strategiesEducation');
 
 class PortfolioService {
   
@@ -147,6 +148,53 @@ class PortfolioService {
     }
     
     return informe;
+  }
+
+  /**
+   * Genera las estrategias de inversión recomendadas
+   */
+  generateInvestmentStrategies(session) {
+    const portfolio = this.calculatePortfolio(session);
+    const experienceLevel = this.getExperienceLevel(session.experienceScore);
+
+
+    console.log('Raw portfolio.riskProfile:', portfolio.riskProfile);
+  console.log('Raw experienceLevel:', experienceLevel);
+  console.log('Available keys in STRATEGY_MESSAGES:', Object.keys(CONFIG.STRATEGY_MESSAGES));
+  console.log('Available keys for this risk profile:', Object.keys(CONFIG.STRATEGY_MESSAGES[portfolio.riskProfile] || {}));
+    // Obtener estrategias del config
+    const strategiesString = CONFIG.STRATEGY_MESSAGES[portfolio.riskProfile]?.[experienceLevel] || '';
+    const strategyNames = strategiesString.split(', ').filter(name => name.trim() !== '');
+    // AGREGA ESTOS CONSOLE.LOGS:
+  console.log('Portfolio riskProfile:', portfolio.riskProfile);
+  console.log('Experience level:', experienceLevel);
+  console.log('Strategies string:', strategiesString);
+    const recommendedStrategies = [];
+    
+    // Mapear nombres de estrategias a objetos completos
+    strategyNames.forEach(strategyName => {
+      const strategyKey = strategyName.replace(' ', '_').toUpperCase();
+      if (STRATEGIES_EDUCATION[strategyKey]) {
+        const strategy = STRATEGIES_EDUCATION[strategyKey];
+        const suitabilityText = strategy.suitability[portfolio.riskProfile]?.[experienceLevel];
+        
+        recommendedStrategies.push({
+          ...strategy,
+          personalizedReason: suitabilityText || strategy.description,
+          priority: recommendedStrategies.length === 0 ? 'high' : 'medium' // Primera estrategia como prioritaria
+        });
+      }
+    });
+    
+    return {
+      title: "Estrategias de Inversión",
+      description: "Estrategias recomendadas específicamente para tu perfil de riesgo y nivel de experiencia",
+      userProfile: {
+        riskProfile: portfolio.riskProfile,
+        experienceLevel: CONFIG.KNOWLEDGE_LEVELS[experienceLevel]?.name || experienceLevel
+      },
+      strategies: recommendedStrategies
+    };
   }
 
   /**
@@ -300,12 +348,6 @@ class PortfolioService {
       }
     }
 
-    // Mensaje de estrategia de inversión según nivel y riesgo
-    const strategyExplanation = CONFIG.STRATEGY_MESSAGES[portfolio.riskProfile]?.[experienceLevel];
-    if (strategyExplanation && strategyExplanation.trim() !== "") {
-      explicaciones.push(strategyExplanation);
-    }
-
     // Explicación del perfil de riesgo (siempre)
     const riskExplanation = CONFIG.RECOMMENDATIONS.RISK_PROFILE[portfolio.riskProfile];
     if (riskExplanation) {
@@ -341,6 +383,7 @@ class PortfolioService {
       portfolio: portfolio.allocation,
       report: this.generateReport(session),
       recommendations: this.generateRecommendations(session),
+      investmentStrategies: this.generateInvestmentStrategies(session),
       educationalGuide: this.generateEducationalGuide(session),
       investorProfile: this.generateInvestorProfile(session)
     };
