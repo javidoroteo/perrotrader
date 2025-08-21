@@ -149,9 +149,9 @@ class PortfolioService {
     return informe;
   }
 
-  
-   //Genera educación sobre los activos en la cartera
-  
+  /**
+   * Genera educación sobre los activos en la cartera
+   */
   generateAssetEducation(session) {
     const portfolio = this.calculatePortfolio(session);
     const activeAssets = [];
@@ -186,6 +186,64 @@ class PortfolioService {
    */
   generateEducationalGuide(session) {
     return this.generateAssetEducation(session);
+  }
+
+  /**
+   * Genera el objeto investorProfile basado en la sesión
+   */
+  generateInvestorProfile(session) {
+    const riskProfile = this.getRiskLevel(session.totalScore);
+    const experienceLevel = this.getExperienceLevel(session.experienceScore);
+
+    // Mapeo para investorType y riskTolerance desde RISK_PROFILES
+    const investorType = CONFIG.RISK_PROFILES[riskProfile]?.name || 'No definido';
+    const riskTolerance = CONFIG.RECOMMENDATIONS.RISK_PROFILE[riskProfile]
+      ? CONFIG.RISK_PROFILES[riskProfile].name // Usa el nombre directamente
+      : 'No definido';
+
+    // Mapeo para timeHorizon desde RECOMMENDATIONS.TIME_HORIZON
+    const timeHorizon = CONFIG.RECOMMENDATIONS.TIME_HORIZON[session.timeValue]
+      ? CONFIG.RECOMMENDATIONS.TIME_HORIZON[session.timeValue].split('.')[0] // Extrae solo la primera parte
+      : 'No definido';
+
+    // Mapeo para esgSensitivity desde ESG_LEVEL
+    const esgSensitivity = session.esgValue > 0
+      ? CONFIG.ESG_LEVEL[experienceLevel]?.[session.esgValue] || 'No definido'
+      : 'Nula';
+
+    // Objetivo principal: Inferido de session (pensionFund, dividend, etc.)
+    let mainObjective = 'No especificado';
+    if (session.pensionFund > 0) {
+      mainObjective = 'Jubilación';
+    } else if (session.dividend > 0) {
+      mainObjective = 'Generar ingresos';
+    }
+
+    // RiskScale: Normalizar totalScore (max 94 según RISK_PROFILES)
+    const maxScore = CONFIG.RISK_PROFILES.HIGH.max; // 94
+    const riskValue = Math.round((session.totalScore / maxScore) * 100);
+
+    // Colores para riskScale basados en riskProfile
+    const riskColorMap = {
+      LOW: 'green',
+      MODERATE: 'yellow',
+      HIGH: 'red'
+    };
+
+    return {
+      riskScale: {
+        value: riskValue,
+        color: riskColorMap[riskProfile] || 'gray'
+      },
+      profile: {
+        investorType,
+        mainObjective,
+        experienceLevel: CONFIG.KNOWLEDGE_LEVELS[experienceLevel]?.name || experienceLevel,
+        riskTolerance,
+        timeHorizon,
+        ...(session.esgValue > 0 && { esgSensitivity })
+      }
+    };
   }
 
   /**
@@ -283,10 +341,10 @@ class PortfolioService {
       portfolio: portfolio.allocation,
       report: this.generateReport(session),
       recommendations: this.generateRecommendations(session),
-      educationalGuide: this.generateEducationalGuide(session)
+      educationalGuide: this.generateEducationalGuide(session),
+      investorProfile: this.generateInvestorProfile(session)
     };
   }
 }
 
-// Exportar instancia única
 module.exports = new PortfolioService();

@@ -24,7 +24,7 @@ const ModernSection = ({
 
   return (
     <div
-      className={`relative mb-8 rounded-3xl backdrop-blur-xl bg-white/10 border border-white/20 overflow-hidden transition-all duration-500 hover:scale-[1.01] hover:shadow-2xl ${glowColors[glow]} ${priority ? 'ring-2 ring-yellow-400/50 shadow-yellow-400/20' : ''}`}
+      className={`relative mb-8 rounded-3xl backdrop-blur-xl bg-white/10 border border-white/20 overflow-auto transition-all duration-500 hover:scale-[1.01] hover:shadow-2xl ${glowColors[glow]} ${priority ? 'ring-2 ring-yellow-400/50 shadow-yellow-400/20' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -69,7 +69,7 @@ const ModernSection = ({
         </div>
       </div>
 
-      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-none opacity-100' : 'max-h-0 opacity-0'}`}>
         <div className="relative px-8 py-6">
           {children}
         </div>

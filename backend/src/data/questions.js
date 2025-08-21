@@ -430,7 +430,7 @@ const questions = [
         id: 402,
         section: "Tolerancia al Riesgo",
         question: "¿Y si tus inversiones pierden un 50% de su valor en un año?",
-        explanation: "Inviertes 10.000€ y ves tu cuenta de inversiones en 7.000€, ¿Qué haces?",
+        explanation: "Inviertes 10.000€ y ves tu cuenta de inversiones en 5.000€, ¿Qué haces?",
         answers: [
             { text: "Vendería todo para evitar más pérdidas.", points: -1, nextQuestion: 403 },
             { text: "Vendería una parte para reducir el riesgo.", points: 0, nextQuestion: 403 },

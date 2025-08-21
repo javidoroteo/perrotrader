@@ -25,7 +25,7 @@ export class DataMapper {
         riskTolerance: this.mapRiskTolerance(backendData.riskProfile),
         timeHorizon: this.mapTimeHorizon(backendData.session?.timeValue),
         mainObjective: this.mapMainObjective(backendData.riskProfile),
-        experienceLevel: this.mapExperienceLevel(backendData.session?.experienceScore),
+        experienceLevel: backendData.experienceLevel || this.mapExperienceLevel(backendData.session?.experienceScore),
         esgSensitivity: this.mapESGSensitivity(backendData.session?.esgValue)
       }
     };
@@ -60,7 +60,7 @@ export class DataMapper {
   }
 
   static mapExperienceLevel(experienceScore) {
-    if (experienceScore <= 6) return 'Principiante';
+    if (!experienceScore || experienceScore <= 6) return 'Principiante';
     if (experienceScore <= 13) return 'Intermedio';
     return 'Avanzado';
   }
@@ -76,6 +76,11 @@ export class DataMapper {
    * Normaliza el portfolio del backend
    */
   static normalizePortfolio(portfolio) {
+    if (!portfolio || typeof portfolio !== 'object') {
+      console.warn('Portfolio data is invalid:', portfolio);
+      return {};
+    }
+
     const normalized = {};
     
     // Mapear nombres del backend a nombres frontend si es necesario
@@ -89,7 +94,8 @@ export class DataMapper {
 
     Object.entries(portfolio).forEach(([key, value]) => {
       const mappedKey = assetMapping[key] || key;
-      normalized[mappedKey] = Math.round(value * 100) / 100; // Redondear a 2 decimales
+      const numValue = parseFloat(value);
+      normalized[mappedKey] = isNaN(numValue) ? 0 : Math.round(numValue * 100) / 100;
     });
 
     return normalized;
@@ -99,12 +105,28 @@ export class DataMapper {
    * Transforma la respuesta completa del backend
    */
   static transformBackendResponse(backendResponse) {
-    return {
-      investorProfile: this.mapInvestorProfile(backendResponse),
+    console.log('Backend response:', backendResponse); // Debug log
+    
+    if (!backendResponse) {
+      throw new Error('Backend response is empty');
+    }
+
+    // Construir el objeto de perfil del inversor usando los datos disponibles
+    const profileData = {
+      riskProfile: backendResponse.riskProfile,
+      experienceLevel: backendResponse.experienceLevel,
+      session: backendResponse.session || {}
+    };
+
+    const transformed = {
+      investorProfile: this.mapInvestorProfile(profileData),
       portfolio: this.normalizePortfolio(backendResponse.portfolio),
       recommendations: backendResponse.recommendations,
-      emergencyFundReport: backendResponse.report,
+      report: backendResponse.report, // Changed from emergencyFundReport
       educationalGuide: backendResponse.educationalGuide
     };
+
+    console.log('Transformed data:', transformed); // Debug log
+    return transformed;
   }
 }

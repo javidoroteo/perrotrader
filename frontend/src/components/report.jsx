@@ -17,7 +17,8 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [result]);
-
+// Prueba del investorProfileSection.jsx
+console.log("InvestorProfile:", result?.investorProfile);
   if (!result) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
@@ -57,7 +58,7 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
         <button onClick={onRestart} className="ml-4 px-8 py-4 bg-gray-200 text-gray-800 rounded-full font-semibold hover:bg-gray-300 transition-colors">Reiniciar Quiz</button>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeInUp {
           from {
             opacity: 0;
