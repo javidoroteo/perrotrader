@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import InvestorProfileSection from './InvestorProfileSection';
 import ModernPortfolioChart from './ModernPortfolioChart';
 import EmergencyFundReport from './EmergencyFundReport';
+import RentaVariableSection from './RentaVariableSection'; // NUEVA IMPORTACIÓN
 import StrategiesSection from './strategiesSection';
 import EducationalGuide from './EducationalGuide';
 import RecommendationsSection from './RecommendationSection';
@@ -22,6 +23,7 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
   // Prueba del investorProfileSection.jsx
   console.log("InvestorProfile:", result?.investorProfile);
   console.log("Investment Strategies:", result?.investmentStrategies);
+  console.log("Renta Variable Advice:", result?.rentaVariableAdvice); // NUEVO LOG
   
   if (!result) {
     return (
@@ -52,6 +54,7 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
         {result.portfolio && <ModernPortfolioChart portfolio={result.portfolio} />}
         {result.recommendations && <RecommendationsSection recommendations={result.recommendations} />}
         {result.report && <EmergencyFundReport report={result.report} />}
+        {result.rentaVariableAdvice && <RentaVariableSection rentaVariableAdvice={result.rentaVariableAdvice} />} {/* NUEVA SECCIÓN */}
         {result.investmentStrategies && <StrategiesSection strategies={result.investmentStrategies} />}
         {result.educationalGuide && <EducationalGuide guide={result.educationalGuide} />}
       </div>

@@ -3,6 +3,7 @@
 const CONFIG = require('../config/portfolioConfig');
 const { ASSET_EDUCATION } = require('../config/assetEducation');
 const { STRATEGIES_EDUCATION } = require('../config/strategiesEducation');
+const { RENTA_VARIABLE_CONFIG } = require('../config/rentaVariableConfig'); // Nueva importación
 
 class PortfolioService {
   
@@ -157,18 +158,19 @@ class PortfolioService {
     const portfolio = this.calculatePortfolio(session);
     const experienceLevel = this.getExperienceLevel(session.experienceScore);
 
-
     console.log('Raw portfolio.riskProfile:', portfolio.riskProfile);
-  console.log('Raw experienceLevel:', experienceLevel);
-  console.log('Available keys in STRATEGY_MESSAGES:', Object.keys(CONFIG.STRATEGY_MESSAGES));
-  console.log('Available keys for this risk profile:', Object.keys(CONFIG.STRATEGY_MESSAGES[portfolio.riskProfile] || {}));
+    console.log('Raw experienceLevel:', experienceLevel);
+    console.log('Available keys in STRATEGY_MESSAGES:', Object.keys(CONFIG.STRATEGY_MESSAGES));
+    console.log('Available keys for this risk profile:', Object.keys(CONFIG.STRATEGY_MESSAGES[portfolio.riskProfile] || {}));
+    
     // Obtener estrategias del config
     const strategiesString = CONFIG.STRATEGY_MESSAGES[portfolio.riskProfile]?.[experienceLevel] || '';
     const strategyNames = strategiesString.split(', ').filter(name => name.trim() !== '');
-    // AGREGA ESTOS CONSOLE.LOGS:
-  console.log('Portfolio riskProfile:', portfolio.riskProfile);
-  console.log('Experience level:', experienceLevel);
-  console.log('Strategies string:', strategiesString);
+    
+    console.log('Portfolio riskProfile:', portfolio.riskProfile);
+    console.log('Experience level:', experienceLevel);
+    console.log('Strategies string:', strategiesString);
+    
     const recommendedStrategies = [];
     
     // Mapear nombres de estrategias a objetos completos
@@ -194,6 +196,91 @@ class PortfolioService {
         experienceLevel: CONFIG.KNOWLEDGE_LEVELS[experienceLevel]?.name || experienceLevel
       },
       strategies: recommendedStrategies
+    };
+  }
+
+  /**
+   * NUEVA FUNCIÓN: Genera consejos de renta variable personalizados
+   */
+  generateRentaVariableAdvice(session) {
+    const portfolio = this.calculatePortfolio(session);
+    const experienceLevel = this.getExperienceLevel(session.experienceScore);
+    const experienceLevelName = CONFIG.KNOWLEDGE_LEVELS[experienceLevel]?.name || experienceLevel;
+    
+    // Solo mostrar si hay asignación a acciones
+    if (portfolio.allocation.acciones <= 0) {
+      return null;
+    }
+    
+    // Obtener contenido principal
+    const mainContent = RENTA_VARIABLE_CONFIG.MAIN_CONTENT[experienceLevelName]?.[session.dividend];
+    
+    if (!mainContent) {
+      return null;
+    }
+    
+    // Construir bloques adicionales
+    const additionalBlocks = [];
+    
+    // Bloque de tecnología (si tiene interés en crypto/tech)
+    if (session.cryptoScore > 0) {
+      const techBlock = RENTA_VARIABLE_CONFIG.ADDITIONAL_BLOCKS.TECNOLOGIA[experienceLevelName];
+      if (techBlock) {
+        additionalBlocks.push({
+          type: 'TECNOLOGIA',
+          title: 'Enfoque Tecnológico',
+          content: techBlock
+        });
+      }
+    }
+    
+    // Bloque ESG (si tiene preferencias ESG)
+    if (session.esgValue > 0) {
+      const esgBlock = RENTA_VARIABLE_CONFIG.ADDITIONAL_BLOCKS.ESG[experienceLevelName];
+      if (esgBlock) {
+        additionalBlocks.push({
+          type: 'ESG',
+          title: 'Inversión Sostenible',
+          content: esgBlock
+        });
+      }
+    }
+    
+    // Bloque conservador (si tiene perfil de bajo riesgo)
+    if (portfolio.riskProfile === 'Bajo Riesgo') {
+      const conservativeBlock = RENTA_VARIABLE_CONFIG.ADDITIONAL_BLOCKS.MUY_CONSERVADOR[experienceLevelName];
+      if (conservativeBlock) {
+        additionalBlocks.push({
+          type: 'MUY_CONSERVADOR',
+          title: 'Enfoque Conservador',
+          content: conservativeBlock
+        });
+      }
+    }
+    
+    // Bloque largo plazo (si tiene horizonte > 10 años)
+    if (session.timeValue === 4) {
+      const longTermBlock = RENTA_VARIABLE_CONFIG.ADDITIONAL_BLOCKS.LARGO_PLAZO[experienceLevelName];
+      if (longTermBlock) {
+        additionalBlocks.push({
+          type: 'LARGO_PLAZO',
+          title: 'Visión a Largo Plazo',
+          content: longTermBlock
+        });
+      }
+    }
+    
+    return {
+      title: "Renta Variable - Guía Personalizada",
+      description: `Consejos específicos para invertir en acciones según tu perfil ${experienceLevelName.toLowerCase()}`,
+      userProfile: {
+        experienceLevel: experienceLevelName,
+        seeksDividends: session.dividend === 1,
+        riskProfile: portfolio.riskProfile,
+        equityAllocation: Math.round(portfolio.allocation.acciones)
+      },
+      mainContent,
+      additionalBlocks
     };
   }
 
@@ -383,6 +470,7 @@ class PortfolioService {
       portfolio: portfolio.allocation,
       report: this.generateReport(session),
       recommendations: this.generateRecommendations(session),
+      rentaVariableAdvice: this.generateRentaVariableAdvice(session), // NUEVA SECCIÓN
       investmentStrategies: this.generateInvestmentStrategies(session),
       educationalGuide: this.generateEducationalGuide(session),
       investorProfile: this.generateInvestorProfile(session)
