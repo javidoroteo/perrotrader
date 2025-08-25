@@ -1,38 +1,44 @@
 import React from 'react';
-import { BarChart3, TrendingUp, Target, Lightbulb, Users, DollarSign, Award, Shield, Leaf, Clock } from 'lucide-react';
+import { Building2, TrendingDown, Target, Lightbulb, Users, DollarSign, Award, Shield, Leaf, Clock, Timer, PiggyBank } from 'lucide-react';
 import ModernSection from './ModernSection';
 
-const RentaVariableSection = ({ rentaVariableAdvice }) => {
-  if (!rentaVariableAdvice) {
+const RentaFijaSection = ({ rentaFijaAdvice }) => {
+  if (!rentaFijaAdvice) {
     return null;
   }
 
   const getBlockIcon = (blockType) => {
     switch (blockType) {
-      case 'TECNOLOGIA': return TrendingUp;
+      case 'HORIZONTE_CORTO': return Timer;
+      case 'HORIZONTE_MEDIO': return Clock;
+      case 'HORIZONTE_LARGO': return TrendingDown;
       case 'ESG': return Leaf;
-      case 'LARGO_PLAZO': return Clock;
       case 'MUY_CONSERVADOR': return Shield;
+      case 'INFLACION_ALTA': return TrendingDown;
       default: return Lightbulb;
     }
   };
 
   const getBlockGradient = (blockType) => {
     switch (blockType) {
-      case 'TECNOLOGIA': return 'from-blue-500 to-purple-600';
+      case 'HORIZONTE_CORTO': return 'from-red-500 to-pink-600';
+      case 'HORIZONTE_MEDIO': return 'from-yellow-500 to-orange-600';
+      case 'HORIZONTE_LARGO': return 'from-blue-500 to-indigo-600';
       case 'ESG': return 'from-green-500 to-emerald-600';
-      case 'LARGO_PLAZO': return 'from-orange-500 to-red-600';
       case 'MUY_CONSERVADOR': return 'from-gray-500 to-slate-600';
+      case 'INFLACION_ALTA': return 'from-orange-500 to-red-600';
       default: return 'from-indigo-500 to-purple-600';
     }
   };
 
   const getBlockGlow = (blockType) => {
     switch (blockType) {
-      case 'TECNOLOGIA': return 'blue';
+      case 'HORIZONTE_CORTO': return 'red';
+      case 'HORIZONTE_MEDIO': return 'yellow';
+      case 'HORIZONTE_LARGO': return 'blue';
       case 'ESG': return 'green';
-      case 'LARGO_PLAZO': return 'orange';
       case 'MUY_CONSERVADOR': return 'gray';
+      case 'INFLACION_ALTA': return 'orange';
       default: return 'purple';
     }
   };
@@ -47,68 +53,77 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
 
   return (
     <ModernSection
-      title="Renta Variable - Tu Guía Personalizada"
-      icon={BarChart3}
+      title="Renta Fija - Tu Estrategia de Bonos"
+      icon={Building2}
       defaultOpen={false}
-      gradient="from-blue-500 to-indigo-600"
-      glow="blue"
+      gradient="from-emerald-500 to-teal-600"
+      glow="green"
     >
       <div className="space-y-8">
         {/* Header con información del perfil */}
         <div className="text-center mb-8">
           <p className="text-lg text-gray-700 mb-4">
-            {rentaVariableAdvice.description}
+            {rentaFijaAdvice.description}
           </p>
           <div className="flex justify-center items-center flex-wrap gap-4 text-sm">
             <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full">
               <Users className="w-4 h-4 mr-2 text-blue-600" />
               <span className="text-blue-800">
-                Nivel: {rentaVariableAdvice.userProfile.experienceLevel}
+                Nivel: {rentaFijaAdvice.userProfile.experienceLevel}
               </span>
             </div>
             
-            <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full">
-              <Target className="w-4 h-4 mr-2 text-blue-600" />
-              <span className="text-blue-800">
-                {rentaVariableAdvice.userProfile.seeksDividends ? 'Busca dividendos' : 'Busca crecimiento'}
+            <div className="flex items-center bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-full">
+              <Target className="w-4 h-4 mr-2 text-green-600" />
+              <span className="text-green-800">
+                {rentaFijaAdvice.userProfile.seeksDividends ? 'Busca ingresos' : 'Busca acumulación'}
               </span>
             </div>
             
             <div className="flex items-center bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-2 rounded-full">
-              <BarChart3 className="w-4 h-4 mr-2 text-purple-600" />
+              <Building2 className="w-4 h-4 mr-2 text-purple-600" />
               <span className="text-purple-800">
-                {rentaVariableAdvice.userProfile.equityAllocation}% en acciones
+                {rentaFijaAdvice.userProfile.totalFixedIncomeAllocation}% en renta fija
               </span>
             </div>
+
+            {rentaFijaAdvice.userProfile.greenBondsAllocation > 0 && (
+              <div className="flex items-center bg-gradient-to-r from-emerald-50 to-green-50 px-4 py-2 rounded-full">
+                <Leaf className="w-4 h-4 mr-2 text-emerald-600" />
+                <span className="text-emerald-800">
+                  {rentaFijaAdvice.userProfile.greenBondsAllocation}% bonos verdes
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Contenido principal */}
         <div className="bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl border border-white/30 p-8">
           <div className="flex items-center mb-6">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg mr-4">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg mr-4">
               <Award className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-2xl font-bold text-gray-800">
-              {rentaVariableAdvice.mainContent.title}
+              {rentaFijaAdvice.mainContent.title}
             </h3>
           </div>
           
           <div className="space-y-6">
             {/* Contenido principal */}
             <div className="prose prose-gray max-w-none">
-              {formatContent(rentaVariableAdvice.mainContent.content)}
+              {formatContent(rentaFijaAdvice.mainContent.content)}
             </div>
 
             {/* Tips destacados */}
-            {rentaVariableAdvice.mainContent.tips && rentaVariableAdvice.mainContent.tips.length > 0 && (
+            {rentaFijaAdvice.mainContent.tips && rentaFijaAdvice.mainContent.tips.length > 0 && (
               <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 border border-yellow-200">
                 <div className="flex items-center mb-4">
                   <Lightbulb className="w-5 h-5 text-yellow-600 mr-2" />
                   <h4 className="font-semibold text-yellow-800">Consejos importantes:</h4>
                 </div>
                 <ul className="space-y-2">
-                  {rentaVariableAdvice.mainContent.tips.map((tip, index) => (
+                  {rentaFijaAdvice.mainContent.tips.map((tip, index) => (
                     <li key={index} className="text-sm text-yellow-700 flex items-start">
                       <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 mt-1.5 mr-3 flex-shrink-0" />
                       {tip}
@@ -119,14 +134,14 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
             )}
 
             {/* Productos recomendados */}
-            {rentaVariableAdvice.mainContent.products && rentaVariableAdvice.mainContent.products.length > 0 && (
+            {rentaFijaAdvice.mainContent.products && rentaFijaAdvice.mainContent.products.length > 0 && (
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
                 <div className="flex items-center mb-4">
                   <DollarSign className="w-5 h-5 text-blue-600 mr-2" />
                   <h4 className="font-semibold text-blue-800">Productos destacados para tu perfil:</h4>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
-                  {rentaVariableAdvice.mainContent.products.map((product, index) => (
+                  {rentaFijaAdvice.mainContent.products.map((product, index) => (
                     <div key={index} className="bg-white/50 rounded-lg p-4 border border-blue-200">
                       <h5 className="font-semibold text-blue-900 mb-2">{product.name}</h5>
                       <p className="text-sm text-blue-700">{product.description}</p>
@@ -139,15 +154,15 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
         </div>
 
         {/* Bloques adicionales */}
-        {rentaVariableAdvice.additionalBlocks && rentaVariableAdvice.additionalBlocks.length > 0 && (
+        {rentaFijaAdvice.additionalBlocks && rentaFijaAdvice.additionalBlocks.length > 0 && (
           <div className="space-y-6">
             <div className="text-center">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Consideraciones Adicionales</h3>
-              <p className="text-gray-600">Basadas en tu perfil específico</p>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Consideraciones Específicas</h3>
+              <p className="text-gray-600">Adaptadas a tu horizonte temporal y perfil</p>
             </div>
             
             <div className="grid gap-6">
-              {rentaVariableAdvice.additionalBlocks.map((block, index) => {
+              {rentaFijaAdvice.additionalBlocks.map((block, index) => {
                 const IconComponent = getBlockIcon(block.type);
                 const gradient = getBlockGradient(block.type);
                 const glow = getBlockGlow(block.type);
@@ -179,16 +194,16 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
         )}
 
         {/* Mensaje de cierre */}
-        <div className="mt-8 p-6 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200">
+        <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200">
           <div className="flex items-center mb-3">
-            <Target className="w-5 h-5 text-emerald-600 mr-2" />
-            <h4 className="font-semibold text-emerald-800">Recuerda</h4>
+            <PiggyBank className="w-5 h-5 text-blue-600 mr-2" />
+            <h4 className="font-semibold text-blue-800">Recuerda</h4>
           </div>
-          <p className="text-emerald-700 text-sm leading-relaxed">
-            La renta variable es el motor de crecimiento de tu cartera a largo plazo. Mantén la disciplina, 
-            diversifica adecuadamente y ajusta tu estrategia según evolucione tu experiencia y situación 
-            financiera. La paciencia y la consistencia son tus mejores aliados para alcanzar tus objetivos 
-            de inversión.
+          <p className="text-blue-700 text-sm leading-relaxed">
+            La renta fija es el componente estabilizador de tu cartera, proporcionando seguridad y 
+            flujos predecibles. Mantén una estrategia disciplinada, diversifica adecuadamente según 
+            tu horizonte temporal, y ajusta la duración según las condiciones del mercado y tus 
+            necesidades de liquidez.
           </p>
         </div>
       </div>
@@ -196,4 +211,4 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
   );
 };
 
-export default RentaVariableSection;
+export default RentaFijaSection;

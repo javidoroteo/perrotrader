@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import InvestorProfileSection from './InvestorProfileSection';
 import ModernPortfolioChart from './ModernPortfolioChart';
 import EmergencyFundReport from './EmergencyFundReport';
-import RentaVariableSection from './RentaVariableSection'; // NUEVA IMPORTACIÓN
+import RentaVariableSection from './RentaVariableSection';
 import StrategiesSection from './strategiesSection';
 import EducationalGuide from './EducationalGuide';
-import RecommendationsSection from './RecommendationSection';
+//import RecommendationsSection from './RecommendationSection';
+import RentaFijaSection from './RentaFijaSection';
 
 const ModernInvestorProfile = ({ result, onRestart }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -52,9 +53,9 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
       <div className="max-w-6xl mx-auto py-12 space-y-8 relative z-10">
         {result.investorProfile && <InvestorProfileSection profileData={result.investorProfile} />}
         {result.portfolio && <ModernPortfolioChart portfolio={result.portfolio} />}
-        {result.recommendations && <RecommendationsSection recommendations={result.recommendations} />}
         {result.report && <EmergencyFundReport report={result.report} />}
-        {result.rentaVariableAdvice && <RentaVariableSection rentaVariableAdvice={result.rentaVariableAdvice} />} {/* NUEVA SECCIÓN */}
+        {result.rentaFijaAdvice && <RentaFijaSection rentaFijaAdvice={result.rentaFijaAdvice} />}
+        {result.rentaVariableAdvice && <RentaVariableSection rentaVariableAdvice={result.rentaVariableAdvice} />}
         {result.investmentStrategies && <StrategiesSection strategies={result.investmentStrategies} />}
         {result.educationalGuide && <EducationalGuide guide={result.educationalGuide} />}
       </div>

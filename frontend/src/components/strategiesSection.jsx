@@ -36,7 +36,7 @@ const StrategiesSection = ({ strategies }) => {
     <ModernSection
       title="Estrategias de Inversión"
       icon={TrendingUp}
-      defaultOpen={true}
+      defaultOpen={false}
       gradient="from-indigo-500 to-purple-600"
       glow="purple"
     >
@@ -109,9 +109,6 @@ const StrategiesSection = ({ strategies }) => {
                         </h4>
                         <p className="text-gray-700 text-sm leading-relaxed mb-3">
                           {strategy.howItWorks}
-                        </p>
-                        <p className="text-gray-700 text-sm leading-relaxed">
-                          {strategy.description}
                         </p>
                       </div>
 

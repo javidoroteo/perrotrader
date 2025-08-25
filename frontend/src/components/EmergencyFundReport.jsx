@@ -9,6 +9,7 @@ const EmergencyFundReport = ({ report }) => {
     <ModernSection
       title="Fondo de Emergencia 🛡️"
       icon={Shield}
+      defaultOpen={false}
       gradient="from-emerald-400 via-teal-500 to-cyan-500"
       glow="green"
     >

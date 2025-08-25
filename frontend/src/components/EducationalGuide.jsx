@@ -9,6 +9,7 @@ const EducationalGuide = ({ guide }) => {
     <ModernSection
       title="Guía Educativa 📚"
       icon={BookOpen}
+      defaultOpen={false}
       gradient="from-indigo-400 via-blue-500 to-purple-500"
       glow="blue"
     >

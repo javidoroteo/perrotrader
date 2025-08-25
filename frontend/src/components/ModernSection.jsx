@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { ChevronDown, Eye, EyeOff, Sparkles, Star } from 'lucide-react';
 
 const ModernSection = ({
@@ -12,6 +12,7 @@ const ModernSection = ({
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [isHovered, setIsHovered] = useState(false);
+  const headerRef = useRef(null);
 
   const glowColors = {
     blue: 'shadow-blue-500/25',
@@ -22,16 +23,29 @@ const ModernSection = ({
     yellow: 'shadow-yellow-500/25'
   };
 
+  const handleToggle = () => {
+    setIsOpen((prev) => {
+      const next = !prev;
+      if (!prev && headerRef.current) {
+        setTimeout(() => {
+          headerRef.current.scrollIntoView({ block: 'start' }); // instantáneo
+        }, 300);
+      }
+      return next;
+    });
+  };
+
   return (
     <div
-      className={`relative mb-8 rounded-3xl backdrop-blur-xl bg-white/10 border border-white/20 overflow-auto transition-all duration-500 hover:scale-[1.01] hover:shadow-2xl ${glowColors[glow]} ${priority ? 'ring-2 ring-yellow-400/50 shadow-yellow-400/20' : ''}`}
+      className={`relative mb-8 rounded-3xl backdrop-blur-xl bg-white/10 border border-white/20 overflow-hidden transition-all duration-500 hover:scale-[1.01] hover:shadow-2xl ${glowColors[glow]} ${priority ? 'ring-2 ring-yellow-400/50 shadow-yellow-400/20' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-5 transition-opacity duration-300 ${isHovered ? 'opacity-10' : ''}`} />
 
       <div
-        onClick={() => setIsOpen(!isOpen)}
+        ref={headerRef}
+        onClick={handleToggle}
         className="relative cursor-pointer px-8 py-6 bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm hover:from-white/10 hover:to-white/15 transition-all duration-300"
       >
         <div className="flex items-center justify-between">

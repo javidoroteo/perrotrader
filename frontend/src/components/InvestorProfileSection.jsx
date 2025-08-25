@@ -6,11 +6,11 @@ import RiskMeter from './RiskMeter';
 const InvestorProfileSection = ({ profileData }) => {
   return (
     <ModernSection
-      title="Tu Perfil Único 🎯"
+      title="Tu Perfil 🎯"
       icon={User}
       gradient="from-purple-500 via-pink-500 to-red-500"
       glow="purple"
-      priority={true}
+      priority={false}
     >
       <div className="mb-8 p-6 rounded-2xl bg-gradient-to-br from-gray-900/10 to-gray-800/5 backdrop-blur-sm border border-white/10">
         <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
@@ -20,7 +20,7 @@ const InvestorProfileSection = ({ profileData }) => {
         <RiskMeter value={profileData.riskScale.value} color={profileData.riskScale.color} profileData={profileData} />
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-2 gap-4">
         <div className="group p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-200/20 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10">
           <div className="flex items-center mb-2">
             <Trophy className="w-4 h-4 text-blue-500 mr-2 group-hover:animate-bounce" />
@@ -45,14 +45,6 @@ const InvestorProfileSection = ({ profileData }) => {
           <p className="font-bold text-gray-800">{profileData.profile.experienceLevel}</p>
         </div>
 
-        <div className="group p-4 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-600/5 border border-orange-200/20 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10">
-          <div className="flex items-center mb-2">
-            <TrendingUp className="w-4 h-4 text-orange-500 mr-2 group-hover:animate-bounce" />
-            <span className="text-xs font-medium text-orange-600 uppercase tracking-wide">Tolerancia</span>
-          </div>
-          <p className="font-bold text-gray-800">{profileData.profile.riskTolerance}</p>
-        </div>
-
         <div className="group p-4 rounded-xl bg-gradient-to-br from-indigo-500/10 to-indigo-600/5 border border-indigo-200/20 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10">
           <div className="flex items-center mb-2">
             <AlertCircle className="w-4 h-4 text-indigo-500 mr-2 group-hover:animate-pulse" />
@@ -60,16 +52,6 @@ const InvestorProfileSection = ({ profileData }) => {
           </div>
           <p className="font-bold text-gray-800">{profileData.profile.timeHorizon}</p>
         </div>
-
-        {profileData.profile.esgSensitivity && (
-          <div className="group p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-200/20 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10">
-            <div className="flex items-center mb-2">
-              <Sparkles className="w-4 h-4 text-emerald-500 mr-2 group-hover:animate-spin" />
-              <span className="text-xs font-medium text-emerald-600 uppercase tracking-wide">ESG</span>
-            </div>
-            <p className="font-bold text-gray-800">{profileData.profile.esgSensitivity}</p>
-          </div>
-        )}
       </div>
     </ModernSection>
   );

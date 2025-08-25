@@ -3,7 +3,8 @@
 const CONFIG = require('../config/portfolioConfig');
 const { ASSET_EDUCATION } = require('../config/assetEducation');
 const { STRATEGIES_EDUCATION } = require('../config/strategiesEducation');
-const { RENTA_VARIABLE_CONFIG } = require('../config/rentaVariableConfig'); // Nueva importación
+const { RENTA_VARIABLE_CONFIG } = require('../config/rentaVariableConfig');
+const { RENTA_FIJA_CONFIG } = require('../config/rentaFijaConfig');
 
 class PortfolioService {
   
@@ -198,9 +199,102 @@ class PortfolioService {
       strategies: recommendedStrategies
     };
   }
-
+  // Bloque de renta fija
+  generateRentaFijaAdvice(session) {
+  const portfolio = this.calculatePortfolio(session);
+  const experienceLevel = this.getExperienceLevel(session.experienceScore);
+  const experienceLevelName = CONFIG.KNOWLEDGE_LEVELS[experienceLevel]?.name || experienceLevel;
+  
+  // Solo mostrar si hay asignación a bonos (regulares o verdes)
+  if (portfolio.allocation.bonos <= 0 && portfolio.allocation.bonosVerdes <= 0) {
+    return null;
+  }
+  
+  // Obtener contenido principal
+  const mainContent = RENTA_FIJA_CONFIG.MAIN_CONTENT[experienceLevelName]?.[session.dividend];
+  
+  if (!mainContent) {
+    return null;
+  }
+  
+  // Construir bloques adicionales basados en características específicas
+  const additionalBlocks = [];
+  
+  // Bloque de horizonte temporal
+  let horizonteBlock = null;
+  if (session.timeValue === 1) {
+    // Horizonte corto (3 años o menos)
+    horizonteBlock = RENTA_FIJA_CONFIG.ADDITIONAL_BLOCKS.HORIZONTE_CORTO[experienceLevelName];
+    if (horizonteBlock) {
+      additionalBlocks.push({
+        type: 'HORIZONTE_CORTO',
+        title: 'Estrategia de Corto Plazo',
+        content: horizonteBlock
+      });
+    }
+  } else if (session.timeValue === 2) {
+    // Horizonte medio (3-5 años)
+    horizonteBlock = RENTA_FIJA_CONFIG.ADDITIONAL_BLOCKS.HORIZONTE_MEDIO[experienceLevelName];
+    if (horizonteBlock) {
+      additionalBlocks.push({
+        type: 'HORIZONTE_MEDIO',
+        title: 'Estrategia de Medio Plazo',
+        content: horizonteBlock
+      });
+    }
+  } else if (session.timeValue >= 3) {
+    // Horizonte largo (5+ años)
+    horizonteBlock = RENTA_FIJA_CONFIG.ADDITIONAL_BLOCKS.HORIZONTE_LARGO[experienceLevelName];
+    if (horizonteBlock) {
+      additionalBlocks.push({
+        type: 'HORIZONTE_LARGO',
+        title: 'Estrategia de Largo Plazo',
+        content: horizonteBlock
+      });
+    }
+  }
+  
+  // Bloque conservador (si tiene perfil de bajo riesgo)
+  if (portfolio.riskProfile === 'Bajo Riesgo') {
+    const conservativeBlock = RENTA_FIJA_CONFIG.ADDITIONAL_BLOCKS.MUY_CONSERVADOR[experienceLevelName];
+    if (conservativeBlock) {
+      additionalBlocks.push({
+        type: 'MUY_CONSERVADOR',
+        title: 'Enfoque Conservador',
+        content: conservativeBlock
+      });
+    }
+  }
+  
+  // Bloque ESG (si tiene preferencias ESG)
+  if (session.esgValue > 0) {
+    const esgBlock = RENTA_FIJA_CONFIG.ADDITIONAL_BLOCKS.ESG[experienceLevelName];
+    if (esgBlock) {
+      additionalBlocks.push({
+        type: 'ESG',
+        title: 'Bonos Sostenibles',
+        content: esgBlock
+      });
+    }
+  }
+  return {
+    title: "Renta Fija - Guía Personalizada",
+    description: `Estrategia específica de bonos según tu perfil ${experienceLevelName.toLowerCase()} y objetivos`,
+    userProfile: {
+      experienceLevel: experienceLevelName,
+      seeksDividends: session.dividend === 1,
+      riskProfile: portfolio.riskProfile,
+      timeHorizon: session.timeValue,
+      bondsAllocation: Math.round(portfolio.allocation.bonos),
+      greenBondsAllocation: Math.round(portfolio.allocation.bonosVerdes || 0),
+      totalFixedIncomeAllocation: Math.round(portfolio.allocation.bonos + (portfolio.allocation.bonosVerdes || 0))
+    },
+    mainContent,
+    additionalBlocks
+  };
+}
   /**
-   * NUEVA FUNCIÓN: Genera consejos de renta variable personalizados
+    Genera consejos de renta variable personalizados
    */
   generateRentaVariableAdvice(session) {
     const portfolio = this.calculatePortfolio(session);
@@ -470,7 +564,8 @@ class PortfolioService {
       portfolio: portfolio.allocation,
       report: this.generateReport(session),
       recommendations: this.generateRecommendations(session),
-      rentaVariableAdvice: this.generateRentaVariableAdvice(session), // NUEVA SECCIÓN
+      rentaFijaAdvice: this.generateRentaFijaAdvice(session),
+      rentaVariableAdvice: this.generateRentaVariableAdvice(session),
       investmentStrategies: this.generateInvestmentStrategies(session),
       educationalGuide: this.generateEducationalGuide(session),
       investorProfile: this.generateInvestorProfile(session)

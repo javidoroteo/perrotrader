@@ -15,7 +15,7 @@ const RiskMeter = ({ value, color, profileData }) => {
           className="h-full rounded-full transition-all duration-2000 ease-out relative overflow-hidden"
           style={{
             width: `${animatedValue}%`,
-            background: `linear-gradient(90deg, ${color}88 0%, ${color} 50%, ${color}CC 100%)`
+            background: `linear-gradient(90deg, ${color="#800080"}88 0%, ${color} 50%, ${color}CC 100%)`
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-40 animate-pulse" />

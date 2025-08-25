@@ -1,3 +1,5 @@
+// Hook personalizado para manejar el estado del reporte
+
 import { useState, useEffect } from 'react';
 import { reportApiService } from '../services/reportService';
 import { DataMapper } from '../utils/dataMapper';
@@ -7,15 +9,16 @@ export const useReportData = (initialSessionData = null) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  /**
+   * Genera un reporte completo
+   */
   const generateReport = async (sessionData) => {
-    console.log('InitialSessionData enviada a generateReport:', sessionData);
     setLoading(true);
     setError(null);
+    
     try {
       const backendResponse = await reportApiService.generateReport(sessionData);
-      console.log('Respuesta del backend:', backendResponse);
       const transformedData = DataMapper.transformBackendResponse(backendResponse);
-      console.log('Datos transformados:', transformedData);
       setReportData(transformedData);
       return transformedData;
     } catch (err) {
@@ -28,8 +31,25 @@ export const useReportData = (initialSessionData = null) => {
     }
   };
 
+  /**
+   * Recarga el reporte con los mismos datos
+   */
+  const reloadReport = async () => {
+    if (initialSessionData) {
+      return generateReport(initialSessionData);
+    }
+  };
+
+  /**
+   * Limpia el estado del reporte
+   */
+  const clearReport = () => {
+    setReportData(null);
+    setError(null);
+  };
+
+  // Cargar datos iniciales si se proporcionan
   useEffect(() => {
-    console.log('InitialSessionData en useEffect:', initialSessionData);
     if (initialSessionData && !reportData) {
       generateReport(initialSessionData);
     }
@@ -40,10 +60,7 @@ export const useReportData = (initialSessionData = null) => {
     loading, 
     error, 
     generateReport, 
-    reloadReport: () => initialSessionData && generateReport(initialSessionData),
-    clearReport: () => {
-      setReportData(null);
-      setError(null);
-    }
+    reloadReport, 
+    clearReport 
   };
 };

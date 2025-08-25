@@ -5,7 +5,7 @@ const ASSET_EDUCATION = {
     title: "Renta Variable (Acciones) 📈",
     description: "La renta variable es el motor de crecimiento de tu cartera. Cuando inviertes en acciones, compras una pequeña parte de una empresa. Si compras un ETF o un fondo que invierte en acciones, estas comprando una parte pequeña de muchas empresas al mismo tiempo.",
     role: "Es el activo con mayor potencial de crecimiento a largo plazo. Su principal función es generar retornos significativos que superen la inflación y otros activos, lo que te ayuda a alcanzar tus objetivos financieros. La inflación es el aumento de precio de los productos y servicios, por lo que sí puedes comprar menos con la misma moneda.",
-    expectedReturn: "Históricamente, la renta variable ha ofrecido los mayores retornos, con rentabilidades anualizadas que pueden oscilar entre el 7% y el 11% a largo plazo, dependiendo de la región y el mercado.",
+    expectedReturn: "Históricamente, la renta variable ha ofrecido los mayores retornos, con rentabilidades anualizadas que pueden oscilar entre el 5% y el 9% a largo plazo, dependiendo de la región y el mercado.",
     behavior: "Es el activo más volátil. Su valor puede fluctuar significativamente a corto plazo debido a noticias, ciclos económicos o el sentimiento del mercado. Requiere paciencia y una mentalidad a largo plazo.",
     pros: [
       "Alto potencial de crecimiento y rentabilidad",
@@ -49,7 +49,7 @@ const ASSET_EDUCATION = {
     ],
     cons: [
       "Extrema volatilidad y riesgo de pérdida total",
-      "Falta de regulación y riesgo de fraude",
+      "Falta de regulación y riesgo de fraude(sobretodo en monedas nuevas",
       "Rendimiento y valor intrínseco difíciles de justificar"
     ]
   },
