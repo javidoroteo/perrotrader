@@ -33,6 +33,7 @@ model QuizSession {
   portfolioData   String?  // JSON string con la cartera recomendada
   
   answers         QuizAnswer[]
+  personalityTest PersonalityTest?
   
   @@map("quiz_sessions")
 }
@@ -57,6 +58,32 @@ model QuizAnswer {
   session         QuizSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   
   @@map("quiz_answers")
+}
+
+model PersonalityTest {
+  id              String      @id @default(uuid())
+  sessionId       String      @unique
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  completed       Boolean     @default(false)
+  currentBlock    Int         @default(1) // Bloque actual (1-4)
+  
+  // Puntuaciones por dimensión (-24 a +24 cada una)
+  planningScore   Int         @default(0) // P vs O
+  analysisScore   Int         @default(0) // A vs I  
+  autonomyScore   Int         @default(0) // T vs D
+  ambitionScore   Int         @default(0) // U vs B
+  
+  // Resultado final
+  archetype       String?     // e.g., "P-A-T-C"
+  archetypeName   String?     // e.g., "El Guardián Metódico"
+  
+  // Respuestas como JSON
+  responses       String?     // JSON con todas las respuestas
+  
+  session         QuizSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@map("personality_tests")
 }
 
 model QuizStats {

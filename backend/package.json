@@ -11,18 +11,23 @@
     "prisma:studio": "prisma studio"
   },
   "dependencies": {
-    "express": "^4.18.2",
+    "@prisma/client": "^5.7.1",
     "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.5.1",
     "helmet": "^7.1.0",
-    "express-rate-limit": "^7.1.5",
-    "uuid": "^9.0.1",
-    "@prisma/client": "^5.7.1"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",
     "prisma": "^5.7.1"
   },
-  "keywords": ["investment", "quiz", "financial", "portfolio"],
+  "keywords": [
+    "investment",
+    "quiz",
+    "financial",
+    "portfolio"
+  ],
   "author": "Javi",
   "license": "MIT"
 }
