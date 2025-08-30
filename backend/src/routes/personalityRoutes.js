@@ -11,6 +11,9 @@ router.post('/:sessionId/answer-block', personalityController.answerBlock);
 // Obtener estado actual del test de personalidad
 router.get('/:sessionId/current', personalityController.getPersonalityTest);
 
+//Obtener bloque de preguntas
+router.get('/:sessionId/questions', personalityController.getBlockQuestions);
+
 // Obtener resultado final del test de personalidad
 router.get('/:sessionId/result', personalityController.getPersonalityResult);
 

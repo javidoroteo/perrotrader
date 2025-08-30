@@ -8,23 +8,29 @@ const personalityRoutes = require('./routes/personalityRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 // Middlewares de seguridad (primero para bloquear amenazas tempranas)
 app.use(helmet({
-  contentSecurityPolicy: {
+  contentSecurityPolicy: process.env.NODE_ENV === 'production'
+  ?{
     directives: {
       defaultSrc: ["'self'"], // Restringe recursos a tu dominio
       scriptSrc: ["'self'"],  // Evita scripts externos (ajusta si usas CDN)
     },
-  },
+  }
+  : false // Desactiva CSP en desarrollo
 }));
+
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100 // máximo 100 requests por IP
+  max: 1000 // máximo 100 requests por IP
 });
 app.use(limiter);
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
 }));
 
@@ -50,6 +56,33 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime() 
   });
+});
+
+// Endpoint para obtener todas las sesiones con respuestas y test de personalidad
+app.get("/sessions", async (req, res) => {
+  try {
+    const sessions = await prisma.quizSession.findMany({
+      include: {
+        answers: true,
+        personalityTest: true
+      }
+    });
+    res.json(sessions);
+  } catch (error) {
+    console.error("Error obteniendo sesiones:", error);
+    res.status(500).json({ error: "Error al obtener sesiones" });
+  }
+});
+
+// Endpoint para obtener estadísticas
+app.get("/stats", async (req, res) => {
+  try {
+    const stats = await prisma.quizStats.findMany();
+    res.json(stats);
+  } catch (error) {
+    console.error("Error obteniendo stats:", error);
+    res.status(500).json({ error: "Error al obtener estadísticas" });
+  }
 });
 
 // Manejo de errores 404

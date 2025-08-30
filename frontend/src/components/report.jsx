@@ -5,7 +5,6 @@ import EmergencyFundReport from './EmergencyFundReport';
 import RentaVariableSection from './RentaVariableSection';
 import StrategiesSection from './strategiesSection';
 import EducationalGuide from './EducationalGuide';
-//import RecommendationsSection from './RecommendationSection';
 import RentaFijaSection from './RentaFijaSection';
 
 const ModernInvestorProfile = ({ result, onRestart }) => {
@@ -21,12 +20,71 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [result]);
 
-  // Prueba del investorProfileSection.jsx
-  console.log("InvestorProfile:", result?.investorProfile);
-  console.log("Investment Strategies:", result?.investmentStrategies);
-  console.log("Renta Variable Advice:", result?.rentaVariableAdvice); // NUEVO LOG
-  
-  if (!result) {
+  // Función auxiliar para convertir riskProfile a valor numérico
+  const getRiskScaleValue = (riskProfile) => {
+    switch (riskProfile?.toLowerCase()) {
+      case 'bajo riesgo':
+      case 'conservador': return 2;
+      case 'riesgo moderado':
+      case 'moderado': return 5;
+      case 'alto riesgo':
+      case 'agresivo': return 8;
+      default: return 5;
+    }
+  };
+
+  // Función auxiliar para obtener color del riesgo
+  const getRiskColor = (riskProfile) => {
+    switch (riskProfile?.toLowerCase()) {
+      case 'bajo riesgo':
+      case 'conservador': return 'green';
+      case 'riesgo moderado':
+      case 'moderado': return 'yellow';
+      case 'alto riesgo':
+      case 'agresivo': return 'red';
+      default: return 'blue';
+    }
+  };
+
+  // Mapear los datos del backend a la estructura que esperan los componentes
+  const mapBackendData = (backendResult) => {
+    if (!backendResult) return null;
+
+    console.log('Mapeando datos del backend:', backendResult);
+
+    // Crear el objeto investorProfile a partir de personality y quiz
+    const investorProfile = backendResult.personality ? {
+      profile: {
+        investorType: backendResult.personality.archetypeName || 'Inversor',
+        mainObjective: 'Crecimiento patrimonial', // Esto podríamos extraerlo del quiz si está disponible
+        experienceLevel: backendResult.quiz?.experienceLevel || 'Principiante',
+        timeHorizon: 'Largo plazo' // Esto también podríamos extraerlo del quiz
+      },
+      riskScale: {
+        value: getRiskScaleValue(backendResult.quiz?.riskProfile),
+        color: getRiskColor(backendResult.quiz?.riskProfile)
+      }
+    } : null;
+
+    return {
+      investorProfile,
+      portfolio: backendResult.quiz?.portfolio,
+      report: backendResult.quiz?.report,
+
+      // Mapeo CORREGIDO: directamente desde quiz
+      investmentStrategies: backendResult.quiz?.investmentStrategies,
+      rentaVariableAdvice: backendResult.quiz?.rentaVariableAdvice,
+      rentaFijaAdvice: backendResult.quiz?.rentaFijaAdvice,
+      educationalGuide: backendResult.quiz?.educationalGuide,
+
+      // Mantener datos originales por si acaso
+      originalData: backendResult
+    };
+  };
+
+  // Mapear los datos
+  const mappedResult = mapBackendData(result);
+  if (!mappedResult) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
         <p className="text-xl text-gray-800">Completa el quiz para ver tu reporte.</p>
@@ -51,13 +109,27 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
       </header>
 
       <div className="max-w-6xl mx-auto py-12 space-y-8 relative z-10">
-        {result.investorProfile && <InvestorProfileSection profileData={result.investorProfile} />}
-        {result.portfolio && <ModernPortfolioChart portfolio={result.portfolio} />}
-        {result.report && <EmergencyFundReport report={result.report} />}
-        {result.rentaFijaAdvice && <RentaFijaSection rentaFijaAdvice={result.rentaFijaAdvice} />}
-        {result.rentaVariableAdvice && <RentaVariableSection rentaVariableAdvice={result.rentaVariableAdvice} />}
-        {result.investmentStrategies && <StrategiesSection strategies={result.investmentStrategies} />}
-        {result.educationalGuide && <EducationalGuide guide={result.educationalGuide} />}
+        {result.personality && (
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-200/20 mb-8">
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+              {result.personality.archetypeName}
+            </h3>
+            <p className="text-gray-600 mb-2 italic">
+              "{result.personality.archetypeDetails?.slogan}"
+            </p>
+            <p className="text-gray-700">
+              {result.personality.archetypeDetails?.description}
+            </p>
+          </div>
+        )}
+        
+        {mappedResult.investorProfile && <InvestorProfileSection profileData={mappedResult.investorProfile} />}
+        {mappedResult.portfolio && <ModernPortfolioChart portfolio={mappedResult.portfolio} />}
+        {mappedResult.report && <EmergencyFundReport report={mappedResult.report} />}
+        {mappedResult.rentaFijaAdvice && <RentaFijaSection rentaFijaAdvice={mappedResult.rentaFijaAdvice} />}
+        {mappedResult.rentaVariableAdvice && <RentaVariableSection rentaVariableAdvice={mappedResult.rentaVariableAdvice} />}
+        {mappedResult.investmentStrategies && <StrategiesSection strategies={mappedResult.investmentStrategies} />}
+        {mappedResult.educationalGuide && <EducationalGuide guide={mappedResult.educationalGuide} />}
       </div>
 
       <div className="text-center mt-12 relative z-10">
@@ -69,14 +141,8 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
 
       <style>{`
         @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>

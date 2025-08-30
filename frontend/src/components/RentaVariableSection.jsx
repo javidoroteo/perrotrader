@@ -86,7 +86,7 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
         {/* Contenido principal */}
         <div className="bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl border border-white/30 p-8">
           <div className="flex items-center mb-6">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg mr-4">
+            <div className="p-3 rounded-xl bg-gradient-to-brfrom-blue-500 to-indigo-600 shadow-lg mr-4">
               <Award className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-2xl font-bold text-gray-800">

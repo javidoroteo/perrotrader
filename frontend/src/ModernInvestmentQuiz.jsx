@@ -3,6 +3,7 @@ import { TrendingUp, DollarSign, Target, Brain, Shield, Zap, ArrowRight, ArrowLe
 import QuizStart from './components/QuizStart';
 import QuizProgress from './components/QuizProgress';
 import QuizQuestion from './components/QuizQuestion';
+import PersonalityBlock from './components/personalityBlock';
 import ModernInvestorProfile from './components/report';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorAlert from './components/ErrorAlert';
@@ -20,6 +21,13 @@ function ModernInvestmentQuiz() {
   const [finalResult, setFinalResult] = useState(null);
   const [canGoBack, setCanGoBack] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+
+  // Estados para el test de personalidad
+  const [showPersonalityTest, setShowPersonalityTest] = useState(false);
+  const [personalityQuestions, setPersonalityQuestions] = useState([]);
+  const [personalityResponses, setPersonalityResponses] = useState([]);
+  const [personalityProgress, setPersonalityProgress] = useState({ current: 1, total: 4, percentage: 0 });
+  const [currentPersonalityBlock, setCurrentPersonalityBlock] = useState(1);
 
   const handleStartQuiz = async () => {
     setLoading(true);
@@ -56,7 +64,8 @@ function ModernInvestmentQuiz() {
         setSelectedAnswer(null);
       } else {
         if (data.message === 'Cuestionario completado') {
-          await getFinalResult(sessionIdParam);
+          // Quiz principal completado, iniciar test de personalidad
+          await startPersonalityTest(sessionIdParam);
         } else {
           setError(data.message);
         }
@@ -89,7 +98,8 @@ function ModernInvestmentQuiz() {
         const data = await response.json();
         if (data.success) {
           if (data.completed) {
-            await getFinalResult();
+            // Quiz principal completado, iniciar test de personalidad
+            await startPersonalityTest();
           } else {
             await loadQuestion();
           }
@@ -106,6 +116,18 @@ function ModernInvestmentQuiz() {
   };
 
   const handlePrevious = async () => {
+    if (showPersonalityTest && currentPersonalityBlock > 1) {
+      // Navegar al bloque anterior de personalidad
+      await loadPersonalityBlock(currentPersonalityBlock - 1);
+      return;
+    }
+
+    if (showPersonalityTest && currentPersonalityBlock === 1) {
+      // No permitir retroceder del primer bloque de personalidad
+      return;
+    }
+
+    // Lógica original para preguntas del quiz principal
     setLoading(true);
     setError(null);
     try {
@@ -131,19 +153,122 @@ function ModernInvestmentQuiz() {
     }
   };
 
-  const getFinalResult = async (sessionIdParam = sessionId) => {
+  // Funciones para el test de personalidad
+  const startPersonalityTest = async (sessionIdParam = sessionId) => {
+    setLoading(true);
+    setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/quiz/result/${sessionIdParam}`);
-      const data = await response.json();
-      if (data.success) {
-        setFinalResult(data.result);
-        setIsCompleted(true);
+      // Inicializar el test de personalidad
+      const startResponse = await fetch(`${API_BASE_URL}/personality/${sessionIdParam}/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (startResponse.ok) {
+        setShowPersonalityTest(true);
+        setCurrentPersonalityBlock(1);
+        await loadPersonalityBlock(1, sessionIdParam);
       } else {
-        setError(data.message);
+        setError('Error al inicializar el test de personalidad');
       }
     } catch (err) {
-      setError('Error al obtener el resultado');
-      console.error('Error getting results:', err);
+      setError('Error de conexión al inicializar el test de personalidad');
+      console.error('Error starting personality test:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadPersonalityBlock = async (blockNumber, sessionIdParam = sessionId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_BASE_URL}/personality/${sessionIdParam}/questions?blockNumber=${blockNumber}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setPersonalityQuestions(data.questions);
+        setPersonalityResponses(new Array(8).fill(null));
+        setPersonalityProgress(data.progress);
+        setCurrentPersonalityBlock(blockNumber);
+      } else {
+        setError(data.message || 'Error al cargar las preguntas de personalidad');
+      }
+    } catch (err) {
+      setError('Error de conexión al cargar las preguntas de personalidad');
+      console.error('Error loading personality questions:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePersonalityResponse = (questionIndex, response) => {
+    const newResponses = [...personalityResponses];
+    newResponses[questionIndex] = response;
+    setPersonalityResponses(newResponses);
+  };
+
+  const handlePersonalitySubmit = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_BASE_URL}/personality/${sessionId}/answer-block`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          blockResponses: personalityResponses,
+          blockNumber: currentPersonalityBlock
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        if (data.completed || currentPersonalityBlock === 4) {
+          // Test de personalidad completado, obtener resultado final
+          await getCompleteResult();
+        } else {
+          // Ir al siguiente bloque
+          await loadPersonalityBlock(currentPersonalityBlock + 1);
+        }
+      } else {
+        setError(data.error || 'Error al procesar las respuestas de personalidad');
+      }
+    } catch (err) {
+      setError('Error de conexión al enviar las respuestas de personalidad');
+      console.error('Error submitting personality responses:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCompleteResult = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Obtener resultado del quiz principal
+      const quizResponse = await fetch(`${API_BASE_URL}/quiz/result/${sessionId}`);
+      const quizData = await quizResponse.json();
+      
+      // Obtener resultado del test de personalidad
+      const personalityResponse = await fetch(`${API_BASE_URL}/personality/${sessionId}/result`);
+      const personalityData = await personalityResponse.json();
+      
+      if (quizData.success && personalityData.success) {
+        setFinalResult({
+          quiz: quizData.result,
+          personality: personalityData.profile
+        });
+        setIsCompleted(true);
+        setShowPersonalityTest(false);
+      } else {
+        setError('Error al obtener los resultados finales');
+      }
+    } catch (err) {
+      setError('Error de conexión al obtener los resultados');
+      console.error('Error getting complete results:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -157,6 +282,13 @@ function ModernInvestmentQuiz() {
     setCanGoBack(false);
     setError(null);
     setSelectedAnswer(null);
+    
+    // Reset personality test states
+    setShowPersonalityTest(false);
+    setPersonalityQuestions([]);
+    setPersonalityResponses([]);
+    setPersonalityProgress({ current: 1, total: 4, percentage: 0 });
+    setCurrentPersonalityBlock(1);
   };
 
   const getSectionIcon = (section) => {
@@ -171,7 +303,7 @@ function ModernInvestmentQuiz() {
     }
   };
 
-  if (loading && !currentQuestion) return <LoadingSpinner />;
+  if (loading && !currentQuestion && !showPersonalityTest) return <LoadingSpinner />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
@@ -190,6 +322,22 @@ function ModernInvestmentQuiz() {
             <QuizStart onStart={handleStartQuiz} loading={loading} />
           ) : isCompleted && finalResult ? (
             <ModernInvestorProfile result={finalResult} onRestart={handleRestart} />
+          ) : showPersonalityTest ? (
+            <>
+              <QuizProgress 
+                progress={personalityProgress} 
+                section="Test de Personalidad" 
+                getSectionIcon={() => <Brain className="w-6 h-6" />} 
+              />
+              <PersonalityBlock
+                questions={personalityQuestions}
+                responses={personalityResponses}
+                onResponseChange={handlePersonalityResponse}
+                onSubmit={handlePersonalitySubmit}
+                onPrevious={currentPersonalityBlock > 1 ? handlePrevious : null}
+                loading={loading}
+              />
+            </>
           ) : currentQuestion ? (
             <>
               <QuizProgress progress={progress} section={currentQuestion.section} getSectionIcon={getSectionIcon} />

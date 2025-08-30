@@ -65,10 +65,10 @@ const RentaFijaSection = ({ rentaFijaAdvice }) => {
           <p className="text-lg text-gray-700 mb-4">
             {rentaFijaAdvice.description}
           </p>
-          <div className="flex justify-center items-center flex-wrap gap-4 text-sm">
-            <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full">
-              <Users className="w-4 h-4 mr-2 text-blue-600" />
-              <span className="text-blue-800">
+            <div className="flex justify-center items-center space-x-6 text-sm">
+            <div className="flex items-center bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-2 rounded-full">
+              <Users className="w-4 h-4 mr-2 text-emerald-600" />
+              <span className="text-emerald-800">
                 Nivel: {rentaFijaAdvice.userProfile.experienceLevel}
               </span>
             </div>
@@ -101,7 +101,7 @@ const RentaFijaSection = ({ rentaFijaAdvice }) => {
         {/* Contenido principal */}
         <div className="bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl border border-white/30 p-8">
           <div className="flex items-center mb-6">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg mr-4">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg mr-4">
               <Award className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-2xl font-bold text-gray-800">
