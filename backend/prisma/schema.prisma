@@ -27,6 +27,8 @@ model QuizSession {
   esgValue        Int      @default(0)
   pensionFund     Int      @default(0)
   dividend        Int      @default(0)
+  age             Int      @default(0)
+  gold            Int      @default(0)
   
   // Perfil y cartera final
   riskProfile     String?
@@ -53,6 +55,8 @@ model QuizAnswer {
   pensionFund     Int         @default(0)
   dividend        Int         @default(0)
   esgValue        Int         @default(0)
+  age             Int         @default(0)
+  gold            Int         @default(0)
   createdAt       DateTime    @default(now())
   
   session         QuizSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)

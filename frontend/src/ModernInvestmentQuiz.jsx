@@ -180,27 +180,28 @@ function ModernInvestmentQuiz() {
   };
 
   const loadPersonalityBlock = async (blockNumber, sessionIdParam = sessionId) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`${API_BASE_URL}/personality/${sessionIdParam}/questions?blockNumber=${blockNumber}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setPersonalityQuestions(data.questions);
-        setPersonalityResponses(new Array(8).fill(null));
-        setPersonalityProgress(data.progress);
-        setCurrentPersonalityBlock(blockNumber);
-      } else {
-        setError(data.message || 'Error al cargar las preguntas de personalidad');
-      }
-    } catch (err) {
-      setError('Error de conexión al cargar las preguntas de personalidad');
-      console.error('Error loading personality questions:', err);
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  setError(null);
+  try {
+    const response = await fetch(`${API_BASE_URL}/personality/${sessionIdParam}/questions?blockNumber=${blockNumber}`);
+    const data = await response.json();
+    
+    if (data.success) {
+      setPersonalityQuestions(data.questions);
+      setPersonalityResponses(new Array(8).fill(null));
+      setPersonalityProgress(data.progress); // Ahora incluye el progreso correcto
+      setCurrentPersonalityBlock(blockNumber);
+    } else {
+      setError(data.message || 'Error al cargar las preguntas de personalidad');
     }
-  };
+  } catch (err) {
+    setError('Error de conexión al cargar las preguntas de personalidad');
+    console.error('Error loading personality questions:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+  
 
   const handlePersonalityResponse = (questionIndex, response) => {
     const newResponses = [...personalityResponses];
@@ -327,7 +328,8 @@ function ModernInvestmentQuiz() {
               <QuizProgress 
                 progress={personalityProgress} 
                 section="Test de Personalidad" 
-                getSectionIcon={() => <Brain className="w-6 h-6" />} 
+                getSectionIcon={() => <Brain className="w-6 h-6" />}
+                phase="personality"
               />
               <PersonalityBlock
                 questions={personalityQuestions}
@@ -340,7 +342,7 @@ function ModernInvestmentQuiz() {
             </>
           ) : currentQuestion ? (
             <>
-              <QuizProgress progress={progress} section={currentQuestion.section} getSectionIcon={getSectionIcon} />
+              <QuizProgress progress={progress} section={currentQuestion.section} getSectionIcon={getSectionIcon} phase="quiz"/>
               <QuizQuestion question={currentQuestion} onAnswer={handleAnswer} loading={loading} selectedAnswer={selectedAnswer} />
               {canGoBack && (
                 <div className="flex justify-start mt-6">

@@ -3,7 +3,9 @@ const prisma = new PrismaClient();
 const { v4: uuidv4 } = require('uuid');
 const quizService = require('../services/quizService');
 const portfolioService = require('../services/portfolioServices');
+const personalityService = require('../services/personalityServices');
 const questions = require('../data/questions');
+const personalityQuestions = require('../data/personalityQuestions');
 
 class QuizController {
   
@@ -40,45 +42,59 @@ class QuizController {
   }
 
   // Obtener pregunta actual
-  async getCurrentQuestion(req, res) {
-    try {
-      const { sessionId } = req.params;
-      
-      const session = await prisma.quizSession.findUnique({
-        where: { id: sessionId },
-        include: { answers: true }
-      });
+async getCurrentQuestion(req, res) {
+  try {
+    const { sessionId } = req.params;
+    
+    const session = await prisma.quizSession.findUnique({
+      where: { id: sessionId },
+      include: { answers: { orderBy: { createdAt: 'asc' } } }
+    });
 
-      if (!session) {
-        return res.status(404).json({ error: 'Sesión no encontrada' });
-      }
-
-      if (new Date() > session.expiresAt) {
-        return res.status(410).json({ error: 'Sesión expirada' });
-      }
-
-      if (session.isCompleted) {
-        return res.json({
-          success: true,
-          completed: true,
-          result: await this.calculateFinalResult(session)
-        });
-      }
-
-      const question = quizService.getQuestionById(session.currentQuestionId);
-      const progress = quizService.calculateProgress(session.answers.length, questions.length);
-
-      res.json({
-        success: true,
-        question,
-        progress,
-        canGoBack: session.answers.length > 0
-      });
-    } catch (error) {
-      console.error('Error getting current question:', error);
-      res.status(500).json({ error: 'Error al obtener la pregunta' });
+    if (!session) {
+      return res.status(404).json({ error: 'Sesión no encontrada' });
     }
+
+    if (new Date() > session.expiresAt) {
+      return res.status(410).json({ error: 'Sesión expirada' });
+    }
+
+    if (session.isCompleted) {
+      return res.json({
+        success: true,
+        completed: true,
+        result: await this.calculateFinalResult(session)
+      });
+    }
+
+    const question = quizService.getQuestionById(session.currentQuestionId);
+    
+    // Usar el nuevo sistema de progreso
+    const progress = quizService.calculateProgressBySections(session.answers);
+    
+    // Agregar progreso global si hay test de personalidad
+    const personalityTest = await prisma.personalityTest.findUnique({
+      where: { sessionId }
+    });
+    
+    if (personalityTest) {
+      const personalityProgress = quizService.calculatePersonalityProgress(
+        personalityTest.currentBlock || 1
+      );
+      progress.globalProgress = quizService.calculateGlobalProgress(progress, personalityProgress);
+    }
+
+    res.json({
+      success: true,
+      question,
+      progress,
+      canGoBack: session.answers.length > 0
+    });
+  } catch (error) {
+    console.error('Error getting current question:', error);
+    res.status(500).json({ error: 'Error al obtener la pregunta' });
   }
+}
 
   // Responder pregunta
   async answerQuestion(req, res) {
@@ -123,7 +139,9 @@ class QuizController {
           emergencyFund: answer.emergencyFund || 0,
           esgValue: answer.esg || 0,
           dividend: answer.dividend || 0,
-          pensionFund: answer.pensionFund || 0
+          pensionFund: answer.pensionFund || 0,
+          gold: answer.gold || 0,
+          age: answer.age || 0
         }
       });
 
@@ -142,7 +160,9 @@ class QuizController {
           emergencyFund: { increment: answer.emergencyFund || 0 },
           esgValue: { increment: answer.esg || 0 },
           dividend: { increment: answer.dividend || 0 },
-          pensionFund: { increment: answer.pensionFund || 0 }
+          pensionFund: { increment: answer.pensionFund || 0 },
+          gold: { increment: answer.gold || 0 },
+          age: { increment: answer.age || 0 }
         },
         include: { answers: true }
       });
@@ -212,6 +232,8 @@ class QuizController {
           esgValue: { decrement: lastAnswer.esg },
           dividend: { decrement: lastAnswer.dividend },
           pensionFund: { decrement: lastAnswer.pensionFund },
+          gold: { decrement: lastAnswer.gold },
+          age: { decrement: lastAnswer.age },
           isCompleted: false
         }
       });
@@ -313,6 +335,8 @@ class QuizController {
           esgValue: 0,
           dividend  : 0,
           pensionFund: 0,
+          gold: 0,
+          age: 0,
           riskProfile: null,
           portfolioData: null,
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import InvestorProfileSection from './InvestorProfileSection';
+import PersonalityProfileSection from './PersonalityProfileSection';
 import ModernPortfolioChart from './ModernPortfolioChart';
 import EmergencyFundReport from './EmergencyFundReport';
 import RentaVariableSection from './RentaVariableSection';
@@ -19,7 +20,10 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [result]);
-
+  
+useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [result]);
   // Función auxiliar para convertir riskProfile a valor numérico
   const getRiskScaleValue = (riskProfile) => {
     switch (riskProfile?.toLowerCase()) {
@@ -109,21 +113,9 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
       </header>
 
       <div className="max-w-6xl mx-auto py-12 space-y-8 relative z-10">
-        {result.personality && (
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-200/20 mb-8">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">
-              {result.personality.archetypeName}
-            </h3>
-            <p className="text-gray-600 mb-2 italic">
-              "{result.personality.archetypeDetails?.slogan}"
-            </p>
-            <p className="text-gray-700">
-              {result.personality.archetypeDetails?.description}
-            </p>
-          </div>
-        )}
         
         {mappedResult.investorProfile && <InvestorProfileSection profileData={mappedResult.investorProfile} />}
+        {result.personality?.archetypeDetails && <PersonalityProfileSection archetypeDetails={result.personality.archetypeDetails} />}
         {mappedResult.portfolio && <ModernPortfolioChart portfolio={mappedResult.portfolio} />}
         {mappedResult.report && <EmergencyFundReport report={mappedResult.report} />}
         {mappedResult.rentaFijaAdvice && <RentaFijaSection rentaFijaAdvice={mappedResult.rentaFijaAdvice} />}

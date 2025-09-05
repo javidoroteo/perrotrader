@@ -7,13 +7,13 @@ const questions = [
         question: "¿Cuál es tu edad?",
         explanation: "",
         answers: [
-            { text: "Entre 18 y 25 años", conopoints: 0, nextQuestion: 1011 },
-            { text: "Entre 26 y 30 años", conopoints: 0, nextQuestion: 1011},
-            { text: "Entre 31 y 35 años", conopoints: 0, nextQuestion: 1012 },
-            { text: "Entre 36 y 45 años", conopoints: 0, nextQuestion: 1012},
-            { text: "Entre 46 y 55 años", conopoints: 0, nextQuestion: 1013},
-            { text: "Entre 56 y 66 años", conopoints: 0, nextQuestion: 1013},
-            { text: "66 años o más", conopoints: 0, nextQuestion: 1013},
+            { text: "Entre 18 y 25 años", age: 1, nextQuestion: 1011 },
+            { text: "Entre 26 y 30 años", age: 2, nextQuestion: 1011},
+            { text: "Entre 31 y 35 años", age: 2, nextQuestion: 1012 },
+            { text: "Entre 36 y 45 años", age: 3, nextQuestion: 1012},
+            { text: "Entre 46 y 55 años", age: 4, nextQuestion: 1013},
+            { text: "Entre 56 y 66 años", age: 5, nextQuestion: 1013},
+            { text: "66 años o más", age: 6, nextQuestion: 1013},
         ]
     },
     {
@@ -324,95 +324,13 @@ const questions = [
         question: "¿Lees o sigues noticias económicas y del mercado financiero regularmente?",
         explanation: "",
         answers: [
-            { text: "Diariamente.", Expoints: 3, nextQuestion: 301 },
-            { text: "Semanalmente.", Expoints: 2, nextQuestion: 301 },
-            { text: "Mensualmente.", Expoints: 1, nextQuestion: 301 },
-            { text: "Rara vez.", Expoints: 0, nextQuestion: 301 },
+            { text: "Diariamente.", Expoints: 3, nextQuestion: 401 },
+            { text: "Semanalmente.", Expoints: 2, nextQuestion: 401 },
+            { text: "Mensualmente.", Expoints: 1, nextQuestion: 401 },
+            { text: "Rara vez.", Expoints: 0, nextQuestion: 401 },
         ]
     },
-    //Sección 3: Perfil psicologico
-    {
-        id: 301,
-        section: "Perfil",
-        question: "¿Qué tan bien manejas el estrés?",
-        explanation: "No sólo aplica en las inversiones",
-        answers: [
-            { text: "Mal, me afecta mucho.", points: 0, nextQuestion: 302 },
-            { text: "Regular, pero me cuesta.", points: 1, nextQuestion: 302 },
-            { text: "Bien, lo manejo con estrategias.", points: 2, nextQuestion: 302 },
-            { text: "Muy bien, no me afecta.", points: 3, nextQuestion: 302 },
-        ]
-    },
-    {
-        id: 302,
-        section: "Perfil",
-        question: "¿Prefieres planificar tus inversiones con antelación o actuar rápidamente?",
-        explanation: "Si no tienes inversiones responde como sueles actuar en la vida en general",
-        answers: [
-            { text: "Actuar rápidamente.", points: 0, nextQuestion: 303 },
-            { text: "A veces planifico, a veces actúo.", points: 1, nextQuestion: 303 },
-            { text: "Prefiero planificar mis inversiones.", points: 3, nextQuestion: 303 },
-            { text: "Siempre planifico todo.", points: 2, nextQuestion: 303 },
-        ]
-    },
-    {
-        id: 303,
-        section: "Perfil",
-        question: "¿Qué papel juega la opinión de otros (familiares, amigos, asesores) en tus decisiones de inversión?",
-        explanation: "Si no tienes inversiones responde como sueles actuar en la vida en general",
-        answers: [
-            { text: "Sigo mucho las recomendaciones de otros. ", points: 0, nextQuestion: 304 },
-            { text: "Dependo algo de sus consejos.", points: 1, nextQuestion: 304 },
-            { text: "Prefiero tomar mis propias decisiones.", points: 2, nextQuestion: 304 },
-        ]
-    },
-    {
-        id: 304,
-        section: "Perfil",
-        question: "¿Cómo describirías tu relación con el dinero en general?",
-        explanation: "",
-        answers: [
-            { text: "Es una fuente de estrés.", points: 0, nextQuestion: 305 },
-            { text: "A veces me estresa.", points: 1, nextQuestion: 305 },
-            { text: "Es una herramienta para alcanzar mis objetivos.", points: 2, nextQuestion: 305 },
-            { text: "Es un recurso que disfruto manejar .", points: 3, nextQuestion: 305},
-        ]
-    },
-    {
-        id: 305,
-        section: "Perfil",
-        question: "¿Qué tan cómodo te sientes hablando sobre dinero y finanzas con otras personas?",
-        explanation: "",
-        answers: [
-            { text: "Muy incómodo.", points: 0, nextQuestion: 306},
-            { text: "Algo incómodo.", points: 1, nextQuestion: 306 },
-            { text: "Cómodo.", points: 2 , nextQuestion: 306},
-            { text: "Muy cómodo.", points: 3, nextQuestion: 306},
-        ]
-    },
-    {
-        id: 306,
-        section: "Perfil",
-        question: "Cuando piensas sobre inversiones, ¿Qué es en lo primero que piensas?",
-        explanation: "",
-        answers: [
-            { text: "El miedo a perder el dinero.", points: 0, nextQuestion: 307 },
-            { text: "Solo por la posibilidad de ganar.", points: 3, nextQuestion: 307 },
-            { text: "Un poco de ambas.", points: 2, nextQuestion: 307 },
-        ]
-    },
-    {
-        id: 307,
-        section: "Perfil",
-        question: "¿Cómo manejas la incertidumbre en los aspectos de tu vida?",
-        explanation: "",
-        answers: [
-            { text: "Me siento muy incómodo con la incertidumbre.", points: 0 , nextQuestion: 401},
-            { text: "Trato de evitar situaciones inciertas.", points: 1, nextQuestion: 401},
-            { text: "Puedo manejar la incertidumbre de forma razonable.", points: 2 , nextQuestion: 401},
-            { text: "Me siento cómodo y reacciono bien ante la incertidumbre.", points: 3, nextQuestion: 401 },
-        ]
-    },
+
     // Sección 4: Tolerancia al Riesgo
     {
         id: 401,
@@ -465,7 +383,7 @@ const questions = [
     // Sección 5: Objetivos de Inversión
     {
         id: 501,
-        section: "Objetivos de Inversión",
+        section: "Tipos de Inversión",
         question: "¿Qué tipo de retorno esperas de tus inversiones?",
         explanation: "Recuerda que el riesgo va asociado a rentabilidad. Cuanto mayor rentabilidad indica un mayor riesgo",
         answers: [
@@ -477,7 +395,7 @@ const questions = [
     },
     {
         id: 502,
-        section: "Horizonte de Inversión",
+        section: "Tipos de Inversión",
         question: "¿Qué tan cómodo te sientes invirtiendo a largo plazo?",
         explanation: "",
         answers: [
@@ -489,7 +407,7 @@ const questions = [
     },
     {
         id: 503,
-        section: "Horizonte de Inversión",
+        section: "Tipos de Inversión",
         question: "Al considerar una inversión, ¿qué es más importante para ti?",
         explanation: "",
         answers: [
@@ -500,13 +418,34 @@ const questions = [
     },
     {
         id: 504,
-        section: "Horizonte de Inversión",
+        section: "Tipos de Inversión",
         question: "¿Qué tan familiarizado estás con las inversiones ESG?",
         explanation:"ESG son las siglas de inversiones con criterios Medioambientales, Sociales y de Gobernanza).",
         answers: [
-            { text: "No estoy familiarizado pero quiero aprender más sobre ello", esg: 0 },
-            { text: "Estoy familiarizado con los conceptos ESG y he investigado algunas opciones de inversión.", esg: 1 },
-            { text: "Estoy muy familiarizado y he invertido previamente en productos ESG.", esg: 2 },
+            { text: "No estoy familiarizado pero quiero aprender más sobre ello", esg: 0, nextQuestion: 505 },
+            { text: "Estoy familiarizado con los conceptos ESG y he investigado algunas opciones de inversión.", esg: 1, nextQuestion: 505 },
+            { text: "Estoy muy familiarizado y he invertido previamente en productos ESG.", esg: 2, nextQuestion: 505 },
+        ]
+    },
+    {
+        id: 505,
+        section: "Tipos de Inversión",
+        question: "¿Cuánto te preocupa que la inflación reduzca el valor real de tus ahorros a largo plazo?",
+        explanation:"La inflación es la nueva emisión de moneda y se ve reflejada en la subida de precios de consumo, y puede disminuir el poder adquisitivo de tu dinero con el tiempo.",
+        answers: [
+            { text: "Mucho", gold: 2, nextQuestion: 506 },
+            { text: "Algo", gold: 1},
+            { text: "Poco o nada", gold: 0},
+        ]
+    },
+    {
+        id: 506,
+        section: "Tipos de Inversión",
+        question: "Cuando hay crisis económicas y los mercados caen, ¿qué prefieres?",
+        explanation:"",
+        answers: [
+            { text: "Priorizar estabilidad aunque no gane mucho.", gold: 1},
+            { text: "Aceptar caídas si eso me da más crecimiento a largo plazo.", gold: 0},
         ]
     },
 ];

@@ -18,7 +18,8 @@ class QuizService {
                     exscore: 0,
                     criptoencartera: 0,
                     timeValueGlobal: 0,
-                    emergencyFund: 0
+                    emergencyFund: 0,
+                    goldinwallet: 0,
                 }
             }
         });
@@ -67,6 +68,7 @@ class QuizService {
         if (answerData.criptoExposure) updatedScores.criptoencartera += answerData.criptoExposure;
         if (answerData.timeValue) updatedScores.timeValueGlobal += answerData.timeValue;
         if (answerData.emergencyFund) updatedScores.emergencyFund += answerData.emergencyFund;
+        if (answerData.gold) updatedScores.goldinwallet += answerData.gold;
 
         // Determinar siguiente pregunta
         let nextQuestionId = answerData.nextQuestion || this.getNextQuestionId(questionId);
@@ -110,6 +112,7 @@ class QuizService {
         if (lastAnswer.answerData.criptoExposure) updatedScores.criptoencartera -= lastAnswer.answerData.criptoExposure;
         if (lastAnswer.answerData.timeValue) updatedScores.timeValueGlobal -= lastAnswer.answerData.timeValue;
         if (lastAnswer.answerData.emergencyFund) updatedScores.emergencyFund -= lastAnswer.answerData.emergencyFund;
+        if (lastAnswer.gold) updatedScores.goldinwallet -= lastAnswer.answerData.gold;
 
         await prisma.quizSession.update({
             where: { id: session.id },
@@ -170,13 +173,82 @@ async saveAnonymousStats(session, result) {
     getNextQuestionId(currentId) {
         // Lógica simple para obtener siguiente pregunta si no hay nextQuestion especificado
         // Esto debería ser más sofisticado en una implementación real
-        const questionIds = [101, 1011, 1012, 1013, 102, 103, 104, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 201, 202, 203, 204, 205, 206, 207, 208, 2017, 301, 302, 303, 304, 305, 306, 307, 401, 402, 403, 404, 501, 502, 503, 504];
+        const questionIds = [101, 1011, 1012, 1013, 102, 103, 104, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 201, 202, 203, 204, 205, 206, 207, 208, 2017, 301, 302, 303, 304, 305, 306, 307, 401, 402, 403, 404, 501, 502, 503, 504, 505, 506];
         const currentIndex = questionIds.indexOf(currentId);
         return currentIndex < questionIds.length - 1 ? questionIds[currentIndex + 1] : null;
     }
 
     generateSessionId() {
         return 'quiz_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    }
+    getSectionByQuestionId(questionId) {
+        const SECTION_QUESTIONS = {
+            'conociendote': [101, 1011, 1012, 1013, 102, 103, 104, 106, 107, 108, 109, 111, 112, 115, 116],
+            'experiencia de inversión': [201, 202, 203, 204, 205, 206, 207, 208, 209, 2017, 401, 402, 403, 404],
+            'tipos de inversión': [501, 502, 503, 504, 505 , 506],
+        };
+        
+        for (const [section, questions] of Object.entries(SECTION_QUESTIONS)) {
+            if (questions.includes(questionId)) {
+                return section;
+            }
+        }
+        return 'desconocida';
+    }
+
+    calculateProgressBySections(answers) {
+        const QUIZ_SECTIONS = [
+            'conociendote',
+            'experiencia de inversión',
+            'tipos de inversión'
+        ];
+
+        const answeredQuestions = answers.map(a => a.questionId);
+        const completedSections = new Set();
+        
+        // La última pregunta respondida indica la sección actual
+        const lastQuestionId = answeredQuestions[answeredQuestions.length - 1];
+        const currentSection = this.getSectionByQuestionId(lastQuestionId);
+        
+        // Marcar secciones anteriores como completadas
+        const currentSectionIndex = QUIZ_SECTIONS.indexOf(currentSection);
+        for (let i = -1; i < currentSectionIndex; i++) {
+            completedSections.add(QUIZ_SECTIONS[i]);
+        }
+        
+        const completedCount = completedSections.size;
+        const totalSections = QUIZ_SECTIONS.length;
+        const percentage = Math.round(((completedCount + 0.5) / totalSections) * 100);
+        
+        return {
+            current: completedCount,
+            total: totalSections,
+            percentage: Math.min(percentage, 100),
+            completedSections: Array.from(completedSections),
+            currentSection: currentSection
+        };
+    }
+
+    calculatePersonalityProgress(currentBlock, totalBlocks = 4) {
+        const percentage = Math.round((currentBlock / totalBlocks) * 100);
+        
+        return {
+            current: currentBlock,
+            total: totalBlocks,
+            percentage: Math.min(percentage, 100)
+        };
+    }
+
+    calculateGlobalProgress(quizProgress, personalityProgress = null) {
+        const quizWeight = 0.7;
+        const personalityWeight = 0.3;
+        
+        const quizContribution = (quizProgress.percentage / 100) * quizWeight * 100;
+        const personalityContribution = personalityProgress 
+            ? (personalityProgress.percentage / 100) * personalityWeight * 100
+            : 0;
+        
+        return Math.round(quizContribution + personalityContribution);
     }
 }
 

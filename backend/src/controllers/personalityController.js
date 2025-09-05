@@ -1,5 +1,6 @@
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const PersonalityService = require('../services/personalityServices');
-
 /**
  * Controlador para manejar las operaciones del test de personalidad.
  * Este controlador actúa como intermediario entre las rutas y el servicio,
@@ -56,6 +57,7 @@ const getPersonalityTest = async (req, res, next) => {
 };
 
 // Obtener las preguntas de un bloque específico
+// Actualizar getBlockQuestions para incluir progreso correcto
 const getBlockQuestions = async (req, res, next) => {
   try {
     const { sessionId } = req.params;
@@ -68,9 +70,30 @@ const getBlockQuestions = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Test no encontrado' });
     }
     const questions = PersonalityService.getShuffledQuestionsByBlock(parseInt(blockNumber));
+    
+    // Calcular progreso del test de personalidad
+    const currentBlock = parseInt(blockNumber);
+    const personalityProgress = {
+      current: currentBlock,
+      total: 4,
+      percentage: Math.round((currentBlock / 4) * 100)
+    };
+    
+    // Calcular progreso global incluyendo el quiz principal
+    const quizSession = await prisma.quizSession.findUnique({
+      where: { id: sessionId },
+      include: { answers: true }
+    });
+    
+    if (quizSession) {
+      const quizProgress = { percentage: 100 }; // Quiz completado al llegar aquí
+      personalityProgress.globalProgress = Math.round(70 + (personalityProgress.percentage * 0.3));
+    }
+    
     res.json({
       success: true,
       questions,
+      progress: personalityProgress,
       currentBlock: personalityTest.currentBlock,
       completed: personalityTest.completed
     });
