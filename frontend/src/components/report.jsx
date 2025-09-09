@@ -10,6 +10,7 @@ import RentaFijaSection from './RentaFijaSection';
 
 const ModernInvestorProfile = ({ result, onRestart }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
+  console.log('Result recibido en Report:', result);
 
   useEffect(() => {
     console.log('Datos del backend en Reporte:', result);
@@ -21,9 +22,10 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [result]);
   
-useEffect(() => {
+  useEffect(() => {
     window.scrollTo(0, 0);
   }, [result]);
+
   // Función auxiliar para convertir riskProfile a valor numérico
   const getRiskScaleValue = (riskProfile) => {
     switch (riskProfile?.toLowerCase()) {
@@ -52,38 +54,50 @@ useEffect(() => {
 
   // Mapear los datos del backend a la estructura que esperan los componentes
   const mapBackendData = (backendResult) => {
-    if (!backendResult) return null;
-
+    console.log('=== mapBackendData INPUT ===');
+    console.log('backendResult:', backendResult);
+    console.log('backendResult keys:', Object.keys(backendResult || {}));
+    
+    if (!backendResult) {
+      console.log('❌ backendResult es null/undefined en mapBackendData');
+      return null;
+    }
     console.log('Mapeando datos del backend:', backendResult);
+    
+    // Usar la estructura real que envía el backend
+    const investorProfile = backendResult.investorProfile || {
+      investorType: 'Inversor',
+      mainObjective: 'Crecimiento patrimonial',
+      experienceLevel: backendResult.experienceLevel || 'Principiante',
+      timeHorizon: 'Largo plazo'
+    };
 
-    // Crear el objeto investorProfile a partir de personality y quiz
-    const investorProfile = backendResult.personality ? {
-      profile: {
-        investorType: backendResult.personality.archetypeName || 'Inversor',
-        mainObjective: 'Crecimiento patrimonial', // Esto podríamos extraerlo del quiz si está disponible
-        experienceLevel: backendResult.quiz?.experienceLevel || 'Principiante',
-        timeHorizon: 'Largo plazo' // Esto también podríamos extraerlo del quiz
+    const riskScale = {
+      value: getRiskScaleValue(backendResult.riskProfile),
+      color: getRiskColor(backendResult.riskProfile)
+    };
+
+    const result = {
+      investorProfile: { 
+        profile: investorProfile, 
+        riskScale 
       },
-      riskScale: {
-        value: getRiskScaleValue(backendResult.quiz?.riskProfile),
-        color: getRiskColor(backendResult.quiz?.riskProfile)
-      }
-    } : null;
-
-    return {
-      investorProfile,
-      portfolio: backendResult.quiz?.portfolio,
-      report: backendResult.quiz?.report,
-
-      // Mapeo CORREGIDO: directamente desde quiz
-      investmentStrategies: backendResult.quiz?.investmentStrategies,
-      rentaVariableAdvice: backendResult.quiz?.rentaVariableAdvice,
-      rentaFijaAdvice: backendResult.quiz?.rentaFijaAdvice,
-      educationalGuide: backendResult.quiz?.educationalGuide,
-
-      // Mantener datos originales por si acaso
+      portfolio: backendResult.portfolio,                    // Usar directamente
+      report: backendResult.report || null,
+      investmentStrategies: backendResult.investmentStrategies || null,
+      rentaVariableAdvice: backendResult.rentaVariableAdvice || null,
+      rentaFijaAdvice: backendResult.rentaFijaAdvice || null,
+      educationalGuide: backendResult.educationalGuide || null,
       originalData: backendResult
     };
+
+    console.log('=== mapBackendData OUTPUT ===');
+    console.log('Final mapped result:', result);
+    console.log('report exists?', !!result.report);
+    console.log('report content:', result.report);
+    console.log('=== mapBackendData END ===');
+    
+    return result;
   };
 
   // Mapear los datos
@@ -95,6 +109,7 @@ useEffect(() => {
       </div>
     );
   }
+  console.log('Mapped result:', mappedResult);
 
   return (
     <div className="font-sans min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6 relative overflow-hidden">

@@ -1,59 +1,165 @@
-// config/portfolioConfig.js
+// config/portfolioConfig.js - Nueva configuración basada en el documento de ajuste
 
 const PORTFOLIO_CONFIG = {
-  // Cartera base inicial
+  // Nueva cartera base según documento
   BASE_PORTFOLIO: {
-    bonos: 50,
-    acciones: 40,
-    criptomonedas: 0,
-    bonosVerdes: 0,
-    efectivo: 10
+    acciones: 60,    // Acciones - activo principal de crecimiento
+    bonos: 30,       // Bonos - activo de estabilidad
+    criptomonedas: 0, // Criptos - activo especulativo (se activa según preferencias)
+    efectivo: 10,    // Efectivo - liquidez
+    oro: 0          // Oro - activo defensivo anti-inflación (nuevo)
   },
 
-  // Rangos de perfil de riesgo
+  // Nuevos rangos de perfil de riesgo actualizados
   RISK_PROFILES: {
-    LOW: { min: 0, max: 30, name: 'Bajo Riesgo' },
-    MODERATE: { min: 31, max: 60, name: 'Riesgo Moderado' },
-    HIGH: { min: 61, max: 94, name: 'Alto Riesgo' }
-  },
-// Rangos de conocimiento
-  KNOWLEDGE_LEVELS: {
-    BEGINNER: { min: 0, max: 6, name: 'Principiante' },
-    INTERMEDIATE: { min: 7, max: 13, name: 'Intermedio' },
-    ADVANCED: { min: 14, max: 20, name: 'Avanzado' }
-  },
-  // Ajustes por horizonte temporal
-  TIME_ADJUSTMENTS: {
-    1: { bonos: +20, acciones: -10 }, // 3 años o menos
-    2: { bonos: +5, acciones: -5 },   // 3-5 años
-    3: { bonos: -10, acciones: +17 }, // 5-10 años
-    4: { bonos: -15, acciones: +25 }  // más de 10 años
+    LOW: { min: 0, max: 8, name: 'Bajo Riesgo' },      // Riesgo conservador
+    MODERATE: { min: 9, max: 16, name: 'Riesgo Moderado' }, // Riesgo equilibrado
+    HIGH: { min: 17, max: 25, name: 'Alto Riesgo' }    // Riesgo agresivo
   },
 
-  // Ajustes por perfil de riesgo
-  RISK_ADJUSTMENTS: {
-    LOW: { bonos: +20, acciones: -10 },
-    MODERATE: { bonos: 0, acciones: 0 },
-    HIGH: { bonos: -10, acciones: +20 }
+  // Nuevos rangos de experiencia (expoints 0-13)
+  EXPERIENCE_LEVELS: {
+    LOW: { min: 0, max: 4, name: 'Baja' },        // Poca experiencia
+    INTERMEDIATE: { min: 5, max: 8, name: 'Intermedia' }, // Experiencia moderada  
+    HIGH: { min: 9, max: 13, name: 'Alta' }       // Mucha experiencia
   },
 
-  // Ajustes por exposición a criptomonedas
-  CRYPTO_ADJUSTMENTS: {
-    0: { bonos: 0, acciones: 0, criptomonedas: 0 },
-    1: { bonos: 0, acciones: -5, criptomonedas: +5 },
-    2: { bonos: 0, acciones: -7, criptomonedas: +7 },
-    3: { bonos: -3, acciones: -7, criptomonedas: +10 },
-    4: { bonos: -5, acciones: -10, criptomonedas: +15 },
-    5: { bonos: -8, acciones: -12, criptomonedas: +20 }
+  // Nuevos rangos de edad (age 1-6)
+  AGE_LEVELS: {
+    YOUNG: { min: 1, max: 2, name: 'Joven' },     // 18-30 años
+    MIDDLE: { min: 3, max: 4, name: 'Media' },    // 31-55 años  
+    SENIOR: { min: 5, max: 6, name: 'Mayor' }     // 56+ años
+  },
+  ESG_LEVEL: {
+    BEGINNER: { min: 1, max: 2, name: 'Bajo' },        // Poco interés en ESG
+    INTERMEDIATE: { min: 3, max: 4, name: 'Medio' }, // Interés moderado en ESG
+    ADVANCED  : { min: 5, max: 6, name: 'Alto' }       // Gran interés en ESG
+  },
+  // Nuevos rangos de ingresos (conopoints -1 a 22)
+  INCOME_LEVELS: {
+    LOW: { min: -1, max: 7, name: 'Bajos' },      // Ingresos limitados
+    MEDIUM: { min: 8, max: 14, name: 'Medios' },  // Ingresos moderados
+    HIGH: { min: 15, max: 22, name: 'Altos' }     // Ingresos elevados
   },
 
-  // Configuración ESG
-  ESG_CONFIG: {
-    // Porcentaje máximo de bonos verdes
-    MAX_GREEN_BONDS: 30,
-    // Porcentaje de bonos verdes por nivel de ESG
-    GREEN_ALLOCATION_PER_LEVEL: 10
+  // Ajustes por personalidad (afectan % sobre clase base)
+  PERSONALITY_ADJUSTMENTS: {
+    // Conservadurismo vs Ambición (Dimensión 4)
+    CONSERVADOR: { // Score positivo en dimensión 4
+      acciones: -15, bonos: +15, criptomonedas: -3, efectivo: +3
+    },
+    AMBICIOSO: { // Score negativo en dimensión 4  
+      acciones: +15, bonos: -15, criptomonedas: +3, efectivo: -3
+    },
+    
+    // Planificación vs Oportunismo (Dimensión 1)
+    PLANIFICADOR: { // Score positivo en dimensión 1
+      acciones: -5, bonos: +10, criptomonedas: -3, efectivo: +3
+    },
+    OPORTUNISTA: { // Score negativo en dimensión 1
+      acciones: +5, bonos: -10, criptomonedas: +5, efectivo: 0
+    },
+    
+    // Análisis vs Intuición (Dimensión 2)
+    ANALITICO: { // Score positivo en dimensión 2
+      acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 // No impacta %
+    },
+    INTUITIVO: { // Score negativo en dimensión 2
+      acciones: 0, bonos: -5, criptomonedas: +3, efectivo: +2
+    },
+    
+    // Autonomía vs Dependencia (Dimensión 3)
+    AUTONOMO: { // Score positivo en dimensión 3
+      acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 // No impacta %
+    },
+    DEPENDIENTE: { // Score negativo en dimensión 3
+      acciones: -5, bonos: +5, criptomonedas: 0, efectivo: 0
+    }
   },
+
+  // Ajustes por datos objetivos
+  OBJECTIVE_ADJUSTMENTS: {
+    // Por nivel de experiencia
+    EXPERIENCE: {
+      LOW: { acciones: -15, bonos: +10, criptomonedas: 0, efectivo: +5 },
+      INTERMEDIATE: { acciones: -5, bonos: +5, criptomonedas: +1, efectivo: -1 },
+      HIGH: { acciones: +15, bonos: -15, criptomonedas: +3, efectivo: -3 }
+    },
+    
+    // Por edad
+    AGE: {
+      YOUNG: { acciones: +15, bonos: -15, criptomonedas: +3, efectivo: -3 },
+      MIDDLE: { acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 },
+      SENIOR: { acciones: -20, bonos: +20, criptomonedas: -5, efectivo: +5 }
+    },
+    
+    // Por nivel de ingresos
+    INCOME: {
+      LOW: { acciones: -15, bonos: +5, criptomonedas: 0, efectivo: +10 },
+      MEDIUM: { acciones: -5, bonos: +5, criptomonedas: 0, efectivo: 0 },
+      HIGH: { acciones: +15, bonos: -15, criptomonedas: +3, efectivo: -3 }
+    },
+    
+    // Por riesgo declarado
+    RISK: {
+      LOW: { acciones: -20, bonos: +15, criptomonedas: -10, efectivo: +15 },
+      MODERATE: { acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 },
+      HIGH: { acciones: +20, bonos: -15, criptomonedas: +10, efectivo: -15 }
+    },
+    
+    // Por fondo de emergencia
+    EMERGENCY_FUND: {
+      LOW: { acciones: -10, bonos: +5, criptomonedas: 0, efectivo: +5 },
+      HIGH: { acciones: +5, bonos: -5, criptomonedas: 0, efectivo: 0 }
+    },
+    
+    // Por horizonte temporal
+    TIME_HORIZON: {
+      SHORT: { acciones: -15, bonos: +10, criptomonedas: -5, efectivo: +10 },
+      MEDIUM: { acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 },
+      LONG: { acciones: +15, bonos: -10, criptomonedas: +5, efectivo: -10 }
+    },
+    
+    // Por preferencia de dividendos
+    DIVIDEND: {
+      YES: { acciones: 0, bonos: +5, criptomonedas: 0, efectivo: -5 },
+      NO: { acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 }
+    },
+    
+    // Por plan de jubilación
+    PENSION: {
+      YES: { acciones: -5, bonos: +5, criptomonedas: -3, efectivo: +3 },
+      NO: { acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 }
+    }
+  },
+
+  // Configuración de criptomonedas
+  CRYPTO_CONFIG: {
+    MIN_ALLOCATION: 5, // % mínimo si se activa cripto
+    REBALANCE_FROM_STOCKS: 0.5, // 50% viene de acciones
+    REBALANCE_FROM_BONDS: 0.5   // 50% viene de bonos
+  },
+
+  // Configuración de oro
+  GOLD_CONFIG: {
+    // Puntos oro -> % de cartera
+    ALLOCATION_MAP: {
+      0: 0,   // 0 puntos = 0% oro
+      1: 5,   // 1 punto = 5% oro  
+      2: 10,  // 2 puntos = 10% oro
+      3: 15   // 3 puntos = 15% oro
+    },
+    REBALANCE_FROM_CASH: 0.5,  // 50% viene de efectivo
+    REBALANCE_FROM_BONDS: 0.5  // 50% viene de bonos
+  },
+
+  // Límites globales para evitar valores extremos
+  GLOBAL_LIMITS: {
+    MAX_DELTA_PER_ASSET: 30, // ±30% máximo de cambio por activo desde base
+    MIN_ASSET_PERCENTAGE: 0,  // 0% mínimo por activo
+    MAX_ASSET_PERCENTAGE: 80  // 80% máximo por activo individual
+  },
+
 
   // Mensajes del fondo de emergencia
   EMERGENCY_FUND_MESSAGES: {
@@ -78,142 +184,7 @@ const PORTFOLIO_CONFIG = {
   'Alto Riesgo' : "Has hecho lo más importante antes de empezar: construir un buen fondo de emergencia. Gracias a eso, puedes invertir con tranquilidad incluso en activos más volátiles aprovechando tu capacidad de asumir riesgo, pero diversifica bien."
   },
 },
-EQUITY_MARKET_MESSAGES: {
-  'Principiante': {
-    0: "ES UNA PRUEBA",
-    1: "ES UNA PRUEBA",
-  },
-  'Intermedio': {
-    0: "ES UNA PRUEBA",
-    1: "ES UNA PRUEBA",
-  },
-  'Avanzado': {
-    0: "ES UNA PRUEBA",
-    1: "ES UNA PRUEBA",
-  },
-},
-BOND_MARKET_MESSAGES: {
-  'Bajo Riesgo': {
-    1: "ES UNA PRUEBA",
-    2: "ES UNA PRUEBA",
-    3: "ES UNA PRUEBA",
-    4: "ES UNA PRUEBA",
-  },
-  'Riesgo Moderado': {
-    1: "ES UNA PRUEBA",
-    2: "ES UNA PRUEBA",
-    3: "ES UNA PRUEBA",
-    4: "ES UNA PRUEBA",
-  },
-  'Alto Riesgo': {
-    1: "ES UNA PRUEBA",
-    2: "ES UNA PRUEBA",
-    3: "ES UNA PRUEBA",
-    4: "ES UNA PRUEBA",
-  },
-},
 
-// Recomendaciones por ESG
-    ESG_LEVEL: {
-      'Principiante': {
-    0: null, // No mencionar ESG si no tiene interés
-    1: "ES UNA PRUEBA",
-    2: "ES UNA PRUEBA",
-    3: "ES UNA PRUEBA",
-    4: "ES UNA PRUEBA",
-  },
-  'Intermedio': {
-    0: null, // No mencionar ESG si no tiene interés
-    1: "ES UNA PRUEBA",
-    2: "ES UNA PRUEBA",
-    3: "ES UNA PRUEBA",
-    4: "ES UNA PRUEBA",
-  },
-  'Avanzado': {
-    0: null, // No mencionar ESG si no tiene interés
-    1: "ES UNA PRUEBA",
-    2: "ES UNA PRUEBA",
-    3: "ES UNA PRUEBA",
-    4: "ES UNA PRUEBA",
-  },
-    },
-  
-  // Mensaje de largo plazo
-  LONG_TERM_MESSAGE: {
-      'Principiante': {
-    1: null,
-    2: null,
-    3: null,
-    4 : "ES UNA PRUEBA",
-  },
-  'Intermedio': {
-    1: null,
-    2: null,
-    3: null,
-    4: "ES UNA PRUEBA",
-  },
-  'Avanzado': {
-    1: null,
-    2: null,
-    3: null,
-    4: "ES UNA PRUEBA",
-  },
-    },
-    // Mensaje de si quieren tecnología
-  TECHNOLOGY_MESSAGE: {
-      'Principiante': {
-    0: null,
-    1 : "ES UNA PRUEBA",
-    2 : "ES UNA PRUEBA",
-    3 : "ES UNA PRUEBA",
-    4 : "ES UNA PRUEBA",
-    5 : "ES UNA PRUEBA",
-  },
-  'Intermedio': {
-    0: null,
-    1 : "ES UNA PRUEBA",
-    2 : "ES UNA PRUEBA",
-    3 : "ES UNA PRUEBA",
-    4 : "ES UNA PRUEBA",
-    5 : "ES UNA PRUEBA",
-  },
-  'Avanzado': {
-    0: null,
-    1 : "ES UNA PRUEBA",
-    2 : "ES UNA PRUEBA",
-    3 : "ES UNA PRUEBA",
-    4 : "ES UNA PRUEBA",
-    5 : "ES UNA PRUEBA",
-  },
-    },
-  
-    // Recomendaciones por nivel de criptomonedas
-    CRYPTO_LEVEL: {
-          'Principiante': {
-    0: null,
-    1 : "ES UNA PRUEBA",
-    2 : "ES UNA PRUEBA",
-    3 : "ES UNA PRUEBA",
-    4 : "ES UNA PRUEBA",
-    5 : "ES UNA PRUEBA",
-  },
-  'Intermedio': {
-    0: null,
-    1 : "ES UNA PRUEBA",
-    2 : "ES UNA PRUEBA",
-    3 : "ES UNA PRUEBA",
-    4 : "ES UNA PRUEBA",
-    5 : "ES UNA PRUEBA",
-  },
-  'Avanzado': {
-    0: null,
-    1 : "ES UNA PRUEBA",
-    2 : "ES UNA PRUEBA",
-    3 : "ES UNA PRUEBA",
-    4 : "ES UNA PRUEBA",
-    5 : "ES UNA PRUEBA",
-    },
-  },
   //Recomendaciones de estrategias de inversión
   STRATEGY_MESSAGES: {
   'Bajo Riesgo': {

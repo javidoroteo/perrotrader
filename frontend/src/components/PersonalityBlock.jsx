@@ -38,7 +38,6 @@ const ScaleGuide = () => {
         Guía de Respuestas
       </h3>
       
-      {/* Indicadores de extremos */}
       <div className="flex justify-between items-center mb-4">
         <span className="text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">
           Más en desacuerdo
@@ -48,12 +47,10 @@ const ScaleGuide = () => {
         </span>
       </div>
 
-      {/* Línea de gradiente */}
       <div className="relative mb-4">
         <div className="h-2 bg-gradient-to-r from-red-400 via-yellow-400 via-gray-400 to-green-500 rounded-full"></div>
       </div>
 
-      {/* Círculos de ejemplo */}
       <div className="flex justify-between items-end px-2">
         {circleSizes.map((size, index) => (
           <div
@@ -118,6 +115,25 @@ const PersonalityBlock = ({ questions, responses, onResponseChange, onSubmit, on
     };
   };
 
+  // Función para desplazar hacia arriba suavemente
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth', // Desplazamiento suave
+    });
+  };
+
+  // Manejadores que incluyen el desplazamiento
+  const handleSubmit = () => {
+    onSubmit();
+    scrollToTop();
+  };
+
+  const handlePrevious = () => {
+    onPrevious();
+    scrollToTop();
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-4">
       <div className="backdrop-blur-md bg-white/20 rounded-3xl shadow-xl border border-white/30 p-8 mb-6">
@@ -128,13 +144,11 @@ const PersonalityBlock = ({ questions, responses, onResponseChange, onSubmit, on
             <div key={q.id} className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20">
               <p className="text-lg text-gray-800 mb-6 leading-relaxed">{q.text}</p>
               
-              {/* Indicadores de extremos para cada pregunta */}
               <div className="flex justify-between items-center mb-4">
                 <span className="text-xs text-red-600 font-medium">En desacuerdo</span>
                 <span className="text-xs text-green-600 font-medium">De acuerdo</span>
               </div>
               
-              {/* Opciones con círculos */}
               <div className="flex justify-between items-center gap-2 px-4">
                 {[...Array(7)].map((_, val) => {
                   const value = val + 1;
@@ -162,7 +176,6 @@ const PersonalityBlock = ({ questions, responses, onResponseChange, onSubmit, on
                 })}
               </div>
               
-              {/* Etiqueta de respuesta seleccionada */}
               {responses[index] && (
                 <div className="mt-4 text-center">
                   <span className="inline-block bg-white/20 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -176,7 +189,7 @@ const PersonalityBlock = ({ questions, responses, onResponseChange, onSubmit, on
           <div className="flex justify-between mt-8 pt-6 border-t border-white/20">
             {onPrevious && (
               <button
-                onClick={onPrevious}
+                onClick={handlePrevious}
                 disabled={loading}
                 className="group inline-flex items-center gap-3 px-6 py-4 bg-white/40 hover:bg-white/60 border border-gray-200 hover:border-gray-300 text-gray-700 font-medium rounded-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow-lg"
               >
@@ -186,7 +199,7 @@ const PersonalityBlock = ({ questions, responses, onResponseChange, onSubmit, on
             )}
             
             <button
-              onClick={onSubmit}
+              onClick={handleSubmit}
               disabled={loading || !allAnswered}
               className="group inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow-lg"
             >

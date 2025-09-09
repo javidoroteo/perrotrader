@@ -14,6 +14,7 @@ class QuizService {
                 currentQuestionId: 101, // Empezamos con la primera pregunta
                 answers: {},
                 scores: {
+                    totalScore: 0,
                     score: 0,
                     exscore: 0,
                     criptoencartera: 0,
@@ -59,6 +60,7 @@ class QuizService {
 
         // Actualizar scores
         const updatedScores = { ...session.scores };
+        if (answerData.conopoints) updatedScores.totalScore += answerData.conopoints;
         if (answerData.conopoints) updatedScores.score += answerData.conopoints;
         if (answerData.points) updatedScores.score += answerData.points;
         if (answerData.Expoints) {

@@ -2,6 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const { personalityQuestions } = require('../data/personalityQuestions');
 const { archetypeDetails } = require('../config/archetypes');
 
+
 const prisma = new PrismaClient();
 
 class PersonalityService {
@@ -25,9 +26,10 @@ class PersonalityService {
         negative: [26, 28, 30, 32]  // B
       }
     };
+    
 
     // Los arquetipos vienen del archivo de config
-    this.archetypeMap = archetypeDetails.nameMapping;
+    this.archetypeMap = archetypeDetails?.nameMapping || {};
 
     // Nombres de dimensiones
     this.dimensionLabels = {
@@ -42,7 +44,7 @@ class PersonalityService {
    * Valida que todas las respuestas estén presentes y sean válidas
    */
   validateResponses(responses) {
-    if (!Array.isArray(responses) || responses.length !== 32) {
+    if (!Array.isArray(responses)) {
       throw new Error('Se requieren exactamente 32 respuestas');
     }
 
@@ -143,6 +145,9 @@ class PersonalityService {
     results.archetype = letters.join('-');
     results.archetypeName = this.archetypeMap[results.archetype] || 'Arquetipo Desconocido';
 
+    console.log('Arquetipo calculado:', results.archetype);
+  console.log('Nombre arquetipo:', results.archetypeName);
+  console.log('Mapa de arquetipos disponibles:', Object.keys(this.archetypeMap));
     return results;
   }
 
@@ -247,17 +252,31 @@ class PersonalityService {
   }
 
   /**
-   * Obtiene preguntas para un bloque específico (1-4)
+   * Obtiene preguntas para un bloque específico (1-4) con distribución equilibrada
    */
   getQuestionsByBlock(blockNumber) {
     if (blockNumber < 1 || blockNumber > 4) {
       throw new Error('El número de bloque debe estar entre 1 y 4');
     }
 
-    const startIndex = (blockNumber - 1) * 8;
-    const endIndex = startIndex + 8;
-    
-    return personalityQuestions.slice(startIndex, endIndex);
+    const questionsPerDimension = 2;
+    const questions = [];
+
+    for (let dimension = 1; dimension <= 4; dimension++) {
+      const dimensionQuestions = personalityQuestions.filter(q => q.dimension === dimension);
+      const startIndex = (blockNumber - 1) * questionsPerDimension;
+      const endIndex = startIndex + questionsPerDimension;
+      
+      const selectedQuestions = dimensionQuestions.slice(startIndex, endIndex);
+      
+      if (selectedQuestions.length < questionsPerDimension) {
+        throw new Error(`No hay suficientes preguntas para la dimensión ${dimension} en el bloque ${blockNumber}`);
+      }
+      
+      questions.push(...selectedQuestions);
+    }
+
+    return questions;
   }
 
   /**
@@ -284,6 +303,10 @@ class PersonalityService {
    * Obtiene información detallada de un arquetipo específico
    */
   getArchetypeDetails(archetypeCode) {
+    const { archetypeDetails } = require('../config/archetypes');console.log('Buscando arquetipo:', archetypeCode);
+  console.log('Arquetipos disponibles:', Object.keys(archetypeDetails.nameMapping));
+  console.log('¿Existe el arquetipo?', !!archetypeDetails.nameMapping[archetypeCode]);
+
     return {
       code: archetypeCode,
       name: archetypeDetails.nameMapping[archetypeCode] || 'Arquetipo Desconocido',
@@ -291,35 +314,93 @@ class PersonalityService {
       description: archetypeDetails.descriptions[archetypeCode] || 'Descripción no disponible',
       strengths: archetypeDetails.strengths[archetypeCode] || 'Fortalezas no disponibles',
       risks: archetypeDetails.risks[archetypeCode] || 'Riesgos no disponibles',
-      //portfolio: archetypeDetails.portfolios[archetypeCode] || 'Cartera no disponible',
+      portfolio: archetypeDetails.portfolios[archetypeCode] || 'Cartera no disponible',
       advice: archetypeDetails.advice[archetypeCode] || 'Consejos no disponibles'
     };
   }
+ //chequea si se han completado los 2 tests
 
+ async checkBothTestsComplete(sessionId) {
+  try {
+    // Verificar quiz
+    const session = await prisma.quizSession.findUnique({
+      where: { id: sessionId }
+    });
+    
+    // Verificar test de personalidad
+    const personalityTest = await prisma.personalityTest.findUnique({
+      where: { sessionId }
+    });
+    
+    const quizComplete = session ? session.isCompleted : false;
+    const personalityComplete = personalityTest ? personalityTest.completed : false;
+    
+    return {
+      quizComplete,
+      personalityComplete,
+      bothComplete: quizComplete && personalityComplete,
+      session,
+      personalityTest
+    };
+  } catch (error) {
+    console.error('Error checking tests completion:', error);
+    return {
+      quizComplete: false,
+      personalityComplete: false,
+      bothComplete: false,
+      session: null,
+      personalityTest: null
+    };
+  }
+}
   /**
    * Procesa el test completo y retorna resultado final
    */
   async processCompleteTest(sessionId, allResponses) {
-    try {
-      const profile = this.calculatePersonalityProfile(allResponses);
-      const savedTest = await this.savePersonalityTest(sessionId, allResponses);
-      const archetypeDetails = this.getArchetypeDetails(profile.archetype);
+  try {
+    const profile = this.calculatePersonalityProfile(allResponses);
+    const savedTest = await this.savePersonalityTest(sessionId, allResponses);
+    const archetypeDetails = this.getArchetypeDetails(profile.archetype);
 
-      return {
-        success: true,
-        personalityTest: savedTest,
-        profile: {
-          ...profile,
-          archetypeDetails
-        }
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.message
-      };
+    console.log('🔍 processCompleteTest: Calculado profile:', { archetype: profile.archetype, completed: true });
+console.log('📊 Antes de update DB - personalityTest actual:', await prisma.personalityTest.findUnique({ where: { sessionId } }));
+
+    // Verificar si ambos tests están completos
+    const testStatus = await this.checkBothTestsComplete(sessionId);
+    
+    const result = {
+      success: true,
+      personalityTest: savedTest,
+      profile: {
+        ...profile,
+        archetypeDetails
+      }
+    };
+
+    // Si ambos tests están completos, generar resultado final del portafolio
+    if (testStatus.bothComplete) {
+      const portfolioService = require('./portfolioServices');
+      const finalResult = await portfolioService.completeFinalResult(testStatus.session);
+      
+      result.finalPortfolioResult = finalResult;
+      result.bothTestsComplete = true;
+      result.message = 'Ambos tests completados. Resultado final generado.';
+    } else {
+      result.bothTestsComplete = false;
+      result.quizComplete = testStatus.quizComplete;
+      result.message = testStatus.quizComplete 
+        ? 'Test de personalidad completado. Esperando finalización del quiz.'
+        : 'Test de personalidad completado. Quiz aún no completado.';
     }
+    console.log('💾 Después de update DB - personalityTest actualizado:', await prisma.personalityTest.findUnique({ where: { sessionId } }));
+    return result;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message
+    };
   }
+}
 
   /**
    * Procesa un bloque parcial de respuestas
@@ -336,10 +417,16 @@ class PersonalityService {
         allResponses = JSON.parse(existingTest.responses);
       }
 
-      const startIndex = (blockNumber - 1) * 8;
-      for (let i = 0; i < blockResponses.length; i++) {
-        allResponses[startIndex + i] = blockResponses[i];
+      // Obtener las preguntas del bloque para mapear respuestas correctamente
+      const blockQuestions = this.getQuestionsByBlock(blockNumber);
+      if (blockResponses.length !== 8) {
+        throw new Error('Se requieren exactamente 8 respuestas por bloque');
       }
+
+      // Mapear respuestas a sus índices correctos en el array de 32
+      blockQuestions.forEach((question, index) => {
+        allResponses[question.id - 1] = blockResponses[index];
+      });
 
       const savedTest = await this.savePersonalityTest(sessionId, allResponses, blockNumber);
 
@@ -378,7 +465,6 @@ class PersonalityService {
       recomendaciones: {
         fortalezas: archetypeDetails.strengths[profile.archetype] || 'Fortalezas no disponibles',
         riesgos: archetypeDetails.risks[profile.archetype] || 'Riesgos no disponibles',
-        //cartera: archetypeDetails.portfolios[profile.archetype] || 'Cartera no disponible',
         consejos: archetypeDetails.advice[profile.archetype] || 'Consejos no disponibles'
       }
     };
@@ -395,6 +481,88 @@ class PersonalityService {
     });
 
     return report;
+  }
+
+  /**
+   * Inicia un nuevo test de personalidad
+   */
+  async startPersonalityTest(sessionId) {
+    try {
+      const session = await prisma.quizSession.findUnique({
+        where: { id: sessionId }
+      });
+
+      if (!session) {
+        throw new Error('Sesión no encontrada');
+      }
+
+      const existingTest = await prisma.personalityTest.findUnique({
+        where: { sessionId }
+      });
+
+      if (existingTest) {
+        throw new Error('Ya existe un test de personalidad para esta sesión');
+      }
+
+      const personalityTest = await prisma.personalityTest.create({
+        data: {
+          sessionId,
+          responses: JSON.stringify(new Array(32).fill(null)),
+          currentBlock: 1,
+          completed: false
+        }
+      });
+
+      return {
+        success: true,
+        personalityTest,
+        questions: this.getShuffledQuestionsByBlock(1)
+      };
+    } catch (error) {
+      throw new Error(`Error iniciando test de personalidad: ${error.message}`);
+    }
+  }
+
+  /**
+   * Reinicia el test de personalidad
+   */
+  async resetPersonalityTest(sessionId) {
+    try {
+      const session = await prisma.quizSession.findUnique({
+        where: { id: sessionId }
+      });
+
+      if (!session) {
+        throw new Error('Sesión no encontrada');
+      }
+
+      await prisma.personalityTest.deleteMany({
+        where: { sessionId }
+      });
+
+      const personalityTest = await prisma.personalityTest.create({
+        data: {
+          sessionId,
+          responses: JSON.stringify(new Array(32).fill(null)),
+          currentBlock: 1,
+          completed: false,
+          planningScore: 0,
+          analysisScore: 0,
+          autonomyScore: 0,
+          ambitionScore: 0,
+          archetype: null,
+          archetypeName: null
+        }
+      });
+
+      return {
+        success: true,
+        personalityTest,
+        questions: this.getShuffledQuestionsByBlock(1)
+      };
+    } catch (error) {
+      throw new Error(`Error reiniciando test de personalidad: ${error.message}`);
+    }
   }
 }
 

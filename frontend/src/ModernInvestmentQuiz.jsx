@@ -3,7 +3,7 @@ import { TrendingUp, DollarSign, Target, Brain, Shield, Zap, ArrowRight, ArrowLe
 import QuizStart from './components/QuizStart';
 import QuizProgress from './components/QuizProgress';
 import QuizQuestion from './components/QuizQuestion';
-import PersonalityBlock from './components/personalityBlock';
+import PersonalityBlock from './components/PersonalityBlock';
 import ModernInvestorProfile from './components/report';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorAlert from './components/ErrorAlert';
@@ -77,43 +77,51 @@ function ModernInvestmentQuiz() {
   };
 
   const handleAnswer = async (answerIndex) => {
-    setSelectedAnswer(answerIndex);
-    setTimeout(async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const answerText = currentQuestion.answers[answerIndex].text || 
-                          currentQuestion.answers[answerIndex].answer || 
-                          `Opción ${answerIndex + 1}`;
-        const response = await fetch(`${API_BASE_URL}/quiz/answer`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId,
-            questionId: currentQuestion.id,
-            answerIndex,
-            answerText
-          })
-        });
-        const data = await response.json();
-        if (data.success) {
-          if (data.completed) {
-            // Quiz principal completado, iniciar test de personalidad
-            await startPersonalityTest();
-          } else {
-            await loadQuestion();
-          }
+  setSelectedAnswer(answerIndex);
+  setTimeout(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const answerText = currentQuestion.answers[answerIndex].text || 
+                        currentQuestion.answers[answerIndex].answer || 
+                        `Opción ${answerIndex + 1}`;
+
+      const response = await fetch(`${API_BASE_URL}/quiz/answer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          questionId: currentQuestion.id,
+          answerIndex,
+          answerText
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        if (data.nextStep === "personality_test") {
+          // Backend dice que ahora toca el test de personalidad
+          await startPersonalityTest(sessionId);
+        } else if (data.completed) {
+          // Ambos tests completados → obtener resultado final
+          await getCompleteResult();
         } else {
-          setError(data.message || 'Error al procesar la respuesta');
+          // Continuar con el quiz normal
+          await loadQuestion();
         }
-      } catch (err) {
-        setError('Error de conexión al enviar la respuesta');
-        console.error('Error submitting answer:', err);
-      } finally {
-        setLoading(false);
+      } else {
+        setError(data.message || 'Error al procesar la respuesta');
       }
-    }, 800);
-  };
+    } catch (err) {
+      setError('Error de conexión al enviar la respuesta');
+      console.error('Error submitting answer:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, 800);
+};
+
 
   const handlePrevious = async () => {
     if (showPersonalityTest && currentPersonalityBlock > 1) {
@@ -243,36 +251,27 @@ function ModernInvestmentQuiz() {
     }
   };
 
-  const getCompleteResult = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Obtener resultado del quiz principal
-      const quizResponse = await fetch(`${API_BASE_URL}/quiz/result/${sessionId}`);
-      const quizData = await quizResponse.json();
-      
-      // Obtener resultado del test de personalidad
-      const personalityResponse = await fetch(`${API_BASE_URL}/personality/${sessionId}/result`);
-      const personalityData = await personalityResponse.json();
-      
-      if (quizData.success && personalityData.success) {
-        setFinalResult({
-          quiz: quizData.result,
-          personality: personalityData.profile
-        });
-        setIsCompleted(true);
-        setShowPersonalityTest(false);
-      } else {
-        setError('Error al obtener los resultados finales');
-      }
-    } catch (err) {
-      setError('Error de conexión al obtener los resultados');
-      console.error('Error getting complete results:', err);
-    } finally {
-      setLoading(false);
+const getCompleteResult = async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    const response = await fetch(`${API_BASE_URL}/quiz/result/${sessionId}`);
+    const data = await response.json();
+    console.log('📡 Quiz result:', data); // ← Log después de obtener datos
+    if (data.success && data.completed) {
+      setFinalResult(data.result); // ← Directo, incluye quiz + personality
+      setIsCompleted(true);
+      setShowPersonalityTest(false);
+    } else {
+      setError(data.message || 'Resultados incompletos o error en el servidor');
     }
-  };
-
+  } catch (err) {
+    setError('Error de conexión al obtener los resultados');
+    console.error('Error getting complete results:', err);
+  } finally {
+    setLoading(false);
+  }
+};
   const handleRestart = () => {
     setQuizStarted(false);
     setSessionId(null);

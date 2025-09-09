@@ -13,7 +13,7 @@ const ModernPortfolioChart = ({ portfolio }) => {
       acciones: 'Stocks & ETFs',
       bonos: 'Bonds & Fixed',
       criptomonedas: 'Crypto Assets',
-      bonosVerdes: 'Green Bonds',
+      oro: 'Gold',
       efectivo: 'Cash Reserve'
     };
     return names[asset] || asset;
@@ -24,7 +24,7 @@ const ModernPortfolioChart = ({ portfolio }) => {
       acciones: '#3B82F6',
       bonos: '#10B981',
       criptomonedas: '#F59E0B',
-      bonosVerdes: '#22C55E',
+      oro: '#FFD700',
       efectivo: '#8B5CF6'
     };
     return colors[asset] || '#6B7280';
@@ -35,7 +35,7 @@ const ModernPortfolioChart = ({ portfolio }) => {
       acciones: '📈',
       bonos: '🏛️',
       criptomonedas: '₿',
-      bonosVerdes: '🌱',
+      oro: '🥇',
       efectivo: '💎'
     };
     return emojis[asset] || '💰';
@@ -46,7 +46,7 @@ const ModernPortfolioChart = ({ portfolio }) => {
       acciones: 'High growth potential 🚀',
       bonos: 'Stability & income 🏦',
       criptomonedas: 'Digital revolution ⚡',
-      bonosVerdes: 'Sustainable future 🌍',
+      oro: 'Safe haven asset 🛡️',
       efectivo: 'Liquid & secure 💫'
     };
     return descriptions[asset] || 'Investment asset';

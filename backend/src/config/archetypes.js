@@ -108,7 +108,7 @@ const risks = {
   "O-I-D-B": "Sin embargo, su principal riesgo es el sesgo de autoridad y la mentalidad de manada, que le pueden llevar a asumir riesgos excesivos basándose en el entusiasmo de otros, sin haber realizado un análisis individual."
 
 };
-
+/*
 // Carteras sugeridas
 const portfolios = {
   "P-A-T-C": "Una cartera conservadora enfocada en la preservación del capital y la estabilidad. Esto incluye una alta asignación a instrumentos de bajo riesgo como bonos de alta calidad, fondos indexados diversificados y planes de pensiones con baja volatilidad.",
@@ -117,7 +117,7 @@ const portfolios = {
   
   // Continúar con el resto...
 };
-
+*/
 // Consejos educacionales
 const advice = {
   "P-A-T-C": "Su objetivo no es eliminar el riesgo, sino gestionarlo. El Guardián Metódico debe aprender a diferenciar entre la precaución y el miedo irracional. Es vital que entienda que una inversión en el mercado no se evalúa diariamente, sino en el largo plazo. Debe practicar el 'no hacer nada' durante las fluctuaciones, resistiendo el impulso de vender ante una caída, sabiendo que la disciplina del plan es su mejor aliado.",
@@ -148,7 +148,6 @@ function getCompleteArchetypeData(code) {
     description: descriptions[code],
     strengths: strengths[code],
     risks: risks[code],
-    portfolio: portfolios[code],
     advice: advice[code]
   };
 }
@@ -165,7 +164,6 @@ module.exports = {
     descriptions,
     strengths,
     risks,
-    portfolios,
     advice
   },
   getCompleteArchetypeData,

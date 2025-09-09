@@ -7,8 +7,108 @@ const personalityService = require('../services/personalityServices');
 const questions = require('../data/questions');
 const personalityQuestions = require('../data/personalityQuestions');
 
+
 class QuizController {
   
+  /**
+   * Verifica si tanto el quiz como el test de personalidad están completos
+   */
+  async checkBothTestsComplete(sessionId) {
+    try {
+      // Verificar quiz
+      const session = await prisma.quizSession.findUnique({
+        where: { id: sessionId }
+      });
+      
+      // Verificar test de personalidad
+      const personalityTest = await prisma.personalityTest.findUnique({
+        where: { sessionId }
+      });
+      
+      const quizComplete = session ? session.isCompleted : false;
+      const personalityComplete = personalityTest ? personalityTest.completed : false;
+      
+      return {
+        quizComplete,
+        personalityComplete,
+        bothComplete: quizComplete && personalityComplete,
+        session,
+        personalityTest
+      };
+    } catch (error) {
+      console.error('Error checking tests completion:', error);
+      return {
+        quizComplete: false,
+        personalityComplete: false,
+        bothComplete: false,
+        session: null,
+        personalityTest: null
+      };
+    }
+  }
+
+  /**
+   * Genera resultado final solo cuando ambos tests estén completos
+   */
+async generateFinalResultIfBothComplete(sessionId) {
+  const testStatus = await this.checkBothTestsComplete(sessionId);
+  
+  if (!testStatus.bothComplete) {
+    return {
+      success: true,
+      completed: false,
+      quizComplete: testStatus.quizComplete,
+      personalityComplete: testStatus.personalityComplete,
+      message: testStatus.quizComplete 
+        ? 'Quiz completado. Esperando test de personalidad.'
+        : 'Test de personalidad completado. Esperando quiz.',
+      nextStep: testStatus.quizComplete ? 'personality_test' : 'continue_quiz'
+    };
+  }
+  
+  try {
+    // Resultado del quiz
+    const quizResult = await portfolioService.completeFinalResult(testStatus.session);
+
+    // Resultado de personalidad
+    const personalityResult = testStatus.personalityTest 
+      ? await personalityService.processCompleteTest(
+          sessionId, 
+          Array.isArray(testStatus.personalityTest.responses)
+            ? testStatus.personalityTest.responses
+            : JSON.parse(testStatus.personalityTest.responses)
+        )
+      : null;
+
+    // *** CAMBIO PRINCIPAL: Estructura correcta ***
+    return {
+      success: true,
+      completed: true,
+      result: {
+        // Datos del quiz (portfolioService.completeFinalResult)
+        riskProfile: quizResult.riskProfile,
+        experienceLevel: quizResult.experienceLevel,
+        portfolio: quizResult.portfolio,
+        report: quizResult.report,                    // <- Aquí está tu report
+        rentaFijaAdvice: quizResult.rentaFijaAdvice,
+        rentaVariableAdvice: quizResult.rentaVariableAdvice,
+        investmentStrategies: quizResult.investmentStrategies,
+        educationalGuide: quizResult.educationalGuide,
+        investorProfile: quizResult.investorProfile,
+        
+        // Datos de personalidad (solo el profile)
+        personality: personalityResult ? personalityResult.profile : null
+      }
+    };
+  } catch (error) {
+    console.error('Error generating final result:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
   // Iniciar nueva sesión del cuestionario
   async startQuiz(req, res) {
     try {
@@ -42,59 +142,57 @@ class QuizController {
   }
 
   // Obtener pregunta actual
-async getCurrentQuestion(req, res) {
-  try {
-    const { sessionId } = req.params;
-    
-    const session = await prisma.quizSession.findUnique({
-      where: { id: sessionId },
-      include: { answers: { orderBy: { createdAt: 'asc' } } }
-    });
-
-    if (!session) {
-      return res.status(404).json({ error: 'Sesión no encontrada' });
-    }
-
-    if (new Date() > session.expiresAt) {
-      return res.status(410).json({ error: 'Sesión expirada' });
-    }
-
-    if (session.isCompleted) {
-      return res.json({
-        success: true,
-        completed: true,
-        result: await this.calculateFinalResult(session)
+  async getCurrentQuestion(req, res) {
+    try {
+      const { sessionId } = req.params;
+      
+      const session = await prisma.quizSession.findUnique({
+        where: { id: sessionId },
+        include: { answers: { orderBy: { createdAt: 'asc' } } }
       });
-    }
 
-    const question = quizService.getQuestionById(session.currentQuestionId);
-    
-    // Usar el nuevo sistema de progreso
-    const progress = quizService.calculateProgressBySections(session.answers);
-    
-    // Agregar progreso global si hay test de personalidad
-    const personalityTest = await prisma.personalityTest.findUnique({
-      where: { sessionId }
-    });
-    
-    if (personalityTest) {
-      const personalityProgress = quizService.calculatePersonalityProgress(
-        personalityTest.currentBlock || 1
-      );
-      progress.globalProgress = quizService.calculateGlobalProgress(progress, personalityProgress);
-    }
+      if (!session) {
+        return res.status(404).json({ error: 'Sesión no encontrada' });
+      }
 
-    res.json({
-      success: true,
-      question,
-      progress,
-      canGoBack: session.answers.length > 0
-    });
-  } catch (error) {
-    console.error('Error getting current question:', error);
-    res.status(500).json({ error: 'Error al obtener la pregunta' });
+      if (new Date() > session.expiresAt) {
+        return res.status(410).json({ error: 'Sesión expirada' });
+      }
+
+      if (session.isCompleted) {
+        // Verificar si ambos tests están completos antes de mostrar resultado
+        const finalResult = await this.generateFinalResultIfBothComplete(sessionId);
+        return res.json(finalResult);
+      }
+
+      const question = quizService.getQuestionById(session.currentQuestionId);
+      
+      // Usar el nuevo sistema de progreso
+      const progress = quizService.calculateProgressBySections(session.answers);
+      
+      // Agregar progreso global si hay test de personalidad
+      const personalityTest = await prisma.personalityTest.findUnique({
+        where: { sessionId }
+      });
+      
+      if (personalityTest) {
+        const personalityProgress = quizService.calculatePersonalityProgress(
+          personalityTest.currentBlock || 1
+        );
+        progress.globalProgress = quizService.calculateGlobalProgress(progress, personalityProgress);
+      }
+
+      res.json({
+        success: true,
+        question,
+        progress,
+        canGoBack: session.answers.length > 0
+      });
+    } catch (error) {
+      console.error('Error getting current question:', error);
+      res.status(500).json({ error: 'Error al obtener la pregunta' });
+    }
   }
-}
 
   // Responder pregunta
   async answerQuestion(req, res) {
@@ -169,13 +267,16 @@ async getCurrentQuestion(req, res) {
 
       // Verificar si el cuestionario está completo
       if (!nextQuestionId || quizService.isQuizComplete(nextQuestionId)) {
-        const finalResult = await portfolioService.completeFinalResult(updatedSession);
-        
-        return res.json({
-          success: true,
-          completed: true,
-          result: finalResult
+        // Marcar quiz como completo
+        await prisma.quizSession.update({
+          where: { id: sessionId },
+          data: { isCompleted: true }
         });
+        
+        // Verificar si ambos tests están completos antes de generar resultado final
+        const finalResult = await this.generateFinalResultIfBothComplete(sessionId);
+        
+        return res.json(finalResult);
       }
 
       // Obtener siguiente pregunta
@@ -290,21 +391,8 @@ async getCurrentQuestion(req, res) {
     try {
       const { sessionId } = req.params;
       
-      const session = await prisma.quizSession.findUnique({
-        where: { id: sessionId },
-        include: { answers: true }
-      });
-
-      if (!session) {
-        return res.status(404).json({ error: 'Sesión no encontrada' });
-      }
-
-      const result = await portfolioService.completeFinalResult(session);
-      
-      res.json({
-        success: true,
-        result
-      });
+      const finalResult = await this.generateFinalResultIfBothComplete(sessionId);
+      res.json(finalResult);
     } catch (error) {
       console.error('Error getting final result:', error);
       res.status(500).json({ error: 'Error al obtener resultado' });
@@ -372,39 +460,6 @@ async getCurrentQuestion(req, res) {
       console.error('Error getting all questions:', error);
       res.status(500).json({ error: 'Error al obtener preguntas' });
     }
-  }
-
-  // Calcular resultado final y completar sesión
-  async completeFinalResult(session) {
-    const portfolio = portfolioService.calculatePortfolio(session);
-    const result = {
-      riskProfile: portfolio.riskProfile,
-      portfolio: portfolio.allocation,
-      report: portfolioService.generateReport(session),
-      recommendations: portfolioService.generateRecommendations(session)
-    };
-
-    // Actualizar sesión con resultado final
-    await prisma.quizSession.update({
-      where: { id: session.id },
-      data: {
-        isCompleted: true,
-        riskProfile: portfolio.riskProfile,
-        portfolioData: JSON.stringify(result)
-      }
-    });
-
-    // Guardar estadísticas anónimas
-    await quizService.saveAnonymousStats(session, result);
-
-    return result;
-  }
-
-  async calculateFinalResult(session) {
-    if (session.portfolioData) {
-      return JSON.parse(session.portfolioData);
-    }
-    return await this.completeFinalResult(session);
   }
 }
 

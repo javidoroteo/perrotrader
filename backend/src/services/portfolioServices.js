@@ -5,25 +5,47 @@ const { ASSET_EDUCATION } = require('../config/assetEducation');
 const { STRATEGIES_EDUCATION } = require('../config/strategiesEducation');
 const { RENTA_VARIABLE_CONFIG } = require('../config/rentaVariableConfig');
 const { RENTA_FIJA_CONFIG } = require('../config/rentaFijaConfig');
+const PersonalityService = require('./personalityServices');
 
 class PortfolioService {
   
-  /**
-   * Calcula la cartera recomendada basada en la sesión del usuario
+ /**
+   * Calcula la cartera recomendada según el nuevo algoritmo
+   * Sigue el proceso: Base -> Datos Objetivos -> Cripto -> Oro -> Límites -> Personalidad  -> Normalización
    */
-  calculatePortfolio(session) {
-    // Crear copia de la cartera base
+  async calculatePortfolio(session) {
+    // 1. Cargar cartera base
     const portfolio = { ...CONFIG.BASE_PORTFOLIO };
+    //console.log('1. Cartera base:', portfolio);
     
-    // Aplicar ajustes en orden
-    this.applyTimeAdjustments(portfolio, session.timeValue);
-    const riskProfile = this.applyRiskAdjustments(portfolio, session.totalScore);
-    this.applyCryptoAdjustments(portfolio, session.cryptoScore);
-    this.applyESGAdjustments(portfolio, session.esgValue);
     
-    // Normalizar y asegurar valores positivos
-    this.ensurePositiveValues(portfolio);
+    // 2. Aplicar ajustes de datos objetivos
+    this.applyObjectiveAdjustments(portfolio, session);
+    this.clampNegativeValues(portfolio);
+    //console.log('2. Después datos objetivos:', portfolio);
+    
+    // 3. Aplicar preferencias de criptomonedas
+    this.applyCryptoPreferences(portfolio, session.cryptoScore);
+    //console.log('3. Después cripto:', portfolio);
+    
+    // 5. Aplicar oro según puntos acumulados
+    this.applyGoldAllocation(portfolio, session.gold);
+    //console.log('4. Después oro:', portfolio);
+
+        // 2. Aplicar ajustes de personalidad
+    await this.applyPersonalityAdjustments(portfolio, session.id);
+    this.clampNegativeValues(portfolio);
+    //console.log('5. Después personalidad:', portfolio);
+    
+    // 6. Aplicar límites globales
+    this.applyGlobalLimits(portfolio);
+    //console.log('6. Después límites:', portfolio);
+    
+    // 7. Normalizar al 100%
     this.normalizePortfolio(portfolio);
+    //console.log('7. Cartera final normalizada:', portfolio);
+    
+    const riskProfile = this.getRiskProfile(session.totalScore);
     
     return {
       riskProfile,
@@ -32,104 +54,171 @@ class PortfolioService {
   }
 
   /**
-   * Ajustes por horizonte temporal
+   * Aplica ajustes basados en el test de personalidad
+   * Consulta las 4 dimensiones del perfil psicológico
    */
-  applyTimeAdjustments(portfolio, timeValue) {
-    const adjustments = CONFIG.TIME_ADJUSTMENTS[timeValue];
-    if (adjustments) {
-      Object.entries(adjustments).forEach(([asset, change]) => {
-        portfolio[asset] = (portfolio[asset] || 0) + change;
-      });
-    }
-  }
-
-  /**
-   * Ajustes por perfil de riesgo
-   */
-  applyRiskAdjustments(portfolio, totalScore) {
-    const riskLevel = this.getRiskLevel(totalScore);
-    const adjustments = CONFIG.RISK_ADJUSTMENTS[riskLevel];
-    
-    if (adjustments) {
-      Object.entries(adjustments).forEach(([asset, change]) => {
-        portfolio[asset] = (portfolio[asset] || 0) + change;
-      });
-    }
-    
-    return CONFIG.RISK_PROFILES[riskLevel].name;
-  }
-
-  /**
-   * Ajustes por exposición a criptomonedas
-   */
-  applyCryptoAdjustments(portfolio, cryptoScore) {
-    const adjustments = CONFIG.CRYPTO_ADJUSTMENTS[cryptoScore] || CONFIG.CRYPTO_ADJUSTMENTS[0];
-    
-    Object.entries(adjustments).forEach(([asset, change]) => {
-      portfolio[asset] = (portfolio[asset] || 0) + change;
-    });
-  }
-
-  /**
-   * Ajustes por preferencias ESG
-   */
-  applyESGAdjustments(portfolio, esgValue) {
-    if (esgValue > 0) {
-      const greenBondsAllocation = Math.min(
-        CONFIG.ESG_CONFIG.GREEN_ALLOCATION_PER_LEVEL * esgValue,
-        CONFIG.ESG_CONFIG.MAX_GREEN_BONDS
-      );
+  async applyPersonalityAdjustments(portfolio, sessionId) {
+    try {
+      const personalityTest = await PersonalityService.getPersonalityTest(sessionId);
       
-      // Redistribuir desde bonos regulares y acciones
-      const fromBonds = greenBondsAllocation / 2;
-      const fromStocks = greenBondsAllocation / 2;
-      
-      portfolio.bonos = (portfolio.bonos || 0) - fromBonds;
-      portfolio.acciones = (portfolio.acciones || 0) - fromStocks;
-      portfolio.bonosVerdes = (portfolio.bonosVerdes || 0) + greenBondsAllocation;
+      if (!personalityTest || !personalityTest.completed) {
+        console.log('Test de personalidad no completado, saltando ajustes');
+        return;
+      }
+
+      // Dimensión 4: Conservadurismo vs Ambición (más impacto en riesgo)
+      if (personalityTest.ambitionScore > 0) {
+        // Conservador (score positivo)
+        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.CONSERVADOR);
+      } else if (personalityTest.ambitionScore < 0) {
+        // Ambicioso (score negativo) 
+        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.AMBICIOSO);
+      }
+
+      // Dimensión 1: Planificación vs Oportunismo (afecta estabilidad vs volatilidad)
+      if (personalityTest.planningScore > 0) {
+        // Planificador (prefiere estabilidad)
+        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.PLANIFICADOR);
+      } else if (personalityTest.planningScore < 0) {
+        // Oportunista (acepta volatilidad)
+        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.OPORTUNISTA);
+      }
+
+      // Dimensión 2: Análisis vs Intuición (afecta tipo de producto, no %)
+      if (personalityTest.analysisScore < 0) {
+        // Intuitivo (prefiere apuestas más arriesgadas)
+        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.INTUITIVO);
+      }
+      // Analítico no tiene ajuste de % según documento
+
+      // Dimensión 3: Autonomía vs Dependencia (formato, pero algunos ajustes de %)
+      if (personalityTest.autonomyScore < 0) {
+        // Dependiente (prefiere fondos gestionados)
+        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.DEPENDIENTE);
+      }
+      // Autónomo no tiene ajuste de % según documento
+
+    } catch (error) {
+      console.error('Error aplicando ajustes de personalidad:', error);
     }
   }
 
   /**
-   * Determina el nivel de riesgo basado en la puntuación total
+   * Aplica ajustes basados en datos objetivos del usuario
+   * Experiencia, edad, ingresos, riesgo, fondo emergencia, horizonte, dividendos, jubilación
    */
-  getRiskLevel(totalScore) {
-    for (const [level, config] of Object.entries(CONFIG.RISK_PROFILES)) {
-      if (totalScore >= config.min && totalScore <= config.max) {
-        return level;
+  applyObjectiveAdjustments(portfolio, session) {
+    // Ajuste por experiencia (expoints 0-13)
+    const experienceLevel = this.getExperienceLevel(session.experienceScore);
+    this.applyAdjustments(portfolio, CONFIG.OBJECTIVE_ADJUSTMENTS.EXPERIENCE[experienceLevel]);
+
+    // Ajuste por edad (age 1-6) 
+    const ageLevel = this.getAgeLevel(session.age);
+    this.applyAdjustments(portfolio, CONFIG.OBJECTIVE_ADJUSTMENTS.AGE[ageLevel]);
+
+    // Ajuste por ingresos (conopoints -1 a 22)
+    const incomeLevel = this.getIncomeLevel(session.experienceScore); // Nota: conopoints se almacena en experienceScore?
+    this.applyAdjustments(portfolio, CONFIG.OBJECTIVE_ADJUSTMENTS.INCOME[incomeLevel]);
+
+    // Ajuste por riesgo declarado (totalScore/points 0-25)
+    const riskLevel = this.getRiskLevel(session.totalScore);
+    this.applyAdjustments(portfolio, CONFIG.OBJECTIVE_ADJUSTMENTS.RISK[riskLevel]);
+
+    // Ajuste por fondo de emergencia
+    const emergencyLevel = session.emergencyFund <= 1 ? 'LOW' : 'HIGH';
+    this.applyAdjustments(portfolio, CONFIG.OBJECTIVE_ADJUSTMENTS.EMERGENCY_FUND[emergencyLevel]);
+
+    // Ajuste por horizonte temporal
+    const timeLevel = this.getTimeHorizonLevel(session.timeValue);
+    this.applyAdjustments(portfolio, CONFIG.OBJECTIVE_ADJUSTMENTS.TIME_HORIZON[timeLevel]);
+
+    // Ajuste por dividendos
+    const dividendPreference = session.dividend === 1 ? 'YES' : 'NO';
+    this.applyAdjustments(portfolio, CONFIG.OBJECTIVE_ADJUSTMENTS.DIVIDEND[dividendPreference]);
+
+    // Ajuste por jubilación
+    const pensionPreference = session.pensionFund === 1 ? 'YES' : 'NO';
+    this.applyAdjustments(portfolio, CONFIG.OBJECTIVE_ADJUSTMENTS.PENSION[pensionPreference]);
+  }
+
+  /**
+   * Maneja las preferencias de criptomonedas
+   * Si criptoExposure > 0: mínimo 5%, reduce acciones y bonos
+   * Si criptoExposure <= 0: mantiene cripto en 0%
+   */
+  applyCryptoPreferences(portfolio, cryptoExposure) {
+    if (cryptoExposure > 0) {
+      // Activar slot de cripto con mínimo 5%
+      const cryptoAllocation = Math.max(portfolio.criptomonedas, CONFIG.CRYPTO_CONFIG.MIN_ALLOCATION);
+      
+      // Calcular cuánto necesitamos añadir
+      const cryptoToAdd = cryptoAllocation - portfolio.criptomonedas;
+      
+      if (cryptoToAdd > 0) {
+        // Restar 50% de acciones, 50% de bonos
+        const fromStocks = cryptoToAdd * CONFIG.CRYPTO_CONFIG.REBALANCE_FROM_STOCKS;
+        const fromBonds = cryptoToAdd * CONFIG.CRYPTO_CONFIG.REBALANCE_FROM_BONDS;
+        
+        portfolio.acciones -= fromStocks;
+        portfolio.bonos -= fromBonds;
+        portfolio.criptomonedas = cryptoAllocation;
       }
     }
-    return 'MODERATE'; // Por defecto
+    // Si cryptoExposure <= 0, mantener cripto en 0% (base ya es 0)
   }
 
   /**
-   * Determina el nivel de experiencia basado en los puntos de experiencia
+   * Aplica asignación de oro basada en puntos acumulados
+   * Oro viene principalmente de efectivo y bonos
    */
-  getExperienceLevel(experienceScore) {
-    for (const [level, config] of Object.entries(CONFIG.KNOWLEDGE_LEVELS)) {
-      if (experienceScore >= config.min && experienceScore <= config.max) {
-        return level;
+  applyGoldAllocation(portfolio, goldPoints) {
+    const goldAllocation = CONFIG.GOLD_CONFIG.ALLOCATION_MAP[Math.min(goldPoints, 3)] || 0;
+    
+    if (goldAllocation > 0) {
+      // Calcular cuánto oro añadir
+      const goldToAdd = goldAllocation - portfolio.oro;
+      
+      if (goldToAdd > 0) {
+        // Restar 50% de efectivo, 50% de bonos
+        const fromCash = goldToAdd * CONFIG.GOLD_CONFIG.REBALANCE_FROM_CASH;
+        const fromBonds = goldToAdd * CONFIG.GOLD_CONFIG.REBALANCE_FROM_BONDS;
+        
+        portfolio.efectivo -= fromCash;
+        portfolio.bonos -= fromBonds;
+        portfolio.oro = goldAllocation;
       }
     }
-    return 'INTERMEDIATE'; // Por defecto
   }
 
   /**
-   * Asegura que todos los valores sean positivos
+   * Aplica límites globales para evitar valores extremos
+   * Cap deltas acumulados ±30% desde base por activo
    */
-  ensurePositiveValues(portfolio) {
+  applyGlobalLimits(portfolio) {
     Object.keys(portfolio).forEach(asset => {
-      portfolio[asset] = Math.max(0, portfolio[asset] || 0);
+      const baseValue = CONFIG.BASE_PORTFOLIO[asset] || 0;
+      const maxValue = baseValue + CONFIG.GLOBAL_LIMITS.MAX_DELTA_PER_ASSET;
+      const minValue = Math.max(0, baseValue - CONFIG.GLOBAL_LIMITS.MAX_DELTA_PER_ASSET);
+      
+      portfolio[asset] = Math.min(Math.max(portfolio[asset], minValue), maxValue);
     });
   }
 
   /**
    * Normaliza la cartera para que sume 100%
+   * Set valores <0 a 0, luego prorratea
    */
   normalizePortfolio(portfolio) {
+    // 1. Asegurar que no hay valores negativos
+    Object.keys(portfolio).forEach(asset => {
+      portfolio[asset] = Math.max(0, portfolio[asset] || 0);
+    });
+
+    // 2. Calcular total actual
     const total = Object.values(portfolio).reduce((sum, value) => sum + value, 0);
     
-    if (total > 100) {
+    // 3. Normalizar al 100% si es necesario
+    if (total !== 100 && total > 0) {
       Object.keys(portfolio).forEach(asset => {
         portfolio[asset] = (portfolio[asset] / total) * 100;
       });
@@ -137,10 +226,80 @@ class PortfolioService {
   }
 
   /**
+   * Aplica un conjunto de ajustes a la cartera
+   */
+  applyAdjustments(portfolio, adjustments) {
+    if (!adjustments) return;
+    
+    Object.entries(adjustments).forEach(([asset, change]) => {
+      if (portfolio.hasOwnProperty(asset)) {
+        portfolio[asset] = (portfolio[asset] || 0) + change;
+      }
+    });
+  }
+
+  /**
+   * Clamp valores negativos a 0 después de cada categoría
+   */
+  clampNegativeValues(portfolio) {
+    Object.keys(portfolio).forEach(asset => {
+      portfolio[asset] = Math.max(0, portfolio[asset] || 0);
+    });
+  }
+
+  // Métodos auxiliares para determinar niveles (expuestos para el controlador)
+
+  getExperienceLevel(experienceScore) {
+    for (const [level, config] of Object.entries(CONFIG.EXPERIENCE_LEVELS)) {
+      if (experienceScore >= config.min && experienceScore <= config.max) {
+        return level;
+      }
+    }
+    return 'INTERMEDIATE';
+  }
+
+  getAgeLevel(age) {
+    for (const [level, config] of Object.entries(CONFIG.AGE_LEVELS)) {
+      if (age >= config.min && age <= config.max) {
+        return level;
+      }
+    }
+    return 'MIDDLE';
+  }
+
+  getIncomeLevel(conoPoints) {
+    for (const [level, config] of Object.entries(CONFIG.INCOME_LEVELS)) {
+      if (conoPoints >= config.min && conoPoints <= config.max) {
+        return level;
+      }
+    }
+    return 'MEDIUM';
+  }
+
+  getRiskLevel(totalScore) {
+    for (const [level, config] of Object.entries(CONFIG.RISK_PROFILES)) {
+      if (totalScore >= config.min && totalScore <= config.max) {
+        return level;
+      }
+    }
+    return 'MODERATE';
+  }
+
+  getRiskProfile(totalScore) {
+    const level = this.getRiskLevel(totalScore);
+    return CONFIG.RISK_PROFILES[level].name;
+  }
+
+  getTimeHorizonLevel(timeValue) {
+    if (timeValue <= 1) return 'SHORT';      // 3 años o menos
+    if (timeValue <= 3) return 'MEDIUM';     // 3-10 años  
+    return 'LONG';                           // Más de 10 años
+  }
+  /**
    * Genera el reporte del fondo de emergencia
    */
-  generateReport(session) {
-    const portfolio = this.calculatePortfolio(session);
+  async generateReport(session) {
+    const portfolio = await this.calculatePortfolio(session);
     let informe = `<p>El fondo de emergencia es muy importante como colchón ante imprevistos y permite al inversor invertir con mucha comodidad el resto de su dinero liquido. El fondo de emergencia no es parte de la liquidez disponible dentro de la cartera.</p>`;
     
     // Obtener el mensaje del fondo de emergencia según perfil de riesgo
@@ -191,25 +350,25 @@ class PortfolioService {
     
     return {
       title: "Estrategias de Inversión",
-      description: "Estrategias recomendadas específicamente para tu perfil de riesgo y nivel de experiencia",
+      description: "Estrategias específicamente creadas para perfiles similares de riesgo y nivel de experiencia",
       userProfile: {
         riskProfile: portfolio.riskProfile,
-        experienceLevel: CONFIG.KNOWLEDGE_LEVELS[experienceLevel]?.name || experienceLevel
+        experienceLevel: CONFIG.EXPERIENCE_LEVELS[experienceLevel]?.name || experienceLevel
       },
       strategies: recommendedStrategies
     };
   }
   // Bloque de renta fija
-  generateRentaFijaAdvice(session) {
-  const portfolio = this.calculatePortfolio(session);
+  async generateRentaFijaAdvice(session) {
+  const portfolio = await this.calculatePortfolio(session);
   const experienceLevel = this.getExperienceLevel(session.experienceScore);
-  const experienceLevelName = CONFIG.KNOWLEDGE_LEVELS[experienceLevel]?.name || experienceLevel;
-  
+  const experienceLevelName = CONFIG.EXPERIENCE_LEVELS[experienceLevel]?.name || experienceLevel;
+/*  
   // Solo mostrar si hay asignación a bonos (regulares o verdes)
   if (portfolio.allocation.bonos <= 0 && portfolio.allocation.bonosVerdes <= 0) {
     return null;
   }
-  
+  */
   // Obtener contenido principal
   const mainContent = RENTA_FIJA_CONFIG.MAIN_CONTENT[experienceLevelName]?.[session.dividend];
   
@@ -279,7 +438,7 @@ class PortfolioService {
   }
   return {
     title: "Renta Fija - Guía Personalizada",
-    description: `Estrategia específica de bonos según tu perfil ${experienceLevelName.toLowerCase()} y objetivos`,
+    description: `Estrategia de bonos según perfiles similares a ${experienceLevelName.toLowerCase()} y objetivos`,
     userProfile: {
       experienceLevel: experienceLevelName,
       seeksDividends: session.dividend === 1,
@@ -296,10 +455,10 @@ class PortfolioService {
   /**
     Genera consejos de renta variable personalizados
    */
-  generateRentaVariableAdvice(session) {
-    const portfolio = this.calculatePortfolio(session);
+async generateRentaVariableAdvice(session) {
+    const portfolio = await this.calculatePortfolio(session);
     const experienceLevel = this.getExperienceLevel(session.experienceScore);
-    const experienceLevelName = CONFIG.KNOWLEDGE_LEVELS[experienceLevel]?.name || experienceLevel;
+    const experienceLevelName = CONFIG.EXPERIENCE_LEVELS[experienceLevel]?.name || experienceLevel;
     
     // Solo mostrar si hay asignación a acciones
     if (portfolio.allocation.acciones <= 0) {
@@ -366,7 +525,7 @@ class PortfolioService {
     
     return {
       title: "Renta Variable - Guía Personalizada",
-      description: `Consejos específicos para invertir en acciones según tu perfil ${experienceLevelName.toLowerCase()}`,
+      description: `Guía para invertir en acciones según perfiles similares ${experienceLevelName.toLowerCase()}`,
       userProfile: {
         experienceLevel: experienceLevelName,
         seeksDividends: session.dividend === 1,
@@ -381,16 +540,15 @@ class PortfolioService {
   /**
    * Genera educación sobre los activos en la cartera
    */
-  generateAssetEducation(session) {
-    const portfolio = this.calculatePortfolio(session);
+  async generateAssetEducation(session) {
+    const portfolio = await this.calculatePortfolio(session);
+    console.log('Portfolio completo:', portfolio);
+  console.log('Portfolio.allocation:', portfolio.allocation);
     const activeAssets = [];
     
-    // Determinar qué activos están presentes en la cartera
-    if (portfolio.allocation.acciones > 0) {
       activeAssets.push(ASSET_EDUCATION.RENTA_VARIABLE);
-    }
     
-    if (portfolio.allocation.bonos > 0 || portfolio.allocation.bonosVerdes > 0) {
+    if (portfolio.allocation.bonos > 0) {
       activeAssets.push(ASSET_EDUCATION.RENTA_FIJA);
     }
     
@@ -401,10 +559,14 @@ class PortfolioService {
     if (portfolio.allocation.efectivo > 0) {
       activeAssets.push(ASSET_EDUCATION.EFECTIVO);
     }
+
+    if (portfolio.allocation.oro > 0) {
+      activeAssets.push(ASSET_EDUCATION.ORO);
+    }
     
     return {
       title: "Guía Educativa de tu Cartera",
-      description: "Conoce los activos que componen tu cartera personalizada",
+      description: "Conoce los activos que componen la cartera asignada a los perfiles similares al tuyo",
       assets: activeAssets,
       riskProfile: portfolio.riskProfile
     };
@@ -413,8 +575,8 @@ class PortfolioService {
   /**
    * Genera la guía educativa de activos
    */
-  generateEducationalGuide(session) {
-    return this.generateAssetEducation(session);
+  async generateEducationalGuide(session) {
+    return await this.generateAssetEducation(session);
   }
 
   /**
@@ -467,7 +629,7 @@ class PortfolioService {
       profile: {
         investorType,
         mainObjective,
-        experienceLevel: CONFIG.KNOWLEDGE_LEVELS[experienceLevel]?.name || experienceLevel,
+        experienceLevel: CONFIG.EXPERIENCE_LEVELS[experienceLevel]?.name || experienceLevel,
         riskTolerance,
         timeHorizon,
         ...(session.esgValue > 0 && { esgSensitivity })
@@ -478,8 +640,9 @@ class PortfolioService {
   /**
    * Genera recomendaciones personalizadas basadas en respuestas específicas
    */
-  generateRecommendations(session) {
-    const portfolio = this.calculatePortfolio(session);
+  
+  async generateRecommendations(session) {
+    const portfolio = await this.calculatePortfolio(session);
     const experienceLevel = this.getExperienceLevel(session.experienceScore);
     const explicaciones = [];
 
@@ -542,7 +705,7 @@ class PortfolioService {
     }
     
     // Mensaje general (siempre al final)
-    explicaciones.push('La asignación de activos busca equilibrar rentabilidad y seguridad según tu perfil.');
+    explicaciones.push('La asignación de activos busca equilibrar rentabilidad y seguridad según perfiles similares al tuyo.');
     
     return {
       perfilRiesgo: portfolio.riskProfile,
@@ -556,21 +719,28 @@ class PortfolioService {
    * Genera el resultado final completo
    */
   async completeFinalResult(session) {
-    const portfolio = this.calculatePortfolio(session);
-    
-    return {
-      riskProfile: portfolio.riskProfile,
-      experienceLevel: this.getExperienceLevel(session.experienceScore),
-      portfolio: portfolio.allocation,
-      report: this.generateReport(session),
-      recommendations: this.generateRecommendations(session),
-      rentaFijaAdvice: this.generateRentaFijaAdvice(session),
-      rentaVariableAdvice: this.generateRentaVariableAdvice(session),
-      investmentStrategies: this.generateInvestmentStrategies(session),
-      educationalGuide: this.generateEducationalGuide(session),
-      investorProfile: this.generateInvestorProfile(session)
-    };
-  }
+  const portfolio = await this.calculatePortfolio(session);
+  const investorProfile = await this.generateInvestorProfile(session);
+  const report = await this.generateReport(session);
+  const rentaFijaAdvice = await this.generateRentaFijaAdvice(session);
+  const rentaVariableAdvice = await this.generateRentaVariableAdvice(session);
+  const investmentStrategiesData = await this.generateInvestmentStrategies(session);
+  const educationalGuide = await this.generateEducationalGuide(session);
+
+   console.log('Generated report:', report);
+  console.log('Portfolio:', portfolio);
+  return {
+    riskProfile: portfolio.riskProfile,
+    experienceLevel: this.getExperienceLevel(session.experienceScore),
+    portfolio: portfolio.allocation,               // Plano
+    report,                                         // Objeto directo
+    rentaFijaAdvice,                                // Objeto directo
+    rentaVariableAdvice,                            // Objeto directo
+    investmentStrategies: investmentStrategiesData.strategies, // Solo array de estrategias
+    educationalGuide,                               // Objeto directo
+    investorProfile: investorProfile.profile       // Solo objeto principal
+  };
 }
+    };
 
 module.exports = new PortfolioService();

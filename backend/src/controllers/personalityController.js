@@ -1,10 +1,10 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const PersonalityService = require('../services/personalityServices');
+
 /**
- * Controlador para manejar las operaciones del test de personalidad.
- * Este controlador actúa como intermediario entre las rutas y el servicio,
- * manejando validaciones, errores y respuestas estandarizadas.
+ * Controlador para manejar el test de personalidad.
+ * Todos los endpoints devuelven { success, completed, ... } para facilitar el frontend.
  */
 
 // Iniciar el test de personalidad
@@ -14,8 +14,16 @@ const startPersonalityTest = async (req, res, next) => {
     if (!sessionId) {
       return res.status(400).json({ success: false, message: 'sessionId es requerido' });
     }
+
+    // Crear test inicial con 32 respuestas nulas
     const result = await PersonalityService.savePersonalityTest(sessionId, new Array(32).fill(null), 1);
-    res.json({ success: true, personalityTest: result });
+
+    res.json({
+      success: true,
+      completed: false,
+      personalityTest: result,
+      currentBlock: 1
+    });
   } catch (error) {
     next(error);
   }
@@ -26,95 +34,118 @@ const answerBlock = async (req, res, next) => {
   try {
     const { sessionId } = req.params;
     const { blockResponses, blockNumber } = req.body;
+
     if (!sessionId || !Array.isArray(blockResponses) || blockResponses.length !== 8 || !Number.isInteger(blockNumber) || blockNumber < 1 || blockNumber > 4) {
       return res.status(400).json({ success: false, message: 'Datos inválidos: blockResponses debe ser un array de 8 enteros (1-7), blockNumber entre 1 y 4' });
     }
+
     if (blockResponses.some(r => !Number.isInteger(r) || r < 1 || r > 7)) {
       return res.status(400).json({ success: false, message: 'Cada respuesta debe ser un entero entre 1 y 7' });
     }
+
     const result = await PersonalityService.processBlock(sessionId, blockResponses, blockNumber);
-    res.json(result);
+
+    res.json({
+      success: true,
+      completed: result.completed,
+      currentBlock: result.currentBlock,
+      personalityTest: result
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// Obtener el estado actual del test
+// Obtener estado actual del test
 const getPersonalityTest = async (req, res, next) => {
   try {
     const { sessionId } = req.params;
-    if (!sessionId) {
-      return res.status(400).json({ success: false, message: 'sessionId es requerido' });
-    }
+    if (!sessionId) return res.status(400).json({ success: false, message: 'sessionId es requerido' });
+
     const result = await PersonalityService.getPersonalityTest(sessionId);
-    if (!result) {
-      return res.status(404).json({ success: false, message: 'Test no encontrado' });
-    }
-    res.json({ success: true, personalityTest: result });
+    if (!result) return res.status(404).json({ success: false, message: 'Test no encontrado' });
+
+    res.json({
+      success: true,
+      completed: result.completed,
+      personalityTest: result,
+      currentBlock: result.currentBlock
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// Obtener las preguntas de un bloque específico
-// Actualizar getBlockQuestions para incluir progreso correcto
+// Obtener bloque de preguntas
 const getBlockQuestions = async (req, res, next) => {
   try {
     const { sessionId } = req.params;
     const { blockNumber } = req.query;
-    if (!sessionId || !blockNumber || !Number.isInteger(parseInt(blockNumber)) || parseInt(blockNumber) < 1 || parseInt(blockNumber) > 4) {
-      return res.status(400).json({ success: false, message: 'sessionId y blockNumber (1-4) son requeridos' });
+
+    if (!sessionId || !blockNumber) {
+      return res.status(400).json({ success: false, message: 'sessionId y blockNumber son requeridos' });
     }
+
+    const parsedBlock = parseInt(blockNumber);
+    if (isNaN(parsedBlock) || parsedBlock < 1 || parsedBlock > 4) {
+      return res.status(400).json({ success: false, message: 'blockNumber debe estar entre 1 y 4' });
+    }
+
     const personalityTest = await PersonalityService.getPersonalityTest(sessionId);
-    if (!personalityTest) {
-      return res.status(404).json({ success: false, message: 'Test no encontrado' });
-    }
-    const questions = PersonalityService.getShuffledQuestionsByBlock(parseInt(blockNumber));
-    
-    // Calcular progreso del test de personalidad
-    const currentBlock = parseInt(blockNumber);
+    if (!personalityTest) return res.status(404).json({ success: false, message: 'Test no encontrado' });
+
+    const questions = PersonalityService.getShuffledQuestionsByBlock(parsedBlock);
+
     const personalityProgress = {
-      current: currentBlock,
+      current: parsedBlock,
       total: 4,
-      percentage: Math.round((currentBlock / 4) * 100)
+      percentage: Math.round((parsedBlock / 4) * 100)
     };
-    
+
     // Calcular progreso global incluyendo el quiz principal
     const quizSession = await prisma.quizSession.findUnique({
       where: { id: sessionId },
       include: { answers: true }
     });
-    
+
     if (quizSession) {
-      const quizProgress = { percentage: 100 }; // Quiz completado al llegar aquí
       personalityProgress.globalProgress = Math.round(70 + (personalityProgress.percentage * 0.3));
     }
-    
+
     res.json({
       success: true,
+      completed: personalityTest.completed,
       questions,
       progress: personalityProgress,
-      currentBlock: personalityTest.currentBlock,
-      completed: personalityTest.completed
+      currentBlock: parsedBlock
     });
   } catch (error) {
     next(error);
   }
 };
 
-// Obtener el resultado final del test
+// Obtener resultado final del test de personalidad
 const getPersonalityResult = async (req, res, next) => {
   try {
     const { sessionId } = req.params;
-    if (!sessionId) {
-      return res.status(400).json({ success: false, message: 'sessionId es requerido' });
-    }
+    if (!sessionId) return res.status(400).json({ success: false, message: 'sessionId es requerido' });
+
     const personalityTest = await PersonalityService.getPersonalityTest(sessionId);
     if (!personalityTest || !personalityTest.completed) {
       return res.status(400).json({ success: false, message: 'Test no completado' });
     }
+
+    const responses = Array.isArray(personalityTest.responses) 
+      ? personalityTest.responses 
+      : JSON.parse(personalityTest.responses);
+
     const result = await PersonalityService.processCompleteTest(sessionId, personalityTest.responses);
-    res.json(result);
+
+    res.json({
+      success: true,
+      completed: true,
+      profile: result
+    });
   } catch (error) {
     next(error);
   }
@@ -124,11 +155,17 @@ const getPersonalityResult = async (req, res, next) => {
 const resetPersonalityTest = async (req, res, next) => {
   try {
     const { sessionId } = req.params;
-    if (!sessionId) {
-      return res.status(400).json({ success: false, message: 'sessionId es requerido' });
-    }
+    if (!sessionId) return res.status(400).json({ success: false, message: 'sessionId es requerido' });
+
     const result = await PersonalityService.savePersonalityTest(sessionId, new Array(32).fill(null), 1);
-    res.json({ success: true, message: 'Test de personalidad reiniciado', personalityTest: result });
+
+    res.json({
+      success: true,
+      completed: false,
+      message: 'Test de personalidad reiniciado',
+      personalityTest: result,
+      currentBlock: 1
+    });
   } catch (error) {
     next(error);
   }

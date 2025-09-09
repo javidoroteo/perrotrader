@@ -68,6 +68,23 @@ const ASSET_EDUCATION = {
       "Rentabilidad muy baja o nula",
       "Pérdida de poder adquisitivo a largo plazo debido a la inflación"
     ]
+  },
+    ORO: {
+    title: "Oro 🪙",
+    description: "El oro es uno de los activos refugio más antiguos y reconocidos en el mundo. No genera intereses ni dividendos, pero ha servido históricamente como una reserva de valor.",
+    role: "Su función principal es actuar como cobertura frente a la inflación, la devaluación de las divisas y la inestabilidad geopolítica. Se utiliza para diversificar el riesgo y proteger el poder adquisitivo en momentos de crisis.",
+    expectedReturn: "A largo plazo, el oro no suele superar a la renta variable en términos de rentabilidad, pero ha mantenido su valor real durante siglos. Sus retornos anualizados han oscilado históricamente entre el 1% y el 3% en términos reales.",
+    behavior: "No genera flujo de caja (no paga intereses ni dividendos). Su precio fluctúa en función de la oferta, la demanda, la política monetaria y la confianza de los inversores. Tiende a comportarse bien en tiempos de incertidumbre.",
+    pros: [
+      "Activo refugio frente a inflación y crisis",
+      "Alta liquidez a nivel global",
+      "Baja correlación con acciones y bonos en ciertos periodos"
+    ],
+    cons: [
+      "No genera ingresos (ni intereses ni dividendos)",
+      "Puede tener largos periodos de estancamiento",
+      "Su precio depende en gran medida del sentimiento del mercado"
+    ]
   }
 };
 
