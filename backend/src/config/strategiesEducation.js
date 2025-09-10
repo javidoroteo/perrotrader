@@ -20,19 +20,19 @@ const STRATEGIES_EDUCATION = {
     ],
     suitability: {
       'Bajo Riesgo': {
-        'Principiante': "Perfect para ti: elimina la presión de decidir cuándo invertir y reduce la ansiedad asociada con la volatilidad del mercado.",
-        'Intermedio': "Excelente estrategia que complementa tu perfil conservador, permitiendo una entrada gradual y controlada al mercado.",
-        'Avanzado': "Aunque tengas experiencia, esta estrategia te permite mantener un enfoque disciplinado sin asumir riesgos de timing."
+        'Principiante': "Perfecta para ti: elimina la presión de decidir cuándo invertir y reduce la ansiedad asociada con la volatilidad del mercado.",
+        'Intermedia': "Excelente estrategia que complementa tu perfil conservador, permitiendo una entrada gradual y controlada al mercado.",
+        'Avanzada': "Aunque tengas experiencia, esta estrategia te permite mantener un enfoque disciplinado sin asumir riesgos de timing."
       },
       'Riesgo Moderado': {
         'Principiante': "Ideal para construir confianza mientras aprendes sobre los mercados, reduciendo el riesgo de tomar decisiones emocionales.",
-        'Intermedio': "Te permite mantener una estrategia consistente mientras desarrollas tu comprensión de los ciclos del mercado.",
-        'Avanzado': "Una base sólida que puedes combinar con otras estrategias más sofisticadas según las oportunidades del mercado."
+        'Intermedia': "Te permite mantener una estrategia consistente mientras desarrollas tu comprensión de los ciclos del mercado.",
+        'Avanzada': "Una base sólida que puedes combinar con otras estrategias más sofisticadas según las oportunidades del mercado."
       },
       'Alto Riesgo': {
         'Principiante': "Te ayuda a entrar al mercado de forma controlada, evitando la tentación de apostar todo en momentos de alta volatilidad.",
-        'Intermedio': "Proporciona estabilidad a tu estrategia general, complementando posibles inversiones más arriesgadas.",
-        'Avanzado': "Una estrategia core que te permite mantener disciplina mientras exploras oportunidades más agresivas con parte de tu capital."
+        'Intermedia': "Proporciona estabilidad a tu estrategia general, complementando posibles inversiones más arriesgadas.",
+        'Avanzada': "Una estrategia core que te permite mantener disciplina mientras exploras oportunidades más agresivas con parte de tu capital."
       }
     }
   },
@@ -56,8 +56,8 @@ const STRATEGIES_EDUCATION = {
     suitability: {
       'Bajo Riesgo': {
         'Principiante': "Perfecta para comenzar con inversiones regulares sin la presión de montos fijos, adaptándose a tu comodidad financiera.",
-        'Intermedio': "Te permite mantener consistencia en tus inversiones con la flexibilidad que tu experiencia te permite manejar.",
-        'Avanzado': "Una estrategia base simple que puedes ajustar según tu análisis del mercado y situación personal."
+        'Intermedia': "Te permite mantener consistencia en tus inversiones con la flexibilidad que tu experiencia te permite manejar.",
+        'Avanzada': "Una estrategia base simple que puedes ajustar según tu análisis del mercado y situación personal."
       }
     }
   },
@@ -82,13 +82,13 @@ const STRATEGIES_EDUCATION = {
     suitability: {
       'Riesgo Moderado': {
         'Principiante': "Una evolución natural del DCA que puedes implementar una vez que te sientas cómodo con las inversiones periódicas.",
-        'Intermedio': "Ideal para tu perfil: combina disciplina con un enfoque más sofisticado que puede mejorar tus rendimientos.",
-        'Avanzado': "Excelente estrategia que aprovecha tu experiencia para optimizar el timing de aportes de forma sistemática."
+        'Intermedia': "Ideal para tu perfil: combina disciplina con un enfoque más sofisticado que puede mejorar tus rendimientos.",
+        'Avanzada': "Excelente estrategia que aprovecha tu experiencia para optimizar el timing de aportes de forma sistemática."
       },
       'Alto Riesgo': {
         'Principiante': "Considera dominar primero el DCA antes de implementar esta estrategia más compleja.",
-        'Intermedio': "Una estrategia valiosa que puede complementar tu tolerancia al riesgo con un enfoque más disciplinado.",
-        'Avanzado': "Perfecta para maximizar el potencial de tu estrategia, combinando sofisticación con disciplina."
+        'Intermedia': "Una estrategia valiosa que puede complementar tu tolerancia al riesgo con un enfoque más disciplinado.",
+        'Avanzada': "Perfecta para maximizar el potencial de tu estrategia, combinando sofisticación con disciplina."
       }
     }
   },
@@ -113,12 +113,12 @@ const STRATEGIES_EDUCATION = {
     ],
     suitability: {
       'Riesgo Moderado': {
-        'Intermedio': "Perfecta para tu nivel: te permite mantener estabilidad con el core mientras exploras oportunidades específicas con los satélites.",
-        'Avanzado': "Ideal para aprovechar tu experiencia en la selección de satélites mientras mantienes una base sólida y diversificada."
+        'Intermedia': "Perfecta para tu nivel: te permite mantener estabilidad con el core mientras exploras oportunidades específicas con los satélites.",
+        'Avanzada': "Ideal para aprovechar tu experiencia en la selección de satélites mientras mantienes una base sólida y diversificada."
       },
       'Alto Riesgo': {
-        'Intermedio': "Te permite canalizar tu tolerancia al riesgo de forma inteligente, concentrando las apuestas arriesgadas en los satélites.",
-        'Avanzado': "Excelente para maximizar oportunidades mientras mantienes un enfoque disciplinado en la parte principal de tu cartera."
+        'Intermedia': "Te permite canalizar tu tolerancia al riesgo de forma inteligente, concentrando las apuestas arriesgadas en los satélites.",
+        'Avanzada': "Excelente para maximizar oportunidades mientras mantienes un enfoque disciplinado en la parte principal de tu cartera."
       }
     }
   },
@@ -143,10 +143,10 @@ const STRATEGIES_EDUCATION = {
     ],
     suitability: {
       'Riesgo Moderado': {
-        'Avanzado': "Esencial para tu estrategia: te permite mantener el equilibrio riesgo-retorno que buscas sin deriva temporal."
+        'Avanzada': "Esencial para tu estrategia: te permite mantener el equilibrio riesgo-retorno que buscas sin deriva temporal."
       },
       'Alto Riesgo': {
-        'Avanzado': "Fundamental para evitar que tu cartera se vuelva demasiado concentrada en activos que han subido mucho, manteniendo la diversificación."
+        'Avanzada': "Fundamental para evitar que tu cartera se vuelva demasiado concentrada en activos que han subido mucho, manteniendo la diversificación."
       }
     }
   },
@@ -171,7 +171,7 @@ const STRATEGIES_EDUCATION = {
     ],
     suitability: {
       'Alto Riesgo': {
-        'Avanzado': "Tu experiencia y tolerancia al riesgo te permiten implementar esta estrategia, pero úsala solo con una pequeña parte de tu capital y con mucha disciplina. Recuerda que 'catching a falling knife' puede ser peligroso incluso para expertos."
+        'Avanzada': "Tu experiencia y tolerancia al riesgo te permiten implementar esta estrategia, pero úsala solo con una pequeña parte de tu capital y con mucha disciplina. Recuerda que 'catching a falling knife' puede ser peligroso incluso para expertos."
       }
     }
   }

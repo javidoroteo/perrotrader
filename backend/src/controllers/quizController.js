@@ -80,6 +80,11 @@ async generateFinalResultIfBothComplete(sessionId) {
         )
       : null;
 
+      
+        // DEBUG - Agregar antes del return
+console.log('=== CONTROLLER DEBUG ===');
+console.log('quizResult.investmentStrategies:', quizResult.investmentStrategies);
+console.log('=== END CONTROLLER DEBUG ===');
     // *** CAMBIO PRINCIPAL: Estructura correcta ***
     return {
       success: true,

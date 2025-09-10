@@ -19,9 +19,9 @@ const PORTFOLIO_CONFIG = {
 
   // Nuevos rangos de experiencia (expoints 0-13)
   EXPERIENCE_LEVELS: {
-    LOW: { min: 0, max: 4, name: 'Baja' },        // Poca experiencia
+    LOW: { min: 0, max: 4, name: 'Principiante' },        // Poca experiencia
     INTERMEDIATE: { min: 5, max: 8, name: 'Intermedia' }, // Experiencia moderada  
-    HIGH: { min: 9, max: 13, name: 'Alta' }       // Mucha experiencia
+    HIGH: { min: 9, max: 13, name: 'Avanzada' }       // Mucha experiencia
   },
 
   // Nuevos rangos de edad (age 1-6)

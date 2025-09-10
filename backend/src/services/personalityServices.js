@@ -314,7 +314,6 @@ class PersonalityService {
       description: archetypeDetails.descriptions[archetypeCode] || 'Descripción no disponible',
       strengths: archetypeDetails.strengths[archetypeCode] || 'Fortalezas no disponibles',
       risks: archetypeDetails.risks[archetypeCode] || 'Riesgos no disponibles',
-      portfolio: archetypeDetails.portfolios[archetypeCode] || 'Cartera no disponible',
       advice: archetypeDetails.advice[archetypeCode] || 'Consejos no disponibles'
     };
   }

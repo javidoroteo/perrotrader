@@ -314,8 +314,8 @@ class PortfolioService {
   /**
    * Genera las estrategias de inversión recomendadas
    */
-  generateInvestmentStrategies(session) {
-    const portfolio = this.calculatePortfolio(session);
+  async generateInvestmentStrategies(session) {
+    const portfolio = await this.calculatePortfolio(session);
     const experienceLevel = this.getExperienceLevel(session.experienceScore);
 
     console.log('Raw portfolio.riskProfile:', portfolio.riskProfile);
@@ -363,12 +363,12 @@ class PortfolioService {
   const portfolio = await this.calculatePortfolio(session);
   const experienceLevel = this.getExperienceLevel(session.experienceScore);
   const experienceLevelName = CONFIG.EXPERIENCE_LEVELS[experienceLevel]?.name || experienceLevel;
-/*  
-  // Solo mostrar si hay asignación a bonos (regulares o verdes)
-  if (portfolio.allocation.bonos <= 0 && portfolio.allocation.bonosVerdes <= 0) {
+  
+  // Solo mostrar si hay asignación a bonos 
+  if (portfolio.allocation.bonos <= 0) {
     return null;
   }
-  */
+
   // Obtener contenido principal
   const mainContent = RENTA_FIJA_CONFIG.MAIN_CONTENT[experienceLevelName]?.[session.dividend];
   
@@ -437,8 +437,8 @@ class PortfolioService {
     }
   }
   return {
-    title: "Renta Fija - Guía Personalizada",
-    description: `Estrategia de bonos según perfiles similares a ${experienceLevelName.toLowerCase()} y objetivos`,
+    title: "Renta Fija - Guía",
+    description: `Estrategia de bonos según perfiles similares a ${experienceLevelName.toLowerCase()} y a tu objetivos`,
     userProfile: {
       experienceLevel: experienceLevelName,
       seeksDividends: session.dividend === 1,
@@ -727,8 +727,9 @@ async generateRentaVariableAdvice(session) {
   const investmentStrategiesData = await this.generateInvestmentStrategies(session);
   const educationalGuide = await this.generateEducationalGuide(session);
 
-   console.log('Generated report:', report);
-  console.log('Portfolio:', portfolio);
+   console.log('=== PORTFOLIO SERVICE DEBUG ===');
+  console.log('investmentStrategiesData:', investmentStrategiesData);
+  console.log('=== END PORTFOLIO SERVICE DEBUG ===');
   return {
     riskProfile: portfolio.riskProfile,
     experienceLevel: this.getExperienceLevel(session.experienceScore),

@@ -44,7 +44,7 @@ Lo bueno de este tipo de empresas es que en general no son tan volátiles, es de
         ]
       }
     },
-    'Intermedio': {
+    'Intermedia': {
       0: { // No dividendos
         title: "Fondos y ETFs para crecer sin complicarte",
         content: `Una vez que dominas lo básico, puedes dar el siguiente paso y combinar fondos indexados con ETFs bien seleccionados para construir una cartera más eficiente.
@@ -86,7 +86,7 @@ Puedes formar el núcleo de tu cartera con un ETF de dividendos global y, si te 
         ]
       }
     },
-    'Avanzado': {
+    'Avanzada': {
       0: { // No dividendos
         title: "Crecimiento activo con control y visión estratégica",
         content: `Dado tu nivel de experiencia, puedes construir una cartera orientada al crecimiento combinando ETFs globales de acumulación, fondos temáticos y, si lo deseas, selección directa de acciones.
@@ -141,33 +141,33 @@ También puedes usar ETFs sectoriales de distribución centrados en industrias q
     TECNOLOGIA: {
       'Principiante': `Si te apasiona la tecnología, puedes canalizar ese interés de una forma inteligente. En lugar de apostar por una sola empresa, puedes usar ETFs sectoriales de tecnología para invertir en las mejores compañías del sector de manera diversificada. Piensa en ellos como un pequeño "satélite" que complementa tu cartera principal. Por ejemplo, podrías investigar un ETF que invierta en las 100 principales empresas tecnológicas de EE.UU. Este es un buen punto de partida para entender el sector sin asumir un riesgo excesivo.`,
       
-      'Intermedio': `Si te interesa el sector tecnológico, la inteligencia artificial o la innovación, puedes añadir una pequeña parte de tu cartera en ETFs temáticos tecnológicos, como el iShares Digitalisation, el iShares Automation & Robotics, o el Nasdaq-100. Estos productos son más volátiles, así que deben representar una parte limitada de tu inversión, especialmente si estás empezando.`,
+      'Intermedia': `Si te interesa el sector tecnológico, la inteligencia artificial o la innovación, puedes añadir una pequeña parte de tu cartera en ETFs temáticos tecnológicos, como el iShares Digitalisation, el iShares Automation & Robotics, o el Nasdaq-100. Estos productos son más volátiles, así que deben representar una parte limitada de tu inversión, especialmente si estás empezando.`,
       
-      'Avanzado': `Si te interesa el sector tecnológico, la inteligencia artificial o la innovación, puedes añadir una pequeña parte de tu cartera en ETFs temáticos tecnológicos, como el iShares Digitalisation, el iShares Automation & Robotics, o el Nasdaq-100. Usa un gran fondo de renta variable global como núcleo, y destina una parte significativa de tus satélites a acciones individuales de empresas con modelos de negocio innovadores y ventajas competitivas duraderas (moat). Podrías incluso investigar la inversión en fondos de capital riesgo o en empresas privadas con alto potencial, si tienes la oportunidad, para acceder a la fase de crecimiento más temprana.`
+      'Avanzada': `Si te interesa el sector tecnológico, la inteligencia artificial o la innovación, puedes añadir una pequeña parte de tu cartera en ETFs temáticos tecnológicos, como el iShares Digitalisation, el iShares Automation & Robotics, o el Nasdaq-100. Usa un gran fondo de renta variable global como núcleo, y destina una parte significativa de tus satélites a acciones individuales de empresas con modelos de negocio innovadores y ventajas competitivas duraderas (moat). Podrías incluso investigar la inversión en fondos de capital riesgo o en empresas privadas con alto potencial, si tienes la oportunidad, para acceder a la fase de crecimiento más temprana.`
     },
 
     LARGO_PLAZO: {
       'Principiante': `Tu horizonte de inversión a largo plazo es tu mayor ventaja. El tiempo no solo suaviza las caídas del mercado, sino que también amplifica el poder del interés compuesto. Lo más importante es que empieces a invertir cuanto antes. No necesitas preocuparte por encontrar el momento perfecto para comprar; lo clave es mantener el rumbo y ser constante. Para esto, una estrategia como el DCA (Dollar-Cost Averaging), que te explicamos más adelante, te ayudará a invertir de forma regular y sin estrés.`,
       
-      'Intermedio': `Tu horizonte a largo plazo es una ventaja, pero ahora puedes usarlo de forma más activa. Además de las aportaciones regulares, es el momento de aplicar una estrategia de reequilibrio de cartera. Esto significa vender activos que se han sobrevalorado para comprar aquellos que se han quedado atrás, manteniendo así tu asignación de activos deseada. Este enfoque te ayuda a "comprar barato y vender caro" de manera sistemática, aprovechando las fluctuaciones del mercado. Esto también depende del valor de la cartera por las comisiones, cuanto mayor sea la cantidad menos influencia tienen las comisiones a nivel porcentual y más podrás hacer.`,
+      'Intermedia': `Tu horizonte a largo plazo es una ventaja, pero ahora puedes usarlo de forma más activa. Además de las aportaciones regulares, es el momento de aplicar una estrategia de reequilibrio de cartera. Esto significa vender activos que se han sobrevalorado para comprar aquellos que se han quedado atrás, manteniendo así tu asignación de activos deseada. Este enfoque te ayuda a "comprar barato y vender caro" de manera sistemática, aprovechando las fluctuaciones del mercado. Esto también depende del valor de la cartera por las comisiones, cuanto mayor sea la cantidad menos influencia tienen las comisiones a nivel porcentual y más podrás hacer.`,
       
-      'Avanzado': `Tu horizonte de inversión es tu lienzo. Con alto conocimiento puedes ir más allá del reequilibrio y considerar una asignación de activos estratégica que evolucione con los ciclos económicos. Usa herramientas avanzadas para la gestión de riesgos, como derivados, para proteger tu cartera de grandes caídas. El objetivo es optimizar la relación riesgo-rentabilidad, maximizando el crecimiento a largo plazo mientras proteges tu patrimonio de eventos imprevistos.`
+      'Avanzada': `Tu horizonte de inversión es tu lienzo. Con alto conocimiento puedes ir más allá del reequilibrio y considerar una asignación de activos estratégica que evolucione con los ciclos económicos. Usa herramientas avanzadas para la gestión de riesgos, como derivados, para proteger tu cartera de grandes caídas. El objetivo es optimizar la relación riesgo-rentabilidad, maximizando el crecimiento a largo plazo mientras proteges tu patrimonio de eventos imprevistos.`
     },
 
     ESG: {
       'Principiante': `Si la sostenibilidad es importante para ti, puedes alinear tus inversiones con tus valores personales. La etiqueta ESG (Environmental, Social, and Governance) te ayuda a encontrar fondos y ETFs que invierten de forma responsable. Estos productos siguen los mismos índices de mercado, pero con un filtro extra que excluye a empresas controvertidas (como las de armas, tabaco o combustibles fósiles) o a aquellas con malas prácticas. Un ejemplo claro es el iShares ESG Aware S&P 500 ETF (ESGU), que replica el S&P 500 pero solo invierte en empresas que cumplen con sus criterios de sostenibilidad.`,
       
-      'Intermedio': `Si te importa la sostenibilidad o la inversión responsable, puedes elegir versiones ESG de los fondos o ETFs que se pueden ajustar a tu perfil. Por ejemplo, existen versiones del MSCI World ESG, del S&P 500 ESG, o ETFs de dividendos que excluyen empresas de sectores controvertidos como el armamento, el tabaco o los combustibles fósiles. O incluso podrías empezar a plantearte tus propios criterios ESG y aplicarlo a tus inversiones.`,
+      'Intermedia': `Si te importa la sostenibilidad o la inversión responsable, puedes elegir versiones ESG de los fondos o ETFs que se pueden ajustar a tu perfil. Por ejemplo, existen versiones del MSCI World ESG, del S&P 500 ESG, o ETFs de dividendos que excluyen empresas de sectores controvertidos como el armamento, el tabaco o los combustibles fósiles. O incluso podrías empezar a plantearte tus propios criterios ESG y aplicarlo a tus inversiones.`,
       
-      'Avanzado': `Tu estrategia de sostenibilidad se convierte en inversión de impacto. Más allá de los ETFs, puedes construir una cartera de acciones individuales basándote en tu propio análisis fundamental ESG, invirtiendo solo en aquellas empresas cuyas prácticas se alinean perfectamente con tus valores y tienen un potencial de rendimiento superior. La clave está en buscar empresas que no solo cumplen, sino que están innovando en materia de sostenibilidad y liderando el cambio en sus industrias. También puedes elegir versiones ESG de los fondos o ETFs que se pueden ajustar a tu perfil.`
+      'Avanzada': `Tu estrategia de sostenibilidad se convierte en inversión de impacto. Más allá de los ETFs, puedes construir una cartera de acciones individuales basándote en tu propio análisis fundamental ESG, invirtiendo solo en aquellas empresas cuyas prácticas se alinean perfectamente con tus valores y tienen un potencial de rendimiento superior. La clave está en buscar empresas que no solo cumplen, sino que están innovando en materia de sostenibilidad y liderando el cambio en sus industrias. También puedes elegir versiones ESG de los fondos o ETFs que se pueden ajustar a tu perfil.`
     },
 
     MUY_CONSERVADOR: {
       'Principiante': `Dado que prefieres empezar con máxima seguridad, recuerda que puedes limitar tu exposición a acciones y usar solo una parte pequeña de tu cartera para aprender sin presión. Invierte poco a poco y sin presión, lo más importante es que vayas a tu ritmo y cojas experiencia y confianza a la hora de invertir.`,
       
-      'Intermedio': `Dado que prefieres empezar con máxima seguridad, puedes mantener una exposición reducida a acciones, usando ETFs muy diversificados y estables. Sectores como salud, consumo básico o dividendos de empresas sólidas suelen ser menos volátiles. Lo importante es empezar sin presión, con productos que puedas mantener incluso en momentos de caídas.`,
+      'Intermedia': `Dado que prefieres empezar con máxima seguridad, puedes mantener una exposición reducida a acciones, usando ETFs muy diversificados y estables. Sectores como salud, consumo básico o dividendos de empresas sólidas suelen ser menos volátiles. Lo importante es empezar sin presión, con productos que puedas mantener incluso en momentos de caídas.`,
       
-      'Avanzado': `Dado tu perfil conservador, puedes mantener una exposición controlada a acciones, usando ETFs muy diversificados y estables. Sectores defensivos como salud, consumo básico o utilities suelen ser menos volátiles. Con tu experiencia, puedes aplicar estrategias de gestión de riesgo más sofisticadas mientras mantienes un enfoque prudente.`
+      'Avanzada': `Dado tu perfil conservador, puedes mantener una exposición controlada a acciones, usando ETFs muy diversificados y estables. Sectores defensivos como salud, consumo básico o utilities suelen ser menos volátiles. Con tu experiencia, puedes aplicar estrategias de gestión de riesgo más sofisticadas mientras mantienes un enfoque prudente.`
     }
   }
 };
