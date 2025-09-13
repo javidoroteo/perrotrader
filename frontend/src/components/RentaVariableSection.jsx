@@ -47,7 +47,7 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
 
   return (
     <ModernSection
-      title="Renta Variable - Tu Guía Personalizada"
+      title="Renta Variable - Guía Personalizada"
       icon={BarChart3}
       defaultOpen={false}
       gradient="from-blue-500 to-indigo-600"

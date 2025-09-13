@@ -6,7 +6,7 @@ import RiskMeter from './RiskMeter';
 const InvestorProfileSection = ({ profileData }) => {
   return (
     <ModernSection
-      title="Tu Perfil 🎯"
+      title="Perfil 🎯"
       icon={User}
       gradient="from-purple-500 via-pink-500 to-red-500"
       glow="purple"

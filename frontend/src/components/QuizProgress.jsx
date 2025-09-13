@@ -3,7 +3,9 @@ import React from 'react';
 import { Brain, Target, TrendingUp, Star, Shield, Zap } from 'lucide-react';
 
 const QuizProgress = ({ progress, section, getSectionIcon, phase = 'quiz' }) => {
-  const percentage = Math.round(progress?.percentage ?? 0);
+  const percentage = phase === 'quiz' 
+    ? Math.round(((progress?.answeredCount ?? 0) / 25) * 100)
+    : Math.round(progress?.percentage ?? 0);
   
   // Configuración de fases
   const phases = {

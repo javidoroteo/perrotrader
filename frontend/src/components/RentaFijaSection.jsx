@@ -53,7 +53,7 @@ const RentaFijaSection = ({ rentaFijaAdvice }) => {
 
   return (
     <ModernSection
-      title="Renta Fija - Tu Estrategia de Bonos"
+      title="Renta Fija - Estrategia de Bonos"
       icon={Building2}
       defaultOpen={false}
       gradient="from-emerald-500 to-teal-600"

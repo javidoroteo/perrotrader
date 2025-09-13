@@ -7,18 +7,16 @@ import RentaVariableSection from './RentaVariableSection';
 import StrategiesSection from './strategiesSection';
 import EducationalGuide from './EducationalGuide';
 import RentaFijaSection from './RentaFijaSection';
+import PersonalityDimensionsChart from './PersonalityDimensionsChart';
 
 const ModernInvestorProfile = ({ result, onRestart }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
-  console.log('=== DEBUGGING MISSING SECTIONS ===');
-  console.log('result.personality:', result.personality);
-  console.log('result.rentaFijaAdvice:', result.rentaFijaAdvice);
-  console.log('result.rentaVariableAdvice:', result.rentaVariableAdvice);
-  console.log('result.investmentStrategies:', result.investmentStrategies);
-  console.log('=== END DEBUG ===');
 
   useEffect(() => {
-    console.log('Datos del backend en Reporte:', result);
+
+    console.log('result.personality completo:', result.personality);
+  console.log('profile percentage dimensions:', result.personality?.dimensions);
+  
     const handleScroll = () => {
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       setScrollProgress((window.scrollY / totalHeight) * 100);
@@ -30,16 +28,15 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [result]);
-
-  // Función auxiliar para convertir riskProfile a valor numérico
+// Función auxiliar para convertir riskProfile a valor numérico
   const getRiskScaleValue = (riskProfile) => {
     switch (riskProfile?.toLowerCase()) {
       case 'bajo riesgo':
-      case 'conservador': return 2;
+      case 'conservador': return 20;
       case 'riesgo moderado':
-      case 'moderado': return 5;
+      case 'moderado': return 50;
       case 'alto riesgo':
-      case 'agresivo': return 8;
+      case 'agresivo': return 80;
       default: return 5;
     }
   };
@@ -54,17 +51,14 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
       case 'alto riesgo':
       case 'agresivo': return 'red';
       default: return 'blue';
-    }
+    };
   };
-
   // Mapear los datos del backend a la estructura que esperan los componentes
   const mapBackendData = (backendResult) => {
     
     if (!backendResult) {
       return null;
     }
-    console.log('Mapeando datos del backend:', backendResult);
-    
     // Usar la estructura real que envía el backend
     const investorProfile = backendResult.investorProfile || {
       investorType: 'Inversor',
@@ -91,12 +85,6 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
       educationalGuide: backendResult.educationalGuide || null,
       originalData: backendResult
     };
-
-    console.log('=== mapBackendData OUTPUT ===');
-    console.log('Final mapped result:', result);
-    console.log('report exists?', !!result.report);
-    console.log('report content:', result.report);
-    console.log('=== mapBackendData END ===');
     
     return result;
   };
@@ -110,7 +98,6 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
       </div>
     );
   }
-  console.log('Mapped result:', mappedResult);
 
   return (
     <div className="font-sans min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6 relative overflow-hidden">
@@ -118,19 +105,26 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
 
       <header className="text-center mb-10 relative z-10">
         <h1 className="text-5xl md:text-7xl font-black text-gray-800 leading-tight opacity-0 animate-[fadeInUp_0.7s_ease-out_forwards]">
-          Welcome to your
+          CONSTRUYE TU
           <span className="block bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Financial Future
+            FUTURO
           </span>
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto mt-4 opacity-0 animate-[fadeInUp_0.7s_ease-out_0.3s_forwards]">
-          Tu plan de inversión único, creado específicamente para ti 🚀
+          El plan de inversión basado en perfiles similares al tuyo🚀
         </p>
       </header>
 
       <div className="max-w-6xl mx-auto py-12 space-y-8 relative z-10">
         
         {mappedResult.investorProfile && <InvestorProfileSection profileData={mappedResult.investorProfile} />}
+        {result.personality?.dimensions && (
+          <div className="max-w-6xl mx-auto mb-8">
+          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+          <PersonalityDimensionsChart dimensions={result.personality.dimensions} />
+          </div>
+          </div>
+        )}
         {result.personality && <PersonalityProfileSection archetypeDetails={result.personality.archetypeDetails} />}
         {mappedResult.portfolio && <ModernPortfolioChart portfolio={mappedResult.portfolio} />}
         {mappedResult.report && <EmergencyFundReport report={mappedResult.report} />}

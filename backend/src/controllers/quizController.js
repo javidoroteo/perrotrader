@@ -81,10 +81,6 @@ async generateFinalResultIfBothComplete(sessionId) {
       : null;
 
       
-        // DEBUG - Agregar antes del return
-console.log('=== CONTROLLER DEBUG ===');
-console.log('quizResult.investmentStrategies:', quizResult.investmentStrategies);
-console.log('=== END CONTROLLER DEBUG ===');
     // *** CAMBIO PRINCIPAL: Estructura correcta ***
     return {
       success: true,
@@ -174,6 +170,9 @@ console.log('=== END CONTROLLER DEBUG ===');
       
       // Usar el nuevo sistema de progreso
       const progress = quizService.calculateProgressBySections(session.answers);
+
+      // Agregar conteo de preguntas respondidas para la barra
+      progress.answeredCount = session.answers.length;
       
       // Agregar progreso global si hay test de personalidad
       const personalityTest = await prisma.personalityTest.findUnique({
@@ -287,6 +286,8 @@ console.log('=== END CONTROLLER DEBUG ===');
       // Obtener siguiente pregunta
       const nextQuestion = quizService.getQuestionById(nextQuestionId);
       const progress = quizService.calculateProgress(updatedSession.answers.length, questions.length);
+      // Agregar conteo de preguntas respondidas para la barra
+      progress.answeredCount = updatedSession.answers.length;
 
       res.json({
         success: true,
@@ -377,6 +378,7 @@ console.log('=== END CONTROLLER DEBUG ===');
       }
 
       const progress = quizService.calculateProgress(session.answers.length, questions.length);
+      progress.answeredCount = remainingAnswers.length;
       
       res.json({
         success: true,

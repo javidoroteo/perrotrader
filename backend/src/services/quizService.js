@@ -136,7 +136,8 @@ calculateProgress(answeredQuestions, totalQuestions) {
     return {
         current,
         total: totalQuestions,
-        percentage: Math.min(percentage, 100) // Asegurar que no exceda 100%
+        percentage: Math.min(percentage, 100), // Asegurar que no exceda 100%
+        answeredCount: answeredQuestions
     };
 }
 

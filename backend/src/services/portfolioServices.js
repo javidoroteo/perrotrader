@@ -318,18 +318,10 @@ class PortfolioService {
     const portfolio = await this.calculatePortfolio(session);
     const experienceLevel = this.getExperienceLevel(session.experienceScore);
 
-    console.log('Raw portfolio.riskProfile:', portfolio.riskProfile);
-    console.log('Raw experienceLevel:', experienceLevel);
-    console.log('Available keys in STRATEGY_MESSAGES:', Object.keys(CONFIG.STRATEGY_MESSAGES));
-    console.log('Available keys for this risk profile:', Object.keys(CONFIG.STRATEGY_MESSAGES[portfolio.riskProfile] || {}));
-    
     // Obtener estrategias del config
     const strategiesString = CONFIG.STRATEGY_MESSAGES[portfolio.riskProfile]?.[experienceLevel] || '';
     const strategyNames = strategiesString.split(', ').filter(name => name.trim() !== '');
     
-    console.log('Portfolio riskProfile:', portfolio.riskProfile);
-    console.log('Experience level:', experienceLevel);
-    console.log('Strategies string:', strategiesString);
     
     const recommendedStrategies = [];
     
@@ -542,8 +534,6 @@ async generateRentaVariableAdvice(session) {
    */
   async generateAssetEducation(session) {
     const portfolio = await this.calculatePortfolio(session);
-    console.log('Portfolio completo:', portfolio);
-  console.log('Portfolio.allocation:', portfolio.allocation);
     const activeAssets = [];
     
       activeAssets.push(ASSET_EDUCATION.RENTA_VARIABLE);
@@ -611,7 +601,7 @@ async generateRentaVariableAdvice(session) {
     }
 
     // RiskScale: Normalizar totalScore (max 94 según RISK_PROFILES)
-    const maxScore = CONFIG.RISK_PROFILES.HIGH.max; // 94
+    const maxScore = 25;
     const riskValue = Math.round((session.totalScore / maxScore) * 100);
 
     // Colores para riskScale basados en riskProfile
@@ -727,9 +717,6 @@ async generateRentaVariableAdvice(session) {
   const investmentStrategiesData = await this.generateInvestmentStrategies(session);
   const educationalGuide = await this.generateEducationalGuide(session);
 
-   console.log('=== PORTFOLIO SERVICE DEBUG ===');
-  console.log('investmentStrategiesData:', investmentStrategiesData);
-  console.log('=== END PORTFOLIO SERVICE DEBUG ===');
   return {
     riskProfile: portfolio.riskProfile,
     experienceLevel: this.getExperienceLevel(session.experienceScore),
