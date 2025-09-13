@@ -10,7 +10,12 @@ import RentaFijaSection from './RentaFijaSection';
 
 const ModernInvestorProfile = ({ result, onRestart }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
-  console.log('Result recibido en Report:', result);
+  console.log('=== DEBUGGING MISSING SECTIONS ===');
+  console.log('result.personality:', result.personality);
+  console.log('result.rentaFijaAdvice:', result.rentaFijaAdvice);
+  console.log('result.rentaVariableAdvice:', result.rentaVariableAdvice);
+  console.log('result.investmentStrategies:', result.investmentStrategies);
+  console.log('=== END DEBUG ===');
 
   useEffect(() => {
     console.log('Datos del backend en Reporte:', result);
@@ -54,12 +59,8 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
 
   // Mapear los datos del backend a la estructura que esperan los componentes
   const mapBackendData = (backendResult) => {
-    console.log('=== mapBackendData INPUT ===');
-    console.log('backendResult:', backendResult);
-    console.log('backendResult keys:', Object.keys(backendResult || {}));
     
     if (!backendResult) {
-      console.log('❌ backendResult es null/undefined en mapBackendData');
       return null;
     }
     console.log('Mapeando datos del backend:', backendResult);
@@ -130,12 +131,12 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
       <div className="max-w-6xl mx-auto py-12 space-y-8 relative z-10">
         
         {mappedResult.investorProfile && <InvestorProfileSection profileData={mappedResult.investorProfile} />}
-        {result.personality?.archetypeDetails && <PersonalityProfileSection archetypeDetails={result.personality.archetypeDetails} />}
+        {result.personality && <PersonalityProfileSection archetypeDetails={result.personality.archetypeDetails} />}
         {mappedResult.portfolio && <ModernPortfolioChart portfolio={mappedResult.portfolio} />}
         {mappedResult.report && <EmergencyFundReport report={mappedResult.report} />}
-        {mappedResult.rentaFijaAdvice && <RentaFijaSection rentaFijaAdvice={mappedResult.rentaFijaAdvice} />}
-        {mappedResult.rentaVariableAdvice && <RentaVariableSection rentaVariableAdvice={mappedResult.rentaVariableAdvice} />}
-        {mappedResult.investmentStrategies && <StrategiesSection strategies={mappedResult.investmentStrategies} />}
+        {result.rentaFijaAdvice && <RentaFijaSection rentaFijaAdvice={result.rentaFijaAdvice} />}
+        {result.rentaVariableAdvice && <RentaVariableSection rentaVariableAdvice={result.rentaVariableAdvice} />}
+        {result.investmentStrategies && <StrategiesSection strategies={result.investmentStrategies} />}
         {mappedResult.educationalGuide && <EducationalGuide guide={mappedResult.educationalGuide} />}
       </div>
 

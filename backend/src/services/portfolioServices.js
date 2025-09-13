@@ -737,7 +737,7 @@ async generateRentaVariableAdvice(session) {
     report,                                         // Objeto directo
     rentaFijaAdvice,                                // Objeto directo
     rentaVariableAdvice,                            // Objeto directo
-    investmentStrategies: investmentStrategiesData.strategies, // Solo array de estrategias
+    investmentStrategies: investmentStrategiesData, // Objeto completo con metadata
     educationalGuide,                               // Objeto directo
     investorProfile: investorProfile.profile       // Solo objeto principal
   };
