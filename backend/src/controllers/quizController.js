@@ -331,16 +331,16 @@ async generateFinalResultIfBothComplete(sessionId) {
         where: { id: sessionId },
         data: {
           currentQuestionId: lastAnswer.questionId,
-          totalScore: { decrement: lastAnswer.points + lastAnswer.conoPoints },
-          experienceScore: { decrement: lastAnswer.exPoints },
-          cryptoScore: { decrement: lastAnswer.cryptoExposure },
-          timeValue: { decrement: lastAnswer.timeValue },
-          emergencyFund: { decrement: lastAnswer.emergencyFund },
-          esgValue: { decrement: lastAnswer.esg },
-          dividend: { decrement: lastAnswer.dividend },
-          pensionFund: { decrement: lastAnswer.pensionFund },
-          gold: { decrement: lastAnswer.gold },
-          age: { decrement: lastAnswer.age },
+          totalScore: { decrement: (lastAnswer.points || 0) + (lastAnswer.conoPoints || 0) },
+          experienceScore: { decrement: lastAnswer.exPoints || 0 },
+          cryptoScore: { decrement: lastAnswer.cryptoExposure || 0 },
+          timeValue: { decrement: lastAnswer.timeValue || 0 },
+          emergencyFund: { decrement: lastAnswer.emergencyFund || 0 },
+          esgValue: { decrement: lastAnswer.esg || 0 },  // <- corregido
+          dividend: { decrement: lastAnswer.dividend || 0 },
+          pensionFund: { decrement: lastAnswer.pensionFund || 0 },
+          gold: { decrement: lastAnswer.gold || 0 },
+          age: { decrement: lastAnswer.age || 0 },
           isCompleted: false
         }
       });
