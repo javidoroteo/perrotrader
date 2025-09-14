@@ -33,25 +33,25 @@ const ScaleGuide = () => {
   ];
 
   return (
-    <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/40">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
+    <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-3 sm:p-6 mb-6 border border-white/40">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 text-center">
         Guía de Respuestas
       </h3>
       
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">
+      <div className="flex justify-between items-center mb-3 sm:mb-4">
+        <span className="text-xs sm:text-sm font-medium text-red-600 bg-red-50 px-2 sm:px-3 py-1 rounded-full">
           Más en desacuerdo
         </span>
-        <span className="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">
+        <span className="text-xs sm:text-sm font-medium text-green-600 bg-green-50 px-2 sm:px-3 py-1 rounded-full">
           Más de acuerdo
         </span>
       </div>
 
-      <div className="relative mb-4">
+      <div className="relative mb-3 sm:mb-4">
         <div className="h-2 bg-gradient-to-r from-red-400 via-yellow-400 via-gray-400 to-green-500 rounded-full"></div>
       </div>
 
-      <div className="flex justify-between items-end px-2">
+      <div className="flex justify-between items-end px-1 sm:px-2">
         {circleSizes.map((size, index) => (
           <div
             key={index}
@@ -61,7 +61,7 @@ const ScaleGuide = () => {
         ))}
       </div>
 
-      <p className="text-xs text-gray-600 text-center mt-3">
+      <p className="text-xs text-gray-600 text-center mt-2 sm:mt-3">
         El tamaño del círculo indica la intensidad de tu opinión
       </p>
     </div>
@@ -135,21 +135,21 @@ const PersonalityBlock = ({ questions, responses, onResponseChange, onSubmit, on
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <div className="backdrop-blur-md bg-white/20 rounded-3xl shadow-xl border border-white/30 p-8 mb-6">
+    <div className="max-w-4xl mx-auto px-1 py-4 sm:p-4">
+      <div className="backdrop-blur-md bg-white/20 rounded-3xl shadow-xl border border-white/30 p-4 sm:p-8 mb-6">
         <ScaleGuide />
         
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {questions.map((q, index) => (
-            <div key={q.id} className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20">
-              <p className="text-lg text-gray-800 mb-6 leading-relaxed">{q.text}</p>
+            <div key={q.id} className="bg-white/10 backdrop-blur-sm p-3 sm:p-6 rounded-2xl border border-white/20">
+              <p className="text-base sm:text-lg text-gray-800 mb-4 sm:mb-6 leading-relaxed">{q.text}</p>
               
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-3 sm:mb-4">
                 <span className="text-xs text-red-600 font-medium">En desacuerdo</span>
                 <span className="text-xs text-green-600 font-medium">De acuerdo</span>
               </div>
               
-              <div className="flex justify-between items-center gap-2 px-4">
+              <div className="flex justify-between items-center px-0 sm:px-2">
                 {[...Array(7)].map((_, val) => {
                   const value = val + 1;
                   const isSelected = responses[index] === value;
@@ -177,8 +177,8 @@ const PersonalityBlock = ({ questions, responses, onResponseChange, onSubmit, on
               </div>
               
               {responses[index] && (
-                <div className="mt-4 text-center">
-                  <span className="inline-block bg-white/20 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                <div className="mt-3 sm:mt-4 text-center">
+                  <span className="inline-block bg-white/20 text-gray-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                     {scaleLabels[responses[index] - 1]}
                   </span>
                 </div>
@@ -186,25 +186,25 @@ const PersonalityBlock = ({ questions, responses, onResponseChange, onSubmit, on
             </div>
           ))}
           
-          <div className="flex justify-between mt-8 pt-6 border-t border-white/20">
+          <div className="flex justify-between mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-white/20">
             {onPrevious && (
               <button
                 onClick={handlePrevious}
                 disabled={loading}
-                className="group inline-flex items-center gap-3 px-6 py-4 bg-white/40 hover:bg-white/60 border border-gray-200 hover:border-gray-300 text-gray-700 font-medium rounded-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow-lg"
+                className="group inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-white/40 hover:bg-white/60 border border-gray-200 hover:border-gray-300 text-gray-700 font-medium rounded-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow-lg"
               >
-                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
-                <span>Anterior</span>
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-1 transition-transform duration-300" />
+                <span className="text-sm sm:text-base">Anterior</span>
               </button>
             )}
             
             <button
               onClick={handleSubmit}
               disabled={loading || !allAnswered}
-              className="group inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow-lg"
+              className="group inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow-lg"
             >
-              <span>Continuar</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+              <span className="text-sm sm:text-base">Continuar</span>
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" />
             </button>
           </div>
         </div>

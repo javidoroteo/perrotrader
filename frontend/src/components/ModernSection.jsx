@@ -39,7 +39,7 @@ const ModernSection = ({
     <div
       className={`
         relative mb-4 sm:mb-6 lg:mb-8 
-        mx-2 sm:mx-0
+        mx-0 sm:mx-0
         rounded-2xl sm:rounded-3xl 
         backdrop-blur-xl bg-white/10 border border-white/20 
         overflow-hidden transition-all duration-500 

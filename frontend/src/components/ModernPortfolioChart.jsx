@@ -118,15 +118,6 @@ const ModernPortfolioChart = ({ portfolio }) => {
               <Tooltip content={<CustomTooltip />} />
             </PieChart>
           </ResponsiveContainer>
-
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center">
-              <div className="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                100%
-              </div>
-              <div className="text-sm text-gray-600 font-medium">Diversificado</div>
-            </div>
-          </div>
         </div>
       </div>
 
