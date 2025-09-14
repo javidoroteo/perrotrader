@@ -20,7 +20,7 @@
   }
   
   .answer-btn {
-  @apply relative p-7 text-lg text-left rounded-2xl border transition-all duration-500 hover:scale-[1.03] disabled:hover:scale-100 bg-white/40 hover:bg-white/60 border-indigo-200 hover:border-indigo-300 hover:shadow-lg w-full min-h-14 sm:p-4 sm:text-base sm:hover:scale-[1.02] lg:p-5;
+  @apply relative p-5 text-base text-left rounded-2xl border transition-all duration-500 hover:scale-[1.02] disabled:hover:scale-100 bg-white/40 hover:bg-white/60 border-indigo-200 hover:border-indigo-300 hover:shadow-lg w-full min-h-12 sm:p-4 sm:text-base sm:hover:scale-[1.02] lg:p-5;
   }
   
   .answer-selected {
