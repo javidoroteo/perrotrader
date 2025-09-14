@@ -16,28 +16,28 @@ const PersonalityDimensionsChart = ({ dimensions }) => {
         gradient: 'from-blue-500 to-cyan-500',
         textColor: 'text-blue-600',
         bgColor: 'bg-blue-50',
-        icon: <Target className="w-5 h-5" />,
+        icon: <Target className="w-4 h-4 sm:w-5 sm:h-5" />,
         shadowColor: 'shadow-blue-100'
       },
       2: { 
         gradient: 'from-green-500 to-emerald-500',
         textColor: 'text-green-600',
         bgColor: 'bg-green-50',
-        icon: <Brain className="w-5 h-5" />,
+        icon: <Brain className="w-4 h-4 sm:w-5 sm:h-5" />,
         shadowColor: 'shadow-green-100'
       },
       3: { 
         gradient: 'from-purple-500 to-violet-500',
         textColor: 'text-purple-600',
         bgColor: 'bg-purple-50',
-        icon: <Zap className="w-5 h-5" />,
+        icon: <Zap className="w-4 h-4 sm:w-5 sm:h-5" />,
         shadowColor: 'shadow-purple-100'
       },
       4: { 
         gradient: 'from-orange-500 to-red-500',
         textColor: 'text-orange-600',
         bgColor: 'bg-orange-50',
-        icon: <Shield className="w-5 h-5" />,
+        icon: <Shield className="w-4 h-4 sm:w-5 sm:h-5" />,
         shadowColor: 'shadow-orange-100'
       }
     };
@@ -45,25 +45,25 @@ const PersonalityDimensionsChart = ({ dimensions }) => {
       gradient: 'from-gray-400 to-gray-500',
       textColor: 'text-gray-600',
       bgColor: 'bg-gray-50',
-      icon: <Brain className="w-5 h-5" />,
+      icon: <Brain className="w-4 h-4 sm:w-5 sm:h-5" />,
       shadowColor: 'shadow-gray-100'
     };
   };
 
   return (
-    <div className="p-6 bg-white/40 border border-white/30 rounded-3xl shadow-lg backdrop-blur-lg">
+    <div className="p-3 sm:p-6 bg-white/40 border border-white/30 rounded-2xl sm:rounded-3xl shadow-lg backdrop-blur-lg">
       {/* Header con efecto glassmorphism */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
-          <Brain className="w-6 h-6 text-white" />
+      <div className="flex items-center gap-3 mb-4 sm:mb-6">
+        <div className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
+          <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-gray-800">Perfil de Personalidad</h3>
-          <p className="text-sm text-gray-600">Análisis de dimensiones psicológicas</p>
+          <h3 className="text-lg sm:text-xl font-bold text-gray-800">Perfil de Personalidad</h3>
+          <p className="text-xs sm:text-sm text-gray-600">Análisis de dimensiones psicológicas</p>
         </div>
       </div>
       
-      <div className="space-y-6">
+      <div className="space-y-3 sm:space-y-6">
         {dimensionsArray.map((dim, index) => {
           const config = getDimensionConfig(dim.dimension);
           const showPositive = dim.percentages.positive >= 50;
@@ -73,20 +73,20 @@ const PersonalityDimensionsChart = ({ dimensions }) => {
           return (
             <div 
               key={dim.dimension} 
-              className={`p-4 ${config.bgColor} rounded-2xl border border-white/50 ${config.shadowColor} transition-all duration-500 hover:shadow-md hover:scale-[1.02] fade-in`}
+              className={`p-3 sm:p-4 ${config.bgColor} rounded-xl sm:rounded-2xl border border-white/50 ${config.shadowColor} transition-all duration-500 hover:shadow-md hover:scale-[1.02] fade-in`}
               style={{ animationDelay: `${index * 150}ms` }}
             >
               {/* Header de la dimensión */}
-              <div className="flex items-center gap-3 mb-3">
-                <div className={`p-2 rounded-xl bg-gradient-to-r ${config.gradient} shadow-sm`}>
+              <div className="flex items-center gap-2 sm:gap-3 mb-3">
+                <div className={`p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-gradient-to-r ${config.gradient} shadow-sm flex-shrink-0`}>
                   <div className="text-white">{config.icon}</div>
                 </div>
-                <div className="flex-1">
-                  <div className="flex justify-between text-sm font-medium">
-                    <span className={showPositive ? `${config.textColor} font-semibold` : 'text-gray-500'}>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start gap-1 sm:gap-2">
+                    <span className={`text-xs sm:text-sm font-medium leading-tight text-left flex-1 ${showPositive ? `${config.textColor} font-semibold` : 'text-gray-500'}`}>
                       {dim.labels.positive}
                     </span>
-                    <span className={!showPositive ? `${config.textColor} font-semibold` : 'text-gray-500'}>
+                    <span className={`text-xs sm:text-sm font-medium leading-tight text-right flex-1 ${!showPositive ? `${config.textColor} font-semibold` : 'text-gray-500'}`}>
                       {dim.labels.negative}
                     </span>
                   </div>
@@ -94,7 +94,7 @@ const PersonalityDimensionsChart = ({ dimensions }) => {
               </div>
               
               {/* Barra de progreso mejorada */}
-              <div className="relative h-4 bg-gray-200/80 rounded-full overflow-hidden shadow-inner mb-3">
+              <div className="relative h-3 sm:h-4 bg-gray-200/80 rounded-full overflow-hidden shadow-inner mb-3">
                 {/* Efecto de brillo animado */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[pulse_3s_infinite]"></div>
                 
@@ -118,8 +118,8 @@ const PersonalityDimensionsChart = ({ dimensions }) => {
               
               {/* Resultado con badge estilizado */}
               <div className="flex items-center justify-center">
-                <div className={`px-4 py-2 rounded-full bg-gradient-to-r ${config.gradient} text-white shadow-lg`}>
-                  <span className="text-sm font-bold">
+                <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r ${config.gradient} text-white shadow-lg`}>
+                  <span className="text-xs sm:text-sm font-bold">
                     {dominantPercentage}% {dominantLabel}
                   </span>
                 </div>
@@ -130,7 +130,7 @@ const PersonalityDimensionsChart = ({ dimensions }) => {
       </div>
 
       {/* Footer decorativo */}
-      <div className="mt-6 pt-4 border-t border-white/30">
+      <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/30">
         <p className="text-xs text-gray-500 text-center">
           Basado en análisis psicológico de inversión • {dimensionsArray.length} dimensiones evaluadas
         </p>
