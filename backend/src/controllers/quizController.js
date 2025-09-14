@@ -336,7 +336,7 @@ async generateFinalResultIfBothComplete(sessionId) {
           cryptoScore: { decrement: lastAnswer.cryptoExposure || 0 },
           timeValue: { decrement: lastAnswer.timeValue || 0 },
           emergencyFund: { decrement: lastAnswer.emergencyFund || 0 },
-          esgValue: { decrement: lastAnswer.esg || 0 },  // <- corregido
+          esgValue: { decrement: lastAnswer.esg || 0 },
           dividend: { decrement: lastAnswer.dividend || 0 },
           pensionFund: { decrement: lastAnswer.pensionFund || 0 },
           gold: { decrement: lastAnswer.gold || 0 },
