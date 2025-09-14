@@ -135,9 +135,6 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
       </div>
 
       <div className="text-center mt-12 relative z-10">
-        <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-semibold shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/50 transform">
-          🚀 ¡Empezar a Invertir!
-        </button>
         <button onClick={onRestart} className="ml-4 px-8 py-4 bg-gray-200 text-gray-800 rounded-full font-semibold hover:bg-gray-300 transition-colors">Reiniciar Quiz</button>
       </div>
 
