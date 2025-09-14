@@ -8,8 +8,8 @@ const QuizStart = ({ onStart, loading }) => (
         <TrendingUp className="w-7 h-7 text-purple-600" /> {/* Nota: Importa TrendingUp en el parent si no está */}
         <span className="text-purple-800 font-bold text-lg">DESCUBRE TU PERFIL DE INVERSIÓN EN MINUTOS</span>
       </div>
-      <h1 className="text-5xl md:text-7xl font-black text-gray-800 leading-tight">
-          isfinz
+      <h1 className="text-5xl md:text-7xl font-black leading-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+      isfinz
       </h1>
       <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
         ¿Qué tipo de inversor eres? Aprende a estructurar tus inversiones en menos de 5 minutos
