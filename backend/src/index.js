@@ -7,7 +7,7 @@ const portfolioRoutes = require('./routes/portfolioRoutes');
 const personalityRoutes = require('./routes/personalityRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5432;
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
