@@ -1,6 +1,5 @@
 /**
  * Configuración completa de los 16 arquetipos de inversión
- * Estructura organizada para facilitar el mantenimiento
  */
 
 // Mapeo de códigos a nombres
