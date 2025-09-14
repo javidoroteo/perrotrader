@@ -78,7 +78,21 @@ const StrategiesSection = ({ strategies }) => {
                   </div>
                 )}
 
-                <div className="flex items-start space-x-4">
+                {/* Mobile: Icon arriba del título */}
+                <div className="block sm:hidden text-center mb-4">
+                  <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${getPriorityColor(strategy.priority)} shadow-lg mb-3`}>
+                    <IconComponent className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">
+                    {strategy.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-3 italic">
+                    {strategy.shortDescription}
+                  </p>
+                </div>
+
+                {/* Desktop: Icon a la izquierda */}
+                <div className="hidden sm:flex items-start space-x-4 mb-4">
                   <div className={`p-3 rounded-xl bg-gradient-to-br ${getPriorityColor(strategy.priority)} shadow-lg`}>
                     <IconComponent className="w-6 h-6 text-white" />
                   </div>
@@ -90,59 +104,60 @@ const StrategiesSection = ({ strategies }) => {
                     <p className="text-sm text-gray-600 mb-3 italic">
                       {strategy.shortDescription}
                     </p>
-                    
-                    <div className="space-y-4">
-                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4">
-                        <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
-                          <Target className="w-4 h-4 mr-2 text-blue-600" />
-                          ¿Por qué es ideal para ti?
-                        </h4>
-                        <p className="text-gray-700 text-sm leading-relaxed">
-                          {strategy.personalizedReason}
-                        </p>
-                      </div>
+                  </div>
+                </div>
+                
+                {/* Contenido - mismo para ambos layouts */}
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+                      <Target className="w-4 h-4 mr-2 text-blue-600" />
+                      ¿Por qué es ideal para ti?
+                    </h4>
+                    <p className="text-gray-700 text-sm leading-relaxed">
+                      {strategy.personalizedReason}
+                    </p>
+                  </div>
 
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4">
-                        <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
-                          <CheckCircle className="w-4 h-4 mr-2 text-green-600" />
-                          ¿Cómo funciona?
-                        </h4>
-                        <p className="text-gray-700 text-sm leading-relaxed mb-3">
-                          {strategy.howItWorks}
-                        </p>
-                      </div>
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+                      <CheckCircle className="w-4 h-4 mr-2 text-green-600" />
+                      ¿Cómo funciona?
+                    </h4>
+                    <p className="text-gray-700 text-sm leading-relaxed mb-3">
+                      {strategy.howItWorks}
+                    </p>
+                  </div>
 
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-4">
-                          <h4 className="font-semibold text-green-800 mb-3 flex items-center">
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Ventajas
-                          </h4>
-                          <ul className="space-y-1">
-                            {strategy.advantages?.map((advantage, idx) => (
-                              <li key={idx} className="text-sm text-green-700 flex items-start">
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 mr-2 flex-shrink-0" />
-                                {advantage}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-4">
+                      <h4 className="font-semibold text-green-800 mb-3 flex items-center">
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Ventajas
+                      </h4>
+                      <ul className="space-y-1">
+                        {strategy.advantages?.map((advantage, idx) => (
+                          <li key={idx} className="text-sm text-green-700 flex items-start">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 mr-2 flex-shrink-0" />
+                            {advantage}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
-                        <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-4">
-                          <h4 className="font-semibold text-orange-800 mb-3 flex items-center">
-                            <AlertCircle className="w-4 h-4 mr-2" />
-                            Consideraciones
-                          </h4>
-                          <ul className="space-y-1">
-                            {strategy.disadvantages?.map((disadvantage, idx) => (
-                              <li key={idx} className="text-sm text-orange-700 flex items-start">
-                                <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1.5 mr-2 flex-shrink-0" />
-                                {disadvantage}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
+                    <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-4">
+                      <h4 className="font-semibold text-orange-800 mb-3 flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        Consideraciones
+                      </h4>
+                      <ul className="space-y-1">
+                        {strategy.disadvantages?.map((disadvantage, idx) => (
+                          <li key={idx} className="text-sm text-orange-700 flex items-start">
+                            <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1.5 mr-2 flex-shrink-0" />
+                            {disadvantage}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
                 </div>

@@ -100,13 +100,23 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
               {formatContent(rentaVariableAdvice.mainContent.content)}
             </div>
 
-            {/* Tips destacados */}
+            {/* Tips destacados - Layout responsive */}
             {rentaVariableAdvice.mainContent.tips && rentaVariableAdvice.mainContent.tips.length > 0 && (
               <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 border border-yellow-200">
-                <div className="flex items-center mb-4">
+                {/* Mobile: Icon arriba del título */}
+                <div className="block sm:hidden text-center mb-4">
+                  <div className="inline-flex p-2 rounded-lg bg-yellow-100 mb-2">
+                    <Lightbulb className="w-5 h-5 text-yellow-600" />
+                  </div>
+                  <h4 className="font-semibold text-yellow-800">Consejos importantes:</h4>
+                </div>
+                
+                {/* Desktop: Icon a la izquierda del título */}
+                <div className="hidden sm:flex items-center mb-4">
                   <Lightbulb className="w-5 h-5 text-yellow-600 mr-2" />
                   <h4 className="font-semibold text-yellow-800">Consejos importantes:</h4>
                 </div>
+                
                 <ul className="space-y-2">
                   {rentaVariableAdvice.mainContent.tips.map((tip, index) => (
                     <li key={index} className="text-sm text-yellow-700 flex items-start">
@@ -138,7 +148,7 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
           </div>
         </div>
 
-        {/* Bloques adicionales */}
+        {/* Bloques adicionales - Layout responsive */}
         {rentaVariableAdvice.additionalBlocks && rentaVariableAdvice.additionalBlocks.length > 0 && (
           <div className="space-y-6">
             <div className="text-center">
@@ -157,7 +167,18 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
                     key={index}
                     className={`relative rounded-2xl backdrop-blur-lg bg-white/15 border border-white/30 p-6 transition-all duration-300 hover:scale-[1.01] hover:bg-white/20 shadow-lg hover:shadow-2xl hover:shadow-${glow}-500/20`}
                   >
-                    <div className="flex items-start space-x-4">
+                    {/* Mobile: Icon arriba del título */}
+                    <div className="block sm:hidden text-center mb-4">
+                      <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg mb-3`}>
+                        <IconComponent className="w-6 h-6 text-white" />
+                      </div>
+                      <h4 className="text-lg font-bold text-gray-800">
+                        {block.title}
+                      </h4>
+                    </div>
+                    
+                    {/* Desktop: Icon a la izquierda */}
+                    <div className="hidden sm:flex items-start space-x-4">
                       <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg flex-shrink-0`}>
                         <IconComponent className="w-6 h-6 text-white" />
                       </div>
@@ -166,10 +187,12 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
                         <h4 className="text-lg font-bold text-gray-800 mb-3">
                           {block.title}
                         </h4>
-                        <div className="prose prose-gray max-w-none">
-                          {formatContent(block.content)}
-                        </div>
                       </div>
+                    </div>
+                    
+                    {/* Contenido - mismo para ambos layouts */}
+                    <div className="prose prose-gray max-w-none">
+                      {formatContent(block.content)}
                     </div>
                   </div>
                 );
