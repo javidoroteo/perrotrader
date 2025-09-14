@@ -1,4 +1,3 @@
-
 @tailwind utilities;
 @reference "tailwindcss";
 
@@ -13,22 +12,89 @@
 /* Custom components */
 @layer components {
   .btn-primary {
-    @apply relative inline-flex items-center gap-4 px-10 py-5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-xl rounded-3xl shadow-2xl shadow-indigo-500/25 transition-all duration-500 hover:scale-105 hover:shadow-indigo-500/40 disabled:opacity-50 disabled:hover:scale-100;
+    @apply relative inline-flex items-center gap-2 sm:gap-3 lg:gap-4 px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-base sm:text-lg lg:text-xl rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl shadow-indigo-500/25 transition-all duration-500 hover:scale-105 hover:shadow-indigo-500/40 disabled:opacity-50 disabled:hover:scale-100;
   }
+  
   .card-feature {
-    @apply p-8 bg-white/30 border border-white/20 rounded-3xl hover:scale-105 transition-all duration-500 hover:shadow-2xl shadow-lg backdrop-blur-lg;
+    @apply p-4 sm:p-6 lg:p-8 bg-white/30 border border-white/20 rounded-2xl sm:rounded-3xl hover:scale-[1.02] sm:hover:scale-105 transition-all duration-500 hover:shadow-xl sm:hover:shadow-2xl shadow-md sm:shadow-lg backdrop-blur-lg;
   }
+  
   .answer-btn {
-    @apply relative p-6 text-left rounded-2xl border transition-all duration-500 hover:scale-[1.02] disabled:hover:scale-100 bg-white/40 hover:bg-white/60 border-indigo-200 hover:border-indigo-300 hover:shadow-lg;
+    @apply relative p-3 sm:p-4 lg:p-6 text-left rounded-xl sm:rounded-2xl border transition-all duration-500 hover:scale-[1.01] sm:hover:scale-[1.02] disabled:hover:scale-100 bg-white/40 hover:bg-white/60 border-indigo-200 hover:border-indigo-300 hover:shadow-md sm:hover:shadow-lg;
   }
+  
   .answer-selected {
-    @apply bg-gradient-to-r from-indigo-100 to-blue-100 border-indigo-300 scale-[1.02] shadow-lg;
+    @apply bg-gradient-to-r from-indigo-100 to-blue-100 border-indigo-300 scale-[1.01] sm:scale-[1.02] shadow-md sm:shadow-lg;
+  }
+
+  /* Nuevas clases responsive adicionales */
+  .container-responsive {
+    @apply px-2 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8;
+  }
+  
+  .text-responsive-xl {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  .text-responsive-lg {
+    @apply text-base sm:text-lg lg:text-xl;
+  }
+  
+  .text-responsive-base {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+  
+  .spacing-responsive {
+    @apply space-y-3 sm:space-y-4 lg:space-y-6;
+  }
+  
+  .gap-responsive {
+    @apply gap-2 sm:gap-3 lg:gap-4;
+  }
+  
+  .rounded-responsive {
+    @apply rounded-xl sm:rounded-2xl lg:rounded-3xl;
+  }
+  
+  .shadow-responsive {
+    @apply shadow-md sm:shadow-lg lg:shadow-xl;
+  }
+
+  /* Clases para headers responsive */
+  .header-responsive {
+    @apply flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 lg:gap-4 text-center sm:text-left;
+  }
+  
+  .icon-container-responsive {
+    @apply p-2 sm:p-2.5 lg:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br shadow-lg mx-auto sm:mx-0 w-fit;
+  }
+  
+  .badge-container-responsive {
+    @apply flex flex-col sm:flex-row sm:justify-center gap-2 sm:gap-3 lg:gap-4;
+  }
+  
+  .badge-responsive {
+    @apply flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm;
+  }
+
+  /* Layout responsive para contenido con íconos */
+  .content-with-icon-responsive {
+    @apply flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4;
+  }
+  
+  .content-text-responsive {
+    @apply flex-1 text-center sm:text-left;
   }
 }
 
-/* Animations */
+/* Animations mejoradas */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInMobile {
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -37,8 +103,21 @@
   100% { transform: scale(2); opacity: 0; }
 }
 
+@keyframes pulse-gentle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
 .fade-in {
   animation: fadeIn 0.8s ease-out forwards;
+}
+
+.fade-in-mobile {
+  animation: fadeInMobile 0.6s ease-out forwards;
+}
+
+.pulse-gentle {
+  animation: pulse-gentle 2s ease-in-out infinite;
 }
 
 .ripple-effect {
@@ -48,7 +127,7 @@
   animation: ripple 0.6s linear;
 }
 
-/* Loading spinner */
+/* Loading spinner responsive */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -58,16 +137,18 @@
 
 .spinner {
   animation: spin 1s linear infinite;
-}
-.spinner-reverse {
-  animation: spin-reverse 1s linear infinite;
+  @apply w-5 h-5 sm:w-6 sm:h-6;
 }
 
-/* Confetti */
+.spinner-reverse {
+  animation: spin-reverse 1s linear infinite;
+  @apply w-5 h-5 sm:w-6 sm:h-6;
+}
+
+/* Confetti responsive */
 .confetti {
   position: absolute;
-  width: 10px;
-  height: 10px;
+  @apply w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3;
   background: currentColor;
   opacity: 0.8;
   animation: confetti-fall 3s ease-out infinite;
@@ -76,4 +157,36 @@
 @keyframes confetti-fall {
   0% { transform: translateY(-100vh) rotate(0deg); }
   100% { transform: translateY(100vh) rotate(720deg); }
+}
+
+/* Media queries para ajustes específicos */
+@media (max-width: 640px) {
+  /* Reducir animaciones en móvil para mejor rendimiento */
+  .hover\:scale-105:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Mejor tap targets en móvil */
+  .answer-btn {
+    min-height: 44px;
+  }
+  
+  .btn-primary {
+    min-height: 44px;
+  }
+}
+
+/* Clases utilitarias adicionales */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .tap-highlight-none {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
 }
