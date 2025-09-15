@@ -268,7 +268,7 @@ const questions = [
         answers: [
             { text: "No, las delego completamente.", Expoints: 0, nextQuestion: 207 },
             { text: "Si, una parte las elijo yo y otras las delego.", Expoints: 2, nextQuestion: 206 },
-            { text: "Si, todas mis inversiones las eligo yo.", points: 3, nextQuestion: 206},
+            { text: "Si, todas mis inversiones las elijo yo.", points: 3, nextQuestion: 206},
         ]
     },
     {

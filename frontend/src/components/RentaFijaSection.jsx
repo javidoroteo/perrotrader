@@ -150,10 +150,12 @@ const RentaFijaSection = ({ rentaFijaAdvice }) => {
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
                   {rentaFijaAdvice.mainContent.products.map((product, index) => (
-                    <div key={index} className="bg-white/50 rounded-lg p-4 border border-blue-200">
-                      <h5 className="font-semibold text-blue-900 mb-2">{product.name}</h5>
-                      <p className="text-sm text-blue-700">{product.description}</p>
-                    </div>
+                  <div key={index} className="bg-white/50 rounded-lg p-4 border border-blue-200">
+                    <h5 className="font-semibold text-blue-900 mb-2 bg-blue-100 px-3 py-1 rounded-md">
+                      {product.name}
+                    </h5>
+                    <p className="text-sm text-blue-700">{product.description}</p>
+                  </div>
                   ))}
                 </div>
               </div>

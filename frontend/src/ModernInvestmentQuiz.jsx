@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, DollarSign, Target, Brain, Shield, Zap, ArrowRight, ArrowLeft, Check, Star, Sparkles, Trophy, Rocket } from 'lucide-react';
 import QuizStart from './components/QuizStart';
 import QuizProgress from './components/QuizProgress';
@@ -28,6 +28,61 @@ function ModernInvestmentQuiz() {
   const [personalityResponses, setPersonalityResponses] = useState([]);
   const [personalityProgress, setPersonalityProgress] = useState({ current: 1, total: 4, percentage: 0 });
   const [currentPersonalityBlock, setCurrentPersonalityBlock] = useState(1);
+
+  // Restaurar estado desde sessionStorage al montar
+useEffect(() => {
+  const savedState = sessionStorage.getItem("quizState");
+  if (savedState) {
+    const parsed = JSON.parse(savedState);
+    setQuizStarted(parsed.quizStarted);
+    setSessionId(parsed.sessionId);
+    setCurrentQuestion(parsed.currentQuestion);
+    setProgress(parsed.progress);
+    setIsCompleted(parsed.isCompleted);
+    setFinalResult(parsed.finalResult);
+    setCanGoBack(parsed.canGoBack);
+    setSelectedAnswer(parsed.selectedAnswer);
+    setShowPersonalityTest(parsed.showPersonalityTest);
+    setPersonalityQuestions(parsed.personalityQuestions);
+    setPersonalityResponses(parsed.personalityResponses);
+    setPersonalityProgress(parsed.personalityProgress);
+    setCurrentPersonalityBlock(parsed.currentPersonalityBlock);
+  }
+}, []);
+// Guardar estado en sessionStorage al cambiar
+useEffect(() => {
+  const stateToSave = {
+    quizStarted,
+    sessionId,
+    currentQuestion,
+    progress,
+    isCompleted,
+    finalResult,
+    canGoBack,
+    selectedAnswer,
+    showPersonalityTest,
+    personalityQuestions,
+    personalityResponses,
+    personalityProgress,
+    currentPersonalityBlock
+  };
+  sessionStorage.setItem("quizState", JSON.stringify(stateToSave));
+}, [
+  quizStarted,
+  sessionId,
+  currentQuestion,
+  progress,
+  isCompleted,
+  finalResult,
+  canGoBack,
+  selectedAnswer,
+  showPersonalityTest,
+  personalityQuestions,
+  personalityResponses,
+  personalityProgress,
+  currentPersonalityBlock
+]);
+
 
   const handleStartQuiz = async () => {
     setLoading(true);
@@ -289,6 +344,9 @@ const getCompleteResult = async () => {
     setPersonalityResponses([]);
     setPersonalityProgress({ current: 1, total: 4, percentage: 0 });
     setCurrentPersonalityBlock(1);
+
+    sessionStorage.removeItem("quizState");
+
   };
 
   const getSectionIcon = (section) => {

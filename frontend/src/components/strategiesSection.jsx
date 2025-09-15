@@ -131,7 +131,7 @@ const StrategiesSection = ({ strategies }) => {
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-4">
-                      <h4 className="font-semibold text-green-800 mb-3 flex items-center">
+                      <h4 className="font-semibold text-green-800 mb-4 flex items-center">
                         <CheckCircle className="w-4 h-4 mr-2" />
                         Ventajas
                       </h4>
@@ -146,7 +146,7 @@ const StrategiesSection = ({ strategies }) => {
                     </div>
 
                     <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-4">
-                      <h4 className="font-semibold text-orange-800 mb-3 flex items-center">
+                      <h4 className="font-semibold text-orange-800 mb-4 flex items-center">
                         <AlertCircle className="w-4 h-4 mr-2" />
                         Consideraciones
                       </h4>

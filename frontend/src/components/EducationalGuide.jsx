@@ -15,7 +15,7 @@ const EducationalGuide = ({ guide }) => {
     >
       <div className="space-y-6">
         <div className="text-center mb-8">
-          <h4 className="text-xl font-bold text-gray-800 mb-2">{guide.title}</h4>
+          <h4 className="text-xl font-bold text-gray-800 mb-4">{guide.title}</h4>
           <p className="text-gray-600">{guide.description}</p>
         </div>
 
@@ -33,13 +33,13 @@ const EducationalGuide = ({ guide }) => {
               <p className="leading-relaxed">{asset.description}</p>
               
               <div className="bg-blue-50/50 p-4 rounded-xl">
-                <h6 className="font-semibold text-blue-800 mb-2">Función en tu cartera:</h6>
+                <h6 className="font-semibold text-blue-800 mb-4">Función en tu cartera:</h6>
                 <p className="text-blue-700">{asset.role}</p>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-green-50/50 p-4 rounded-xl">
-                  <h6 className="font-semibold text-green-800 mb-2">Ventajas:</h6>
+                  <h6 className="font-semibold text-green-800 mb-4">Ventajas:</h6>
                   <ul className="text-green-700 space-y-1">
                     {asset.pros.map((pro, proIndex) => (
                       <li key={proIndex} className="flex items-start">
@@ -51,7 +51,7 @@ const EducationalGuide = ({ guide }) => {
                 </div>
 
                 <div className="bg-red-50/50 p-4 rounded-xl">
-                  <h6 className="font-semibold text-red-800 mb-2">Consideraciones:</h6>
+                  <h6 className="font-semibold text-red-800 mb-4">Consideraciones:</h6>
                   <ul className="text-red-700 space-y-1">
                     {asset.cons.map((con, conIndex) => (
                       <li key={conIndex} className="flex items-start">
@@ -66,11 +66,11 @@ const EducationalGuide = ({ guide }) => {
               <div className="bg-gray-50/50 p-4 rounded-xl">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <h6 className="font-semibold text-gray-800 mb-1">Rentabilidad esperada:</h6>
+                    <h6 className="font-semibold text-gray-800 mb-4">Rentabilidad esperada:</h6>
                     <p className="text-gray-700 text-sm">{asset.expectedReturn}</p>
                   </div>
                   <div>
-                    <h6 className="font-semibold text-gray-800 mb-1">Comportamiento:</h6>
+                    <h6 className="font-semibold text-gray-800 mb-4">Comportamiento:</h6>
                     <p className="text-gray-700 text-sm">{asset.behavior}</p>
                   </div>
                 </div>
