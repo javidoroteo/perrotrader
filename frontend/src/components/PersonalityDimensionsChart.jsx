@@ -98,22 +98,40 @@ const PersonalityDimensionsChart = ({ dimensions }) => {
                 {/* Efecto de brillo animado */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[pulse_3s_infinite]"></div>
                 
-                {/* Barra del lado positivo */}
-                <div 
-                  className={`absolute left-0 top-0 h-full bg-gradient-to-r ${config.gradient} transition-all duration-1000 ease-out shadow-sm`}
-                  style={{ 
-                    width: `${dim.percentages.positive}%`,
-                    opacity: showPositive ? 1 : 0.4
-                  }}
-                >
-                  {/* Efecto de pulso en la barra dominante */}
-                  {showPositive && (
+                {/* Barra desde el lado dominante */}
+                {showPositive ? (
+                  // Dominante positivo: barra crece desde la izquierda
+                  <div 
+                    className={`absolute left-0 top-0 h-full bg-gradient-to-r ${config.gradient} transition-all duration-1000 ease-out shadow-sm`}
+                    style={{ width: `${dim.percentages.positive}%` }}
+                  >
                     <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full"></div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  // Dominante negativo: barra crece desde la derecha
+                  <div 
+                    className={`absolute right-0 top-0 h-full bg-gradient-to-l ${config.gradient} transition-all duration-1000 ease-out shadow-sm`}
+                    style={{ width: `${dim.percentages.negative}%` }}
+                  >
+                    <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full"></div>
+                  </div>
+                )}
+                
+                {/* Área no dominante con menor opacidad */}
+                {showPositive ? (
+                  <div 
+                    className={`absolute right-0 top-0 h-full bg-gradient-to-l ${config.gradient} transition-all duration-1000 ease-out shadow-sm opacity-30`}
+                    style={{ width: `${dim.percentages.negative}%` }}
+                  />
+                ) : (
+                  <div 
+                    className={`absolute left-0 top-0 h-full bg-gradient-to-r ${config.gradient} transition-all duration-1000 ease-out shadow-sm opacity-30`}
+                    style={{ width: `${dim.percentages.positive}%` }}
+                  />
+                )}
                 
                 {/* Línea central con estilo */}
-                <div className="absolute left-1/2 top-0 w-0.5 h-full bg-gradient-to-b from-gray-300 to-gray-500 transform -translate-x-px shadow-sm" />
+                <div className="absolute left-1/2 top-0 w-0.5 h-full bg-gradient-to-b from-gray-300 to-gray-500 transform -translate-x-px shadow-sm z-10" />
               </div>
               
               {/* Resultado con badge estilizado */}
