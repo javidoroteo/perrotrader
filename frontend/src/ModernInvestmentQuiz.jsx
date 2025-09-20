@@ -10,7 +10,7 @@ import ErrorAlert from './components/ErrorAlert';
 
 const API_BASE_URL = 'https://isfinz.onrender.com/api';
 
-function ModernInvestmentQuiz() {
+function ModernInvestmentQuiz({ onOpenPrivacyPolicy, hasConsent = false }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [quizStarted, setQuizStarted] = useState(false);
@@ -85,6 +85,10 @@ useEffect(() => {
 
 
   const handleStartQuiz = async () => {
+    if (!hasConsent) {
+    setError('Debes aceptar las cookies para continuar');
+    return;
+  }
     setLoading(true);
     setError(null);
     try {
@@ -377,7 +381,7 @@ const getCompleteResult = async () => {
           {error && <ErrorAlert message={error} onDismiss={() => setError(null)} />}
 
           {!quizStarted ? (
-            <QuizStart onStart={handleStartQuiz} loading={loading} />
+            <QuizStart onStart={handleStartQuiz} loading={loading} onOpenPrivacyPolicy={onOpenPrivacyPolicy} hasConsent={hasConsent}/>
           ) : isCompleted && finalResult ? (
             <ModernInvestorProfile result={finalResult} onRestart={handleRestart} />
           ) : showPersonalityTest ? (
