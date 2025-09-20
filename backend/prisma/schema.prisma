@@ -29,6 +29,9 @@ model QuizSession {
   dividend        Int      @default(0)
   age             Int      @default(0)
   gold            Int      @default(0)
+
+  //email
+  email           String?
   
   // Perfil y cartera final
   riskProfile     String?

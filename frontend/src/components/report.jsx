@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import EmailReportSection from './EmailReportSection';
 import InvestorProfileSection from './InvestorProfileSection';
 import PersonalityProfileSection from './PersonalityProfileSection';
 import ModernPortfolioChart from './ModernPortfolioChart';
@@ -113,6 +114,9 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
         <p className="text-xl text-gray-600 max-w-2xl mx-auto mt-4 opacity-0 animate-[fadeInUp_0.7s_ease-out_0.3s_forwards]">
           El plan de inversión basado en perfiles similares al tuyo🚀
         </p>
+        <div className="max-w-2xl mx-auto mt-8 opacity-0 animate-[fadeInUp_0.7s_ease-out_0.6s_forwards]">
+            <EmailReportSection sessionId={result.sessionId || result.originalData?.sessionId} />
+        </div>
       </header>
 
       <div className="max-w-6xl mx-auto py-12 space-y-8 relative z-10">
