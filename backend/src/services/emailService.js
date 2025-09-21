@@ -5,7 +5,7 @@ const PDFService = require('./pdfService');
 
 class EmailService {
   constructor() {
-    this.brevoApiKey = process.env.BREVO_API_KEY || 'fallback-key';
+    this.brevoApiKey = process.env.BREVO_API_KEY;
     this.brevoApiUrl = 'https://api.brevo.com/v3/smtp/email';
     this.senderEmail = 'noreply@isfinz.com';
     this.senderName = 'IsFinz - Hacemos las Inversiones Simples';
