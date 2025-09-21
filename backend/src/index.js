@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -5,7 +6,7 @@ const rateLimit = require('express-rate-limit');
 const quizRoutes = require('./routes/quizRoutes');
 const portfolioRoutes = require('./routes/portfolioRoutes');
 const personalityRoutes = require('./routes/personalityRoutes');
-const reportRoutes = require('./routes/reportRoutes'); // Nueva ruta
+const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5432;
