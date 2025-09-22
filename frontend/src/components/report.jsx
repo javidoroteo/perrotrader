@@ -10,7 +10,7 @@ import EducationalGuide from './EducationalGuide';
 import RentaFijaSection from './RentaFijaSection';
 import PersonalityDimensionsChart from './PersonalityDimensionsChart';
 
-const ModernInvestorProfile = ({ result, onRestart }) => {
+const ModernInvestorProfile = ({ result, sessionId, onRestart }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
