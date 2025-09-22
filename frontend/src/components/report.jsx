@@ -119,9 +119,9 @@ console.log('SessionId attempts:', {
         <p className="text-xl text-gray-600 max-w-2xl mx-auto mt-4 opacity-0 animate-[fadeInUp_0.7s_ease-out_0.3s_forwards]">
           El plan de inversión basado en perfiles similares al tuyo🚀
         </p>
-        //<div className="max-w-2xl mx-auto mt-8 opacity-0 animate-[fadeInUp_0.7s_ease-out_0.6s_forwards]">
-            //<EmailReportSection sessionId={mappedResult.sessionId} />
-        //</div>
+        <div className="max-w-2xl mx-auto mt-8 opacity-0 animate-[fadeInUp_0.7s_ease-out_0.6s_forwards]">
+            <EmailReportSection sessionId={sessionId} />
+        </div>
       </header>
 
       <div className="max-w-6xl mx-auto py-12 space-y-8 relative z-10">

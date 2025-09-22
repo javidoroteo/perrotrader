@@ -383,7 +383,7 @@ const getCompleteResult = async () => {
           {!quizStarted ? (
             <QuizStart onStart={handleStartQuiz} loading={loading} onOpenPrivacyPolicy={onOpenPrivacyPolicy} hasConsent={hasConsent}/>
           ) : isCompleted && finalResult ? (
-            <ModernInvestorProfile result={finalResult} onRestart={handleRestart} />
+            <ModernInvestorProfile result={finalResult} sessionId={finalResult?.sessionId || sessionId} onRestart={handleRestart} />
           ) : showPersonalityTest ? (
             <>
               <QuizProgress 

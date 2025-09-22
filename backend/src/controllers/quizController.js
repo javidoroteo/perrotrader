@@ -86,6 +86,7 @@ async generateFinalResultIfBothComplete(sessionId) {
       success: true,
       completed: true,
       result: {
+        sessionId: sessionId,
         // Datos del quiz (portfolioService.completeFinalResult)
         riskProfile: quizResult.riskProfile,
         experienceLevel: quizResult.experienceLevel,
