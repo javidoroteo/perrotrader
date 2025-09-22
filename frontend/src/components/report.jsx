@@ -120,7 +120,7 @@ console.log('SessionId attempts:', {
           El plan de inversión basado en perfiles similares al tuyo🚀
         </p>
         <div className="max-w-2xl mx-auto mt-8 opacity-0 animate-[fadeInUp_0.7s_ease-out_0.6s_forwards]">
-            <EmailReportSection sessionId={result.sessionId || result.originalData?.sessionId} />
+            <EmailReportSection sessionId={mappedResult.sessionId} />
         </div>
       </header>
 
