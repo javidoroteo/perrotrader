@@ -22,6 +22,9 @@ router.post('/generate', async (req, res) => {
 
     // Generar resultado completo
     const result = await portfolioService.completeFinalResult(sessionData);
+
+    // AGREGAR sessionId al resultado
+    result.sessionId = sessionData.id;
     
     // Agregar datos de sesión para el mapeo frontend
     result.session = sessionData;
