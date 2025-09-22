@@ -99,7 +99,12 @@ const ModernInvestorProfile = ({ result, onRestart }) => {
       </div>
     );
   }
-
+console.log('Result object:', result);
+console.log('SessionId attempts:', {
+  resultId: result.id,
+  resultSessionId: result.sessionId,
+  originalDataId: result.originalData?.id
+});
   return (
     <div className="font-sans min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 px-0.5 py-6 sm:p-6 relative overflow-hidden">
       <div className="fixed top-0 left-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 z-50 transition-all duration-300" style={{ width: `${scrollProgress}%` }} />
