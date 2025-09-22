@@ -33,24 +33,37 @@ const useEmailReport = (sessionId) => {
       return;
     }
 
+    // Validar que tenemos sessionId
+    if (!sessionId) {
+      setError('Sesión no válida. Por favor reinicia el quiz.');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
+      console.log('Enviando email con datos:', {
+        sessionId,
+        email: email.trim().toLowerCase()
+      });
+
       const response = await fetch('https://isfinz.onrender.com/api/report/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionId,
+          sessionId: sessionId,
           email: email.trim().toLowerCase()
         })
       });
 
       const data = await response.json();
+      
+      console.log('Respuesta del servidor:', data);
 
-      if (data.success) {
+      if (response.ok && data.success) {
         // Marcar como enviado
         setEmailSent(true);
         setError(null);
@@ -63,12 +76,14 @@ const useEmailReport = (sessionId) => {
         }
       } else {
         // Manejar diferentes tipos de errores
-        if (data.error === 'Demasiados intentos de envío') {
-          setError('Has alcanzado el límite de envíos. Intenta en 15 minutos.');
-        } else if (data.error === 'Error de validación') {
-          setError(data.message || 'Email inválido o sospechoso');
-        } else if (data.error === 'Sesión no encontrada') {
-          setError('Sesión inválida. Por favor reinicia el quiz.');
+        if (response.status === 400) {
+          setError(data.message || 'Datos no válidos. Verifica tu email y que hayas completado el test.');
+        } else if (response.status === 429) {
+          setError('Demasiados intentos. Espera 15 minutos antes de intentar nuevamente.');
+        } else if (response.status === 404) {
+          setError('Sesión no encontrada. Por favor reinicia el quiz.');
+        } else if (data.error === 'Sesión no completada') {
+          setError('Debes completar el test antes de enviar el reporte.');
         } else {
           setError(data.message || 'Error al enviar el reporte');
         }
@@ -84,6 +99,11 @@ const useEmailReport = (sessionId) => {
   const reset = () => {
     setError(null);
     setEmail('');
+    setEmailSent(false);
+  };
+
+  const clearError = () => {
+    setError(null);
   };
 
   return {
@@ -93,7 +113,8 @@ const useEmailReport = (sessionId) => {
     email,
     setEmail,
     sendEmail,
-    reset
+    reset,
+    clearError
   };
 };
 
@@ -106,8 +127,14 @@ const EmailReportSection = ({ sessionId }) => {
     email,
     setEmail,
     sendEmail,
-    reset
+    reset,
+    clearError
   } = useEmailReport(sessionId);
+
+  // Efecto para debugging
+  useEffect(() => {
+    console.log('EmailReportSection mounted with sessionId:', sessionId);
+  }, [sessionId]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -117,10 +144,27 @@ const EmailReportSection = ({ sessionId }) => {
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
     if (error) {
-      // Limpiar error al empezar a escribir
-      setTimeout(() => setError(null), 100);
+      // CORREGIDO: Ahora usamos clearError que está disponible
+      setTimeout(() => clearError(), 100);
     }
   };
+
+  // Mostrar alerta si no hay sessionId
+  if (!sessionId) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-2xl p-8 shadow-xl mb-8">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-red-800 mb-2">
+            Error de Sesión
+          </h3>
+          <p className="text-red-600">
+            No se encontró una sesión válida. Por favor, reinicia el quiz para generar tu reporte.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (emailSent) {
     return (
@@ -130,7 +174,7 @@ const EmailReportSection = ({ sessionId }) => {
             <Check className="w-8 h-8 text-white" />
           </div>
           <h3 className="text-2xl font-bold text-gray-800 mb-3">
-            ¡Reporte Enviado! 🎉
+            ¡Reporte Enviado!
           </h3>
           <p className="text-gray-600 mb-4">
             Tu reporte personalizado + guía práctica han sido enviados a tu email.
@@ -154,7 +198,7 @@ const EmailReportSection = ({ sessionId }) => {
       <div className="text-center mb-6">
         <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2 flex items-center justify-center gap-3">
           <Mail className="w-5 h-5 text-blue-600" />
-          📧 Recibe tu reporte personalizado + Guía práctica al email
+          Recibe tu reporte personalizado + Guía práctica al email
         </h3>
         <p className="text-gray-600 font-medium">
           Si no lo guardas, se perderá...
@@ -221,7 +265,7 @@ const EmailReportSection = ({ sessionId }) => {
             ) : (
               <>
                 <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                <span>📤 Enviar Reporte</span>
+                <span>Enviar Reporte</span>
               </>
             )}
           </button>
@@ -231,6 +275,9 @@ const EmailReportSection = ({ sessionId }) => {
       <div className="mt-6 text-center">
         <p className="text-xs text-gray-500">
           Incluye reporte completo en PDF + guía práctica de inversión
+        </p>
+        <p className="text-xs text-gray-400 mt-1">
+          SessionID: {sessionId?.substring(0, 8)}...
         </p>
       </div>
     </div>
