@@ -600,7 +600,7 @@ async generateRentaVariableAdvice(session) {
       mainObjective = 'Generar ingresos';
     }
 
-    // RiskScale: Normalizar totalScore (max 94 según RISK_PROFILES)
+    // RiskScale: Normalizar totalScore a 0-100
     const maxScore = 25;
     const riskValue = Math.round((session.totalScore / maxScore) * 100);
 
@@ -718,6 +718,7 @@ async generateRentaVariableAdvice(session) {
   const educationalGuide = await this.generateEducationalGuide(session);
 
   return {
+    sessionId: session.id,
     riskProfile: portfolio.riskProfile,
     experienceLevel: this.getExperienceLevel(session.experienceScore),
     portfolio: portfolio.allocation,               // Plano
