@@ -276,9 +276,6 @@ const EmailReportSection = ({ sessionId }) => {
         <p className="text-xs text-gray-500">
           Incluye reporte completo en PDF + guía práctica de inversión
         </p>
-        <p className="text-xs text-gray-400 mt-1">
-          SessionID: {sessionId?.substring(0, 8)}...
-        </p>
       </div>
     </div>
   );
