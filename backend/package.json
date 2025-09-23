@@ -10,7 +10,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "ngrok": "ngrok http 3001",
-    "dev:with-ngrok": "node scripts/start-with-ngrok.js"
+    "dev:with-ngrok": "node scripts/start-with-ngrok.js",
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "dependencies": {
     "@prisma/client": "^5.7.1",
