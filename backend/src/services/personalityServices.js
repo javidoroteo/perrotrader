@@ -361,9 +361,6 @@ class PersonalityService {
     const savedTest = await this.savePersonalityTest(sessionId, allResponses);
     const archetypeDetails = this.getArchetypeDetails(profile.archetype);
 
-    console.log('🔍 processCompleteTest: Calculado profile:', { archetype: profile.archetype, completed: true });
-console.log('📊 Antes de update DB - personalityTest actual:', await prisma.personalityTest.findUnique({ where: { sessionId } }));
-
     // Verificar si ambos tests están completos
     const testStatus = await this.checkBothTestsComplete(sessionId);
     
@@ -391,7 +388,6 @@ console.log('📊 Antes de update DB - personalityTest actual:', await prisma.pe
         ? 'Test de personalidad completado. Esperando finalización del quiz.'
         : 'Test de personalidad completado. Quiz aún no completado.';
     }
-    console.log('💾 Después de update DB - personalityTest actualizado:', await prisma.personalityTest.findUnique({ where: { sessionId } }));
     return result;
   } catch (error) {
     return {
