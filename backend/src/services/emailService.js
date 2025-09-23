@@ -16,11 +16,18 @@ class EmailService {
    */
   async sendReportEmail(userEmail, reportData, sessionData) {
     try {
+      console.log('=== INICIO ENVÍO EMAIL ===');
+    console.log('Usuario:', userEmail);
+    console.log('ReportData keys:', Object.keys(reportData));
+    console.log('SessionData keys:', Object.keys(sessionData));
+
       // 1. Generar el PDF del reporte
       const pdfBuffer = await PDFService.generateReportPDF(reportData, sessionData);
+      console.log('✅ PDF generado exitosamente. Tamaño:', pdfBuffer.length, 'bytes');
       
       // 2. Convertir PDF a base64 para adjunto
       const pdfBase64 = pdfBuffer.toString('base64');
+      console.log('✅ Base64 generado. Longitud:', pdfBase64.length);
       
       // 3. Generar contenido del email
       const emailContent = this.generateEmailContent(reportData, sessionData);
@@ -65,6 +72,12 @@ class EmailService {
 
     } catch (error) {
       console.error('Error enviando email:', error.response?.data || error.message);
+      console.error('❌ ERROR DETALLADO:', {
+    message: error.message,
+    stack: error.stack,
+    response: error.response?.data,
+    code: error.code
+  });
       
       throw new Error(
         error.response?.data?.message || 
