@@ -6,6 +6,50 @@ const path = require('path');
 class PDFService {
   
   /**
+   * Instala Chrome dinámicamente si no está disponible
+   */
+  async ensureChromeInstalled() {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const isRender = process.env.RENDER === 'true' || process.env.RENDER_SERVICE_ID;
+    
+    if (!isProduction && !isRender) {
+      return true; // En desarrollo local, Chrome normalmente está disponible
+    }
+
+    try {
+      console.log('🔍 Verificando instalación de Chrome...');
+      
+      // Intentar usar el Chrome por defecto primero
+      const defaultPath = puppeteer.executablePath();
+      console.log('📍 Ruta por defecto de Chrome:', defaultPath);
+      
+      const fs = require('fs');
+      if (fs.existsSync(defaultPath)) {
+        console.log('✅ Chrome encontrado en ruta por defecto');
+        return true;
+      }
+
+      // Si no existe, intentar instalar Chrome dinámicamente
+      console.log('⚠️ Chrome no encontrado, intentando instalación dinámica...');
+      
+      const { execSync } = require('child_process');
+      
+      // Instalar Chrome usando el comando de Puppeteer
+      await execSync('npx puppeteer browsers install chrome', { 
+        stdio: 'inherit',
+        timeout: 60000 // 1 minuto timeout
+      });
+      
+      console.log('✅ Chrome instalado dinámicamente');
+      return true;
+
+    } catch (error) {
+      console.error('❌ Error instalando Chrome:', error.message);
+      return false;
+    }
+  }
+
+  /**
    * Obtiene la configuración correcta de Puppeteer según el entorno
    */
   getPuppeteerConfig() {
@@ -15,7 +59,7 @@ class PDFService {
     console.log(`🔍 Entorno detectado - Production: ${isProduction}, Render: ${isRender}`);
     
     if (isProduction || isRender) {
-      // Configuración específica para Render
+      // Configuración específica para Render - SIN executablePath personalizado
       const config = {
         headless: 'new',
         args: [
@@ -36,35 +80,9 @@ class PDFService {
         ]
       };
 
-      // Configurar executable path según las variables de entorno
-      if (process.env.PUPPETEER_EXECUTABLE_PATH) {
-        config.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
-        console.log(`📍 Usando executablePath desde env: ${config.executablePath}`);
-      } else {
-        // Fallback - buscar Chrome en ubicaciones comunes de Render
-        const possiblePaths = [
-          '/opt/render/.cache/puppeteer/chrome/linux-140.0.7339.185/chrome-linux64/chrome',
-          puppeteer.executablePath()
-        ];
-        
-        for (const execPath of possiblePaths) {
-          try {
-            const fs = require('fs');
-            if (fs.existsSync(execPath)) {
-              config.executablePath = execPath;
-              console.log(`📍 Chrome encontrado en: ${execPath}`);
-              break;
-            }
-          } catch (e) {
-            console.log(`⚠️ No se pudo verificar: ${execPath}`);
-          }
-        }
-        
-        if (!config.executablePath) {
-          console.log('⚠️ No se especificó executablePath, usando por defecto de Puppeteer');
-        }
-      }
-
+      // NO especificar executablePath - dejar que Puppeteer lo encuentre automáticamente
+      console.log('📍 Usando Chrome automático de Puppeteer');
+      
       return config;
     } else {
       // Configuración para desarrollo local
@@ -84,20 +102,20 @@ class PDFService {
    */
   async verifyChrome() {
     try {
+      // Asegurar instalación primero
+      await this.ensureChromeInstalled();
+      
       const config = this.getPuppeteerConfig();
       
-      if (config.executablePath) {
-        const fs = require('fs');
-        if (!fs.existsSync(config.executablePath)) {
-          throw new Error(`Chrome no encontrado en: ${config.executablePath}`);
-        }
-        console.log(`✅ Chrome verificado en: ${config.executablePath}`);
-      }
+      console.log(`✅ Configuración Puppeteer: ${JSON.stringify({
+        headless: config.headless,
+        argsCount: config.args.length
+      })}`);
 
       // Test de lanzamiento rápido
       const browser = await puppeteer.launch({
         ...config,
-        timeout: 10000 // 10 segundos timeout
+        timeout: 15000 // 15 segundos timeout
       });
       
       await browser.close();
@@ -121,10 +139,10 @@ class PDFService {
       console.log('🔧 Entorno:', process.env.NODE_ENV);
       console.log('🌐 Render:', process.env.RENDER || 'false');
       
-      // Verificar Chrome primero
-      const chromeOk = await this.verifyChrome();
-      if (!chromeOk) {
-        throw new Error('Chrome no está disponible o no funciona correctamente');
+      // Asegurar que Chrome está instalado
+      const chromeInstalled = await this.ensureChromeInstalled();
+      if (!chromeInstalled) {
+        throw new Error('No se pudo instalar Chrome');
       }
       
       // Obtener configuración según entorno
