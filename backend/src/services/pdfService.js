@@ -6,37 +6,83 @@ const path = require('path');
 class PDFService {
   
   /**
+   * Obtiene la configuración correcta de Puppeteer según el entorno
+   */
+  getPuppeteerConfig() {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const isRender = process.env.RENDER === 'true' || process.env.RENDER_SERVICE_ID;
+    
+    if (isProduction || isRender) {
+      // Configuración para producción/Render
+      return {
+        headless: 'new',
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--disable-gpu',
+          '--disable-web-security',
+          '--disable-features=VizDisplayCompositor',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process', // Importante para Render
+          '--disable-extensions'
+        ],
+        // NO especificar executablePath - dejar que Puppeteer lo encuentre automáticamente
+      };
+    } else {
+      // Configuración para desarrollo local
+      return {
+        headless: 'new',
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage'
+        ]
+      };
+    }
+  }
+
+  /**
    * Genera un PDF del reporte completo del usuario
    */
   async generateReportPDF(reportData, sessionData) {
     let browser = null;
     
     try {
-      // Configurar Puppeteer
-      browser = await puppeteer.launch({
-        headless: 'new',
-        executablePath: puppeteer.executablePath(),
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--disable-gpu'
-        ]
+      console.log('🚀 Iniciando generación de PDF...');
+      console.log('📊 ReportData keys:', Object.keys(reportData));
+      console.log('🔧 Entorno:', process.env.NODE_ENV);
+      console.log('🌐 Render:', process.env.RENDER || 'false');
+      
+      // Obtener configuración según entorno
+      const config = this.getPuppeteerConfig();
+      console.log('⚙️ Configuración Puppeteer:', {
+        headless: config.headless,
+        argsCount: config.args.length,
+        hasExecutablePath: !!config.executablePath
       });
       
+      // Lanzar browser
+      browser = await puppeteer.launch(config);
+      console.log('✅ Browser lanzado exitosamente');
+      
       const page = await browser.newPage();
+      console.log('✅ Nueva página creada');
       
       // Configurar página
       await page.setViewport({ width: 1200, height: 800 });
       
       // Generar HTML del reporte
       const htmlContent = this.generateReportHTML(reportData, sessionData);
+      console.log('✅ HTML generado, longitud:', htmlContent.length);
       
       await page.setContent(htmlContent, { 
         waitUntil: 'networkidle0',
         timeout: 30000 
       });
+      console.log('✅ Contenido HTML cargado en la página');
       
       // Generar PDF
       const pdfBuffer = await page.pdf({
@@ -50,14 +96,33 @@ class PDFService {
         }
       });
       
+      console.log('✅ PDF generado exitosamente, tamaño:', pdfBuffer.length, 'bytes');
       return pdfBuffer;
       
     } catch (error) {
-      console.error('Error generando PDF:', error);
-      throw new Error('No se pudo generar el PDF del reporte');
+      console.error('❌ Error detallado generando PDF:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        code: error.code
+      });
+      
+      // Error más específico
+      if (error.message.includes('Browser was not found')) {
+        throw new Error('Chrome no está disponible en el servidor. Contacta al administrador.');
+      } else if (error.message.includes('timeout')) {
+        throw new Error('Timeout generando el PDF. El servidor está ocupado, intenta más tarde.');
+      } else {
+        throw new Error(`Error generando PDF: ${error.message}`);
+      }
     } finally {
       if (browser) {
-        await browser.close();
+        try {
+          await browser.close();
+          console.log('✅ Browser cerrado correctamente');
+        } catch (closeError) {
+          console.error('⚠️ Error cerrando browser:', closeError.message);
+        }
       }
     }
   }
@@ -70,7 +135,7 @@ class PDFService {
     const today = new Date().toLocaleDateString('es-ES');
     
     // Convertir portfolio a array para gráficos
-    const portfolioArray = Object.entries(portfolio).map(([asset, percentage]) => ({
+    const portfolioArray = Object.entries(portfolio || {}).map(([asset, percentage]) => ({
       name: this.getAssetDisplayName(asset),
       value: parseFloat(percentage.toFixed(1)),
       color: this.getAssetColor(asset),
@@ -84,7 +149,6 @@ class PDFService {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Reporte de Inversión - IsFinz</title>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <style>
             ${this.getStyles()}
         </style>
@@ -98,10 +162,6 @@ class PDFService {
             ${this.generateEducationalSection(educationalGuide)}
             ${this.generateFooter(today)}
         </div>
-        
-        <script>
-            ${this.generateChartScript(portfolioArray)}
-        </script>
     </body>
     </html>
     `;
@@ -145,17 +205,6 @@ class PDFService {
         overflow: hidden;
     }
     
-    .header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
-        opacity: 0.3;
-    }
-    
     .header-content {
         position: relative;
         z-index: 1;
@@ -164,10 +213,6 @@ class PDFService {
     .logo {
         font-size: 2.5rem;
         font-weight: 900;
-        background: linear-gradient(45deg, #60a5fa, #a78bfa);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
         margin-bottom: 10px;
     }
     
@@ -224,9 +269,22 @@ class PDFService {
         align-items: start;
     }
     
+    @media (max-width: 768px) {
+        .portfolio-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
     .chart-container {
         position: relative;
         height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border-radius: 12px;
+        color: #666;
+        font-weight: 500;
     }
     
     .asset-list {
@@ -243,12 +301,6 @@ class PDFService {
         background: rgba(255, 255, 255, 0.8);
         border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.3);
-        transition: all 0.3s ease;
-    }
-    
-    .asset-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
     
     .asset-info {
@@ -290,8 +342,7 @@ class PDFService {
         padding: 20px;
         background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
         border-radius: 12px;
-        border-left: 4px solid;
-        border-left-color: #2563eb;
+        border-left: 4px solid #2563eb;
     }
     
     .profile-label {
@@ -305,27 +356,6 @@ class PDFService {
         font-size: 1.1rem;
         font-weight: 600;
         color: #1f2937;
-    }
-    
-    .risk-scale {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-top: 10px;
-    }
-    
-    .risk-bar {
-        flex: 1;
-        height: 8px;
-        background: #e5e7eb;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    
-    .risk-fill {
-        height: 100%;
-        border-radius: 4px;
-        transition: width 0.5s ease;
     }
     
     .content-block {
@@ -358,10 +388,6 @@ class PDFService {
         font-size: 1.8rem;
         font-weight: 800;
         margin-bottom: 10px;
-        background: linear-gradient(45deg, #60a5fa, #a78bfa);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
     }
     
     .footer-text {
@@ -450,7 +476,7 @@ class PDFService {
         </h2>
         <div class="portfolio-grid">
             <div class="chart-container">
-                <canvas id="portfolioChart"></canvas>
+                Gráfico de distribución de cartera
             </div>
             <div class="asset-list">
                 ${portfolioArray.map(asset => `
@@ -485,7 +511,7 @@ class PDFService {
             Análisis y Recomendaciones
         </h2>
         <div class="content-block">
-            <h4>Fondo de Emergencia</h4>
+            <h4>Análisis de tu Perfil</h4>
             <div>${report}</div>
         </div>
     </div>
@@ -532,53 +558,6 @@ class PDFService {
     `;
   }
 
-  /**
-   * Script para generar el gráfico circular
-   */
-  generateChartScript(portfolioArray) {
-    return `
-    document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('portfolioChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ${JSON.stringify(portfolioArray.map(asset => asset.name))},
-                datasets: [{
-                    data: ${JSON.stringify(portfolioArray.map(asset => asset.value))},
-                    backgroundColor: ${JSON.stringify(portfolioArray.map(asset => asset.color))},
-                    borderWidth: 2,
-                    borderColor: '#ffffff',
-                    hoverBorderWidth: 3,
-                    hoverBorderColor: '#ffffff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.label + ': ' + context.parsed + '%';
-                            }
-                        }
-                    }
-                },
-                cutout: '60%'
-            }
-        });
-        
-        // Esperar a que el gráfico se renderice antes de generar el PDF
-        setTimeout(() => {
-            if (window.chartReady) window.chartReady();
-        }, 1000);
-    });
-    `;
-  }
-
   // Métodos auxiliares
   getAssetDisplayName(asset) {
     const names = {
@@ -618,6 +597,16 @@ class PDFService {
    */
   async generatePreviewHTML(reportData, sessionData) {
     return this.generateReportHTML(reportData, sessionData);
+  }
+
+  /**
+   * Método de fallback - genera reporte simple sin PDF
+   */
+  async generateSimpleReport(reportData, sessionData) {
+    console.log('⚠️ Usando reporte simple sin PDF');
+    
+    const htmlContent = this.generateReportHTML(reportData, sessionData);
+    return Buffer.from(htmlContent, 'utf8');
   }
 }
 
