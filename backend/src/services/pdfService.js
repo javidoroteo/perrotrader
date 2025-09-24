@@ -12,9 +12,11 @@ class PDFService {
     const isProduction = process.env.NODE_ENV === 'production';
     const isRender = process.env.RENDER === 'true' || process.env.RENDER_SERVICE_ID;
     
+    console.log(`🔍 Entorno detectado - Production: ${isProduction}, Render: ${isRender}`);
+    
     if (isProduction || isRender) {
-      // Configuración para producción/Render
-      return {
+      // Configuración específica para Render
+      const config = {
         headless: 'new',
         args: [
           '--no-sandbox',
@@ -26,11 +28,44 @@ class PDFService {
           '--disable-features=VizDisplayCompositor',
           '--no-first-run',
           '--no-zygote',
-          '--single-process', // Importante para Render
-          '--disable-extensions'
-        ],
-        // NO especificar executablePath - dejar que Puppeteer lo encuentre automáticamente
+          '--single-process',
+          '--disable-extensions',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding'
+        ]
       };
+
+      // Configurar executable path según las variables de entorno
+      if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        config.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+        console.log(`📍 Usando executablePath desde env: ${config.executablePath}`);
+      } else {
+        // Fallback - buscar Chrome en ubicaciones comunes de Render
+        const possiblePaths = [
+          '/opt/render/.cache/puppeteer/chrome/linux-140.0.7339.185/chrome-linux64/chrome',
+          puppeteer.executablePath()
+        ];
+        
+        for (const execPath of possiblePaths) {
+          try {
+            const fs = require('fs');
+            if (fs.existsSync(execPath)) {
+              config.executablePath = execPath;
+              console.log(`📍 Chrome encontrado en: ${execPath}`);
+              break;
+            }
+          } catch (e) {
+            console.log(`⚠️ No se pudo verificar: ${execPath}`);
+          }
+        }
+        
+        if (!config.executablePath) {
+          console.log('⚠️ No se especificó executablePath, usando por defecto de Puppeteer');
+        }
+      }
+
+      return config;
     } else {
       // Configuración para desarrollo local
       return {
@@ -41,6 +76,36 @@ class PDFService {
           '--disable-dev-shm-usage'
         ]
       };
+    }
+  }
+
+  /**
+   * Verifica que Chrome esté disponible antes de usarlo
+   */
+  async verifyChrome() {
+    try {
+      const config = this.getPuppeteerConfig();
+      
+      if (config.executablePath) {
+        const fs = require('fs');
+        if (!fs.existsSync(config.executablePath)) {
+          throw new Error(`Chrome no encontrado en: ${config.executablePath}`);
+        }
+        console.log(`✅ Chrome verificado en: ${config.executablePath}`);
+      }
+
+      // Test de lanzamiento rápido
+      const browser = await puppeteer.launch({
+        ...config,
+        timeout: 10000 // 10 segundos timeout
+      });
+      
+      await browser.close();
+      console.log('✅ Chrome funciona correctamente');
+      return true;
+    } catch (error) {
+      console.error('❌ Error verificando Chrome:', error.message);
+      return false;
     }
   }
 
@@ -56,17 +121,26 @@ class PDFService {
       console.log('🔧 Entorno:', process.env.NODE_ENV);
       console.log('🌐 Render:', process.env.RENDER || 'false');
       
+      // Verificar Chrome primero
+      const chromeOk = await this.verifyChrome();
+      if (!chromeOk) {
+        throw new Error('Chrome no está disponible o no funciona correctamente');
+      }
+      
       // Obtener configuración según entorno
       const config = this.getPuppeteerConfig();
       console.log('⚙️ Configuración Puppeteer:', {
         headless: config.headless,
         argsCount: config.args.length,
-        hasExecutablePath: !!config.executablePath
+        hasExecutablePath: !!config.executablePath,
+        executablePath: config.executablePath ? config.executablePath.substring(0, 50) + '...' : 'default'
       });
       
-      console.log('🔍 Puppeteer executablePath:', puppeteer.executablePath());
-      // Lanzar browser
-      browser = await puppeteer.launch(config);
+      // Lanzar browser con timeout más largo
+      browser = await puppeteer.launch({
+        ...config,
+        timeout: 30000 // 30 segundos
+      });
       console.log('✅ Browser lanzado exitosamente');
       
       const page = await browser.newPage();
@@ -80,12 +154,12 @@ class PDFService {
       console.log('✅ HTML generado, longitud:', htmlContent.length);
       
       await page.setContent(htmlContent, { 
-        waitUntil: 'networkidle0',
+        waitUntil: ['networkidle0', 'domcontentloaded'],
         timeout: 30000 
       });
       console.log('✅ Contenido HTML cargado en la página');
       
-      // Generar PDF
+      // Generar PDF con configuración optimizada para Render
       const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
@@ -94,7 +168,8 @@ class PDFService {
           bottom: '20px',
           left: '20px',
           right: '20px'
-        }
+        },
+        timeout: 30000
       });
       
       console.log('✅ PDF generado exitosamente, tamaño:', pdfBuffer.length, 'bytes');
@@ -108,11 +183,13 @@ class PDFService {
         code: error.code
       });
       
-      // Error más específico
-      if (error.message.includes('Browser was not found')) {
-        throw new Error('Chrome no está disponible en el servidor. Contacta al administrador.');
-      } else if (error.message.includes('timeout')) {
+      // Mensajes de error más específicos
+      if (error.message.includes('Could not find Chrome') || error.message.includes('Browser was not found')) {
+        throw new Error('Chrome no está disponible en el servidor. El administrador debe revisar la configuración.');
+      } else if (error.message.includes('timeout') || error.message.includes('Timeout')) {
         throw new Error('Timeout generando el PDF. El servidor está ocupado, intenta más tarde.');
+      } else if (error.message.includes('Navigation failed') || error.message.includes('ERR_')) {
+        throw new Error('Error cargando el contenido del reporte. Intenta nuevamente.');
       } else {
         throw new Error(`Error generando PDF: ${error.message}`);
       }
@@ -601,13 +678,28 @@ class PDFService {
   }
 
   /**
-   * Método de fallback - genera reporte simple sin PDF
+   * Health check para verificar que Puppeteer funciona
    */
-  async generateSimpleReport(reportData, sessionData) {
-    console.log('⚠️ Usando reporte simple sin PDF');
-    
-    const htmlContent = this.generateReportHTML(reportData, sessionData);
-    return Buffer.from(htmlContent, 'utf8');
+  async healthCheck() {
+    try {
+      console.log('🔍 Iniciando health check de PDF service...');
+      
+      const chromeOk = await this.verifyChrome();
+      if (!chromeOk) {
+        return { status: 'error', message: 'Chrome no disponible' };
+      }
+      
+      return { 
+        status: 'ok', 
+        message: 'PDF service funcionando correctamente',
+        chrome: 'disponible'
+      };
+    } catch (error) {
+      return { 
+        status: 'error', 
+        message: error.message 
+      };
+    }
   }
 }
 
