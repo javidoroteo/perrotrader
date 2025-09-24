@@ -371,5 +371,24 @@ router.get('/health', (req, res) => {
     }
   });
 });
+/**
+ * GET /api/report/health/pdf
+ */
+router.get('/health/pdf', async (req, res) => {
+  try {
+    const healthResult = await PDFService.healthCheck();
+    
+    if (healthResult.status === 'ok') {
+      res.json(healthResult);
+    } else {
+      res.status(500).json(healthResult);
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Error en health check de PDF'
+    });
+  }
+});
 
 module.exports = router;

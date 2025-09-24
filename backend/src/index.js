@@ -50,7 +50,7 @@ app.use((req, res, next) => {
 app.use('/api/quiz', quizRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/personality', personalityRoutes);
-app.use('/api/report', reportRoutes); // Nueva ruta para PDFs y emails
+app.use('/api/report', reportRoutes);
 
 // Health check (para monitoreo)
 app.get('/health', (req, res) => {
