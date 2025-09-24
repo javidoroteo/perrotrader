@@ -172,8 +172,8 @@ class PDFService {
       console.log('✅ HTML generado, longitud:', htmlContent.length);
       
       await page.setContent(htmlContent, { 
-        waitUntil: ['networkidle0', 'domcontentloaded'],
-        timeout: 30000 
+        waitUntil: ['domcontentloaded'],
+        timeout: 60000
       });
       console.log('✅ Contenido HTML cargado en la página');
       
@@ -187,7 +187,7 @@ class PDFService {
           left: '20px',
           right: '20px'
         },
-        timeout: 30000
+        timeout: 60000
       });
       
       console.log('✅ PDF generado exitosamente, tamaño:', pdfBuffer.length, 'bytes');
