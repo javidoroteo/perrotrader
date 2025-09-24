@@ -64,6 +64,7 @@ class PDFService {
         hasExecutablePath: !!config.executablePath
       });
       
+      console.log('🔍 Puppeteer executablePath:', puppeteer.executablePath());
       // Lanzar browser
       browser = await puppeteer.launch(config);
       console.log('✅ Browser lanzado exitosamente');
