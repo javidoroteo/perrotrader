@@ -202,5 +202,53 @@ Stack: ${error.stack}
   // Cerrar gracefully
   gracefulShutdown();
 });
+/**
+ * GET /api/report/debug-chrome
+ * Debug temporal para ver rutas de Chrome
+ */
+router.get('/debug-chrome', (req, res) => {
+  const fs = require('fs');
+  const puppeteer = require('puppeteer');
+  
+  const debugInfo = {
+    NODE_ENV: process.env.NODE_ENV,
+    RENDER: process.env.RENDER,
+    PUPPETEER_CACHE_DIR: process.env.PUPPETEER_CACHE_DIR,
+    PUPPETEER_EXECUTABLE_PATH: process.env.PUPPETEER_EXECUTABLE_PATH,
+    puppeteerDefault: puppeteer.executablePath()
+  };
+
+  // Verificar rutas posibles
+  const possiblePaths = [
+    '/opt/render/.cache/puppeteer/chrome/linux-140.0.7339.185/chrome-linux64/chrome',
+    '/opt/render/.cache/puppeteer/chrome/linux-141.0.7346.0/chrome-linux64/chrome', // versión más nueva
+    puppeteer.executablePath()
+  ];
+
+  const pathResults = {};
+  possiblePaths.forEach(path => {
+    try {
+      pathResults[path] = fs.existsSync(path) ? 'EXISTS' : 'NOT_FOUND';
+    } catch (e) {
+      pathResults[path] = 'ERROR: ' + e.message;
+    }
+  });
+
+  // Listar archivos en cache de puppeteer
+  let cacheContents = 'NO_ACCESS';
+  try {
+    if (fs.existsSync('/opt/render/.cache/puppeteer')) {
+      cacheContents = fs.readdirSync('/opt/render/.cache/puppeteer', { recursive: true });
+    }
+  } catch (e) {
+    cacheContents = 'ERROR: ' + e.message;
+  }
+
+  res.json({
+    debugInfo,
+    pathResults,
+    cacheContents
+  });
+});
 
 module.exports = app;
