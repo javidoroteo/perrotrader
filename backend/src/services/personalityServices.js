@@ -145,9 +145,6 @@ class PersonalityService {
     results.archetype = letters.join('-');
     results.archetypeName = this.archetypeMap[results.archetype] || 'Arquetipo Desconocido';
 
-    console.log('Arquetipo calculado:', results.archetype);
-  console.log('Nombre arquetipo:', results.archetypeName);
-  console.log('Mapa de arquetipos disponibles:', Object.keys(this.archetypeMap));
     return results;
   }
 

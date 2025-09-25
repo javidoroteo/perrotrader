@@ -47,8 +47,7 @@ class EmailService {
         textContent: emailContent.text,
         attachment: [{
           name: `IsFinz_Reporte_${new Date().toISOString().split('T')[0]}.pdf`,
-          content: pdfBase64,
-          contentType: 'application/pdf'
+          content: pdfBase64
         }]
       };
 
