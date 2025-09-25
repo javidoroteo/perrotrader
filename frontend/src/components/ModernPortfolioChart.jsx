@@ -81,7 +81,7 @@ const ModernPortfolioChart = ({ portfolio }) => {
     <ModernSection
       title="Tu Cartera del Futuro 🚀"
       icon={BarChart3}
-      gradient="from-cyan-400 via-purple-500 to-pink-500"
+      gradient="from-blue-600 to-purple-600"
       glow="purple"
     >
       <div className="relative mb-8">

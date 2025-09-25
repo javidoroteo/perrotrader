@@ -112,7 +112,7 @@ console.log('SessionId attempts:', {
       <header className="text-center mb-10 relative z-10">
         <h1 className="text-5xl md:text-7xl font-black text-gray-800 leading-tight opacity-0 animate-[fadeInUp_0.7s_ease-out_forwards]">
           CONSTRUYE TU
-          <span className="block bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             FUTURO
           </span>
         </h1>

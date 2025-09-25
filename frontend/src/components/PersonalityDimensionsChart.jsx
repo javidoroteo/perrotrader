@@ -54,7 +54,7 @@ const PersonalityDimensionsChart = ({ dimensions }) => {
     <div className="p-3 sm:p-6 bg-white/40 border border-white/30 rounded-2xl sm:rounded-3xl shadow-lg backdrop-blur-lg">
       {/* Header con efecto glassmorphism */}
       <div className="flex items-center gap-3 mb-4 sm:mb-6">
-        <div className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
+        <div className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 shadow-lg">
           <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
         <div>

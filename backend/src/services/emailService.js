@@ -367,8 +367,8 @@ class EmailService {
   generateEmailHeader() {
     return `
     <div class="header">
-        <div class="logo">IsFinz</div>
-        <div class="header-subtitle">Tu Asesor de Inversiones Inteligente</div>
+        <div class="logo">isfinz</div>
+        <div class="header-subtitle">Hacemos las inversones simples</div>
     </div>
     `;
   }
@@ -507,8 +507,8 @@ class EmailService {
   generateEmailFooter() {
     return `
     <div class="footer">
-        <div class="footer-logo">IsFinz</div>
-        <div>Tu asesor de inversiones inteligente</div>
+        <div class="footer-logo">isfinz</div>
+        <div>Hacemos facil las inversiones</div>
         <div class="disclaimer">
             <strong>Aviso:</strong> Este reporte es solo para fines educativos e informativos. 
             No constituye asesoramiento financiero personalizado. Consulta con un profesional 

@@ -56,7 +56,7 @@ const RentaFijaSection = ({ rentaFijaAdvice }) => {
       title="Renta Fija - Estrategia de Bonos"
       icon={Building2}
       defaultOpen={false}
-      gradient="from-emerald-500 to-teal-600"
+      gradient="from-blue-600 to-purple-600"
       glow="green"
     >
       <div className="space-y-6 sm:space-y-8">

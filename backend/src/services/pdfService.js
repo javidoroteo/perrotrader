@@ -532,10 +532,6 @@ class PDFService {
                 <div class="profile-value">${profile.investorType || 'No definido'}</div>
             </div>
             <div class="profile-card">
-                <div class="profile-label">Tolerancia al Riesgo</div>
-                <div class="profile-value">${profile.riskTolerance || 'No definida'}</div>
-            </div>
-            <div class="profile-card">
                 <div class="profile-label">Horizonte Temporal</div>
                 <div class="profile-value">${profile.timeHorizon || 'No definido'}</div>
             </div>
@@ -547,12 +543,6 @@ class PDFService {
             <div class="profile-card">
                 <div class="profile-label">Objetivo Principal</div>
                 <div class="profile-value">${profile.mainObjective}</div>
-            </div>
-            ` : ''}
-            ${profile.esgSensitivity ? `
-            <div class="profile-card">
-                <div class="profile-label">Inversión Sostenible</div>
-                <div class="profile-value">${profile.esgSensitivity}</div>
             </div>
             ` : ''}
         </div>
@@ -604,7 +594,7 @@ class PDFService {
     <div class="section">
         <h2 class="section-title">
             <div class="section-icon">📋</div>
-            Análisis y Recomendaciones
+            Análisis de tu perfil
         </h2>
         <div class="content-block">
             <h4>Análisis de tu Perfil</h4>
@@ -628,11 +618,13 @@ class PDFService {
         </h2>
         ${educationalGuide.assets.map(asset => `
         <div class="content-block">
-            <h4>${asset.name}</h4>
+            <h4>${asset.title}</h4>
             <p><strong>¿Qué es?</strong> ${asset.description}</p>
-            <p><strong>Riesgo:</strong> ${asset.riskLevel}</p>
-            <p><strong>Ventajas:</strong> ${asset.advantages}</p>
-            <p><strong>Desventajas:</strong> ${asset.disadvantages}</p>
+            <p><strong>Función en tu cartera:</strong> ${asset.role}</p>
+            <p><strong>Rentabilidad esperada:</strong> ${asset.expectedReturn}</p>
+            <p><strong>Comportamineto:</strong> ${asset.behavior}</p>
+            <p><strong>Ventajas:</strong> ${asset.pros}</p>
+            <p><strong>Desventajas:</strong> ${asset.cons}</p>
         </div>
         `).join('')}
     </div>

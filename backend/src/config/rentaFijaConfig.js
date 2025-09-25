@@ -222,17 +222,17 @@ También puedes implementar coberturas dinámicas para proteger tu capital mient
   // Bloques adicionales según características específicas
   ADDITIONAL_BLOCKS: {
     HORIZONTE_CORTO: { // Para timeValue = 1 (3 años o menos)
-      'Principiante': `**Enfoque en Liquidez y Capital Preservation**
+      'Principiante': `Enfoque en Liquidez y Capital Preservation
 
 Con un horizonte corto, tu prioridad absoluta debe ser la preservación del capital y la liquidez. Evita bonos de larga duración que puedan experimentar volatilidad significativa.
 
 Concéntrate en instrumentos del mercado monetario, bonos gubernamentales de corta duración (1-3 años), y fondos de bonos ultrashort. Tu objetivo no es maximizar rentabilidad sino asegurar que el capital esté disponible cuando lo necesites.`,
-      'Intermedia': `**Optimización Táctica a Corto Plazo**
+      'Intermedia': `Optimización Táctica a Corto Plazo
 
 Tu experiencia te permite ser más táctico en la gestión de duración. Puedes aprovechar movimientos de la curva de tipos construyendo posiciones específicas en el tramo corto.
 
 Considera estrategias de roll-down en bonos gubernamentales, donde compras bonos de 2-3 años y aprovechas la ganancia de capital conforme se acerca el vencimiento. Mantén siempre una reserva en instrumentos líquidos.`,
-      'Avanzada': `**Gestión Profesional de Liquidez**
+      'Avanzada': `Gestión Profesional de Liquidez
 
 Implementa estrategias sofisticadas de cash management utilizando repos, commercial papers de alta calidad, y construcción de ladders muy cortas (3-6-12 meses).
 
@@ -240,17 +240,17 @@ Puedes usar derivados para cobertura táctica y aprovechar dislocaciones tempora
     },
 
     HORIZONTE_MEDIO: { // Para timeValue = 2 (3-5 años)
-      'Principiante': `**Equilibrio entre Seguridad y Rendimiento**
+      'Principiante': `Equilibrio entre Seguridad y Rendimiento
 
 Con 3-5 años puedes asumir algo más de duración para capturar mayor rendimiento. Los bonos de duración intermedia (3-7 años) serán tu zona de confort.
 
 Diversifica entre bonos soberanos y corporativos de alta calidad. Este horizonte te permite capturar la mayor parte de la prima de término sin exponerte excesivamente al riesgo de duración.`,
-      'Intermedia': `**Construcción Táctica de Duration**
+      'Intermedia': `Construcción Táctica de Duration
 
 Tu horizonte medio te permite implementar estrategias más dinámicas. Puedes ajustar la duración de tu cartera según tus expectativas sobre la evolución de los tipos de interés.
 
 Considera combinar bonos cortos (1-3 años) y medios (5-7 años) para crear flexibilidad. Esto te permite reinvertir la parte corta si los tipos suben, mientras mantienes exposure a la parte media de la curva.`,
-      'Alta': `**Gestión Activa de la Curva**
+      'Alta': `Gestión Activa de la Curva
 
 Implementa estrategias de butterfly, barbell, y bullet según tu visión macro. Puedes ser más agresivo con la gestión de duración y calidad crediticia.
 
@@ -258,17 +258,17 @@ Considera positions en bonos corporativos de mayor yield, mercados emergentes (s
     },
 
     HORIZONTE_LARGO: { // Para timeValue = 3 o 4 (5+ años)
-      'Principiante': `**Maximizar el Poder del Interés Compuesto**
+      'Principiante': `Maximizar el Poder del Interés Compuesto
 
 Con horizonte largo, puedes aprovechar plenamente el interés compuesto reinvirtiendo todos los cupones. Los bonos de mayor duración te ofrecerán yields más atractivos.
 
 No temas a la volatilidad temporal de los bonos largos; tu horizonte te permite superar los ciclos de tipos de interés. Concéntrate en la acumulación consistente y la reinversión automática.`,
-      'Intermedia': `**Diversificación Geográfica y Sectorial**
+      'Intermedia': `Diversificación Geográfica y Sectorial
 
 Expande tu universo de inversión incluyendo bonos internacionales, corporativos de diferentes sectores, y considera una pequeña asignación a mercados emergentes.
 
 Tu horizonte largo te permite asumir mayor riesgo crediticio a cambio de yields más atractivos. Construye una cartera core-satellite con base sólida en agregados y posiciones especializadas.`,
-      'Avanzada': `**Estrategias de Largo Plazo Sofisticadas**
+      'Avanzada': `Estrategias de Largo Plazo Sofisticadas
 
 Implementa estrategias de immunización, cash flow matching, o construcción de liability-driven portfolios si tienes objetivos específicos de largo plazo.
 
@@ -276,17 +276,17 @@ Considera exposiciones alternativas como infrastructure debt, private credit (a 
     },
 
     MUY_CONSERVADOR: { // Para riskProfile = 'Bajo Riesgo'
-      'Principiante': `**Máxima Seguridad y Preservación**
+      'Principiante': `Máxima Seguridad y Preservación
 
 Tu perfil conservador requiere enfoque absoluto en preservación de capital. Limítate a bonos soberanos AAA/AA y corporativos de máxima calidad (AAA/AA).
 
 Evita completamente high yield, mercados emergentes, y bonos de larga duración. Tu cartera de renta fija debe ser el ancla de estabilidad de toda tu cartera de inversión.`,
-      'Intermedia': `**Conservadurismo Inteligente**
+      'Intermedia': `Conservadurismo Inteligente
 
 Mantén tu enfoque conservador pero optimiza dentro de estos límites. Puedes diversificar geográficamente en países AAA (Alemania, Suiza, Países Bajos) para reducir el riesgo de concentración.
 
 Considera bonos indexados a inflación para proteger tu poder adquisitivo real manteniendo la máxima seguridad crediticia.`,
-      'Avanzada': `**Estrategias Conservadoras Sofisticadas**
+      'Avanzada': `Estrategias Conservadoras Sofisticadas
 
 Implementa estrategias de laddering y immunización usando exclusivamente bonos de máxima calidad. Puedes usar derivados defensivamente para cobertura, nunca para especulación.
 
@@ -294,17 +294,17 @@ Considera structured products conservadores que ofrezcan protección de capital 
     },
 
     ESG: { // Si session.esgValue > 0
-      'Principiante': `**Introducción a Bonos Sostenibles**
+      'Principiante': `Introducción a Bonos Sostenibles
 
 Los bonos verdes y sostenibles te permiten alinear tus inversiones con tus valores. Comienza con fondos ESG diversificados que aplican filtros de sostenibilidad.
 
 Los green bonds de emisores soberanos (como el Bono Verde del Estado español) ofrecen la combinación ideal de impacto positivo y seguridad crediticia para principiantes.`,
-      'Intermedia': `**Diversificación ESG Estratégica**
+      'Intermedia': `Diversificación ESG Estratégica
 
 Expande tu exposure ESG combinando green bonds, social bonds, y sustainability-linked bonds. Puedes diversificar entre emisores soberanos, corporativos, y supranacionales.
 
 Evalúa no solo el label ESG sino también el framework y el impacto real de los proyectos financiados. Tu experiencia te permite ser más selectivo en la calidad ESG.`,
-      'Avanzada': `**ESG Integration Avanzada**
+      'Avanzada': `ESG Integration Avanzada
 
 Implementa estrategias ESG sofisticadas que combinen screening, integration, y active ownership. Puedes participar directamente en emisiones primarias de bonos sostenibles.
 
@@ -312,17 +312,17 @@ Considera bonos de transición, blue bonds, pandemic bonds, y otros instrumentos
     },
 
     INFLACION_ALTA: { // Se podría activar con algún indicador macro o preferencia del usuario
-      'Principiante': `**Protección Básica Contra Inflación**
+      'Principiante': `Protección Básica Contra Inflación
 
 En entornos inflacionarios, los bonos tradicionales pierden poder adquisitivo. Considera ETFs de bonos indexados a inflación (TIPS, LINKERS) como protección básica.
 
 Los bonos de tasa flotante también ofrecen cierta protección natural, ya que sus cupones se ajustan periódicamente a las tasas de mercado.`,
-      'Intermedia': `**Estrategias Anti-inflacionarias**
+      'Intermedia': `Estrategias Anti-inflacionarias
 
 Combina diferentes instrumentos de protección: TIPS, bonos flotantes, y real assets bonds. Puedes también considerar bonos de países con mejor historial inflacionario.
 
 Analiza la curva real vs nominal para identificar oportunidades de breakeven inflation que estén mal preciadas por el mercado.`,
-      'Avanzada': `**Gestión Sofisticada del Riesgo Inflacionario**
+      'Avanzada': `Gestión Sofisticada del Riesgo Inflacionario
 
 Implementa swaps de inflación, estrategias de curve positioning en mercados reales, y construcción de carteras que mantengan duration real mientras gestionan duration nominal.
 

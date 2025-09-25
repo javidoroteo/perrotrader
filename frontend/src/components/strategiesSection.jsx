@@ -37,7 +37,7 @@ const StrategiesSection = ({ strategies }) => {
       title="Estrategias de Inversión"
       icon={TrendingUp}
       defaultOpen={false}
-      gradient="from-indigo-500 to-purple-600"
+      gradient="from-blue-600 to-purple-600"
       glow="purple"
     >
       <div className="space-y-6">

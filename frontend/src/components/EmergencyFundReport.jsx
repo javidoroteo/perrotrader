@@ -10,7 +10,7 @@ const EmergencyFundReport = ({ report }) => {
       title="Fondo de Emergencia 🛡️"
       icon={Shield}
       defaultOpen={false}
-      gradient="from-emerald-400 via-teal-500 to-cyan-500"
+      gradient="from-blue-600 to-purple-600"
       glow="green"
     >
       <div className="prose prose-lg max-w-none">

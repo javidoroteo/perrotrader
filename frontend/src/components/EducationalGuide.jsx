@@ -10,7 +10,7 @@ const EducationalGuide = ({ guide }) => {
       title="Guía Educativa 📚"
       icon={BookOpen}
       defaultOpen={false}
-      gradient="from-indigo-400 via-blue-500 to-purple-500"
+      gradient="from-blue-600 to-purple-600"
       glow="blue"
     >
       <div className="space-y-6">

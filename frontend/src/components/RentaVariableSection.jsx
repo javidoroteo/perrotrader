@@ -50,7 +50,7 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
       title="Renta Variable - Guía Personalizada"
       icon={BarChart3}
       defaultOpen={false}
-      gradient="from-blue-500 to-indigo-600"
+      gradient="from-blue-600 to-purple-600"
       glow="blue"
     >
       <div className="space-y-8">

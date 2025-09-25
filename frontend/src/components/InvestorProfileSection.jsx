@@ -8,8 +8,8 @@ const InvestorProfileSection = ({ profileData }) => {
     <ModernSection
       title="Perfil 🎯"
       icon={User}
-      gradient="from-purple-500 via-pink-500 to-red-500"
-      glow="purple"
+      gradient="from-blue-600 to-purple-600"
+      glow="blue"
       priority={false}
     >
       <div className="mb-8 p-6 rounded-2xl bg-gradient-to-br from-gray-900/10 to-gray-800/5 backdrop-blur-sm border border-white/10">

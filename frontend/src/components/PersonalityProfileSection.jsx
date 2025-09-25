@@ -16,7 +16,7 @@ const PersonalityProfileSection = ({ archetypeDetails }) => {
     <ModernSection
       title="Tu Arquetipo de Inversor"
       icon={Star}
-      gradient="from-purple-500 to-pink-600"
+      gradient="from-blue-600 to-purple-600"
       glow="purple"
       defaultOpen={true}
       priority={true}
