@@ -26,7 +26,7 @@ class EmailService {
       console.log('✅ PDF generado exitosamente. Tamaño:', pdfBuffer.length, 'bytes');
       
       // 2. Convertir PDF a base64 para adjunto
-      const pdfBase64 = pdfBuffer.toString('base64');
+      const pdfBase64 = Buffer.from(pdfBuffer).toString('base64');
       console.log('✅ Base64 generado. Longitud:', pdfBase64.length);
       console.log('📄 Base64 preview:', pdfBase64.substring(0, 50));
       
