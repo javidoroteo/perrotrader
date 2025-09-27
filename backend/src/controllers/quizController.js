@@ -169,8 +169,8 @@ async generateFinalResultIfBothComplete(sessionId) {
 
       const question = quizService.getQuestionById(session.currentQuestionId);
       
-      // Usar el nuevo sistema de progreso
-      const progress = quizService.calculateProgressBySections(session.answers);
+      // Usar el sistema de progreso consistente
+      const progress = quizService.calculateProgress(session.answers.length, questions.length);
 
       // Agregar conteo de preguntas respondidas para la barra
       progress.answeredCount = session.answers.length;
@@ -202,7 +202,7 @@ async generateFinalResultIfBothComplete(sessionId) {
   // Responder pregunta
   async answerQuestion(req, res) {
     try {
-      const { sessionId, questionId, answerIndex, answerText } = req.body;
+      const { sessionId, questionId, answerIndex, answerText, selectedAnswers } = req.body;
 
       const session = await prisma.quizSession.findUnique({
         where: { id: sessionId },
@@ -222,50 +222,109 @@ async generateFinalResultIfBothComplete(sessionId) {
         return res.status(400).json({ error: 'Pregunta no válida' });
       }
 
-      const answer = question.answers[answerIndex];
-      if (!answer) {
-        return res.status(400).json({ error: 'Respuesta no válida' });
+      // ========================================
+      // NUEVA LÓGICA PARA SELECCIÓN MÚLTIPLE
+      // ========================================
+      
+      let finalAnswer, finalPoints = 0, finalConoPoints = 0, finalExPoints = 0;
+      let cryptoExposure = 0, timeValue = 0, emergencyFund = 0, esgValue = 0;
+      let dividend = 0, pensionFund = 0, gold = 0, age = 0;
+      let nextQuestionId;
+
+      if (question.multipleSelect && selectedAnswers && Array.isArray(selectedAnswers)) {
+        // SELECCIÓN MÚLTIPLE: Procesar array de respuestas
+        const selectedTexts = [];
+        let maxExPoints = 0;
+
+        selectedAnswers.forEach(index => {
+          const answer = question.answers[index];
+          if (answer) {
+            selectedTexts.push(answer.text);
+            
+            // Sumar todos los puntos excepto Expoints (donde tomamos el máximo)
+            finalPoints += answer.points || 0;
+            finalConoPoints += answer.conopoints || 0;
+            maxExPoints = Math.max(maxExPoints, answer.Expoints || 0); // ← MÁXIMO para Expoints
+            cryptoExposure += answer.criptoExposure || 0;
+            timeValue += answer.timeValue || 0;
+            emergencyFund += answer.emergencyFund || 0;
+            esgValue += answer.esg || 0;
+            dividend += answer.dividend || 0;
+            pensionFund += answer.pensionFund || 0;
+            gold += answer.gold || 0;
+            age += answer.age || 0;
+          }
+        });
+
+        finalExPoints = maxExPoints; // ← Usar el máximo para Expoints
+        finalAnswer = answerText; // Ya viene combinado del frontend
+        
+        // Usar nextQuestion del primer elemento seleccionado
+        nextQuestionId = question.answers[selectedAnswers[0]]?.nextQuestion || 
+                       quizService.getNextQuestionId(questionId);
+
+      } else {
+        // SELECCIÓN ÚNICA: Lógica original (SIN CAMBIOS)
+        const answer = question.answers[answerIndex];
+        if (!answer) {
+          return res.status(400).json({ error: 'Respuesta no válida' });
+        }
+
+        finalAnswer = answerText;
+        finalPoints = answer.points || 0;
+        finalConoPoints = answer.conopoints || 0;
+        finalExPoints = answer.Expoints || 0;
+        cryptoExposure = answer.criptoExposure || 0;
+        timeValue = answer.timeValue || 0;
+        emergencyFund = answer.emergencyFund || 0;
+        esgValue = answer.esg || 0;
+        dividend = answer.dividend || 0;
+        pensionFund = answer.pensionFund || 0;
+        gold = answer.gold || 0;
+        age = answer.age || 0;
+        nextQuestionId = answer.nextQuestion || quizService.getNextQuestionId(questionId);
       }
+
+      // ========================================
+      // GUARDAR RESPUESTA (actualizado para usar variables finales)
+      // ========================================
 
       // Guardar respuesta
       await prisma.quizAnswer.create({
         data: {
           sessionId,
           questionId,
-          answerIndex,
-          answerText,
-          points: answer.points || 0,
-          conoPoints: answer.conopoints || 0,
-          exPoints: answer.Expoints || 0,
-          cryptoExposure: answer.criptoExposure || 0,
-          timeValue: answer.timeValue || 0,
-          emergencyFund: answer.emergencyFund || 0,
-          esgValue: answer.esg || 0,
-          dividend: answer.dividend || 0,
-          pensionFund: answer.pensionFund || 0,
-          gold: answer.gold || 0,
-          age: answer.age || 0
+          answerIndex: question.multipleSelect ? -1 : answerIndex, // -1 para múltiple
+          answerText: finalAnswer,
+          points: finalPoints,
+          conoPoints: finalConoPoints,
+          exPoints: finalExPoints,
+          cryptoExposure,
+          timeValue,
+          emergencyFund,
+          esgValue,
+          dividend,
+          pensionFund,
+          gold,
+          age
         }
       });
 
-      // Determinar siguiente pregunta
-      const nextQuestionId = answer.nextQuestion || quizService.getNextQuestionId(questionId);
-      
       // Actualizar sesión
       const updatedSession = await prisma.quizSession.update({
         where: { id: sessionId },
         data: {
           currentQuestionId: nextQuestionId,
-          totalScore: { increment: (answer.points || 0) + (answer.conopoints || 0) },
-          experienceScore: { increment: answer.Expoints || 0 },
-          cryptoScore: { increment: answer.criptoExposure || 0 },
-          timeValue: { increment: answer.timeValue || 0 },
-          emergencyFund: { increment: answer.emergencyFund || 0 },
-          esgValue: { increment: answer.esg || 0 },
-          dividend: { increment: answer.dividend || 0 },
-          pensionFund: { increment: answer.pensionFund || 0 },
-          gold: { increment: answer.gold || 0 },
-          age: { increment: answer.age || 0 }
+          totalScore: { increment: finalConoPoints + finalPoints },
+          experienceScore: { increment: finalExPoints },
+          cryptoScore: { increment: cryptoExposure },
+          timeValue: { increment: timeValue },
+          emergencyFund: { increment: emergencyFund },
+          esgValue: { increment: esgValue },
+          dividend: { increment: dividend },
+          pensionFund: { increment: pensionFund },
+          gold: { increment: gold },
+          age: { increment: age }
         },
         include: { answers: true }
       });
@@ -284,7 +343,7 @@ async generateFinalResultIfBothComplete(sessionId) {
         return res.json(finalResult);
       }
 
-      // Obtener siguiente pregunta
+      // Obtener siguiente pregunta y calcular progreso
       const nextQuestion = quizService.getQuestionById(nextQuestionId);
       const progress = quizService.calculateProgress(updatedSession.answers.length, questions.length);
       // Agregar conteo de preguntas respondidas para la barra
@@ -379,7 +438,7 @@ async generateFinalResultIfBothComplete(sessionId) {
       }
 
       const progress = quizService.calculateProgress(session.answers.length, questions.length);
-      progress.answeredCount = remainingAnswers.length;
+      progress.answeredCount = session.answers.length;
       
       res.json({
         success: true,

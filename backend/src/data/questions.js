@@ -278,6 +278,7 @@ const questions = [
         section: "Experiencia de Inversión",
         question: "¿Qué tipo de inversiones has realizado en el pasado?",
         explanation: "",
+        multipleSelect: true,
         answers: [
             { text: "Cuentas de ahorro.", Expoints: 1, nextQuestion: 207},
             { text: "Fondos de inversión.", Expoints: 2, nextQuestion: 207},
