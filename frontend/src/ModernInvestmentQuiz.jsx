@@ -135,51 +135,67 @@ useEffect(() => {
     }
   };
 
-  const handleAnswer = async (answerIndex) => {
-  setSelectedAnswer(answerIndex);
-  setTimeout(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const answerText = currentQuestion.answers[answerIndex].text || 
-                        currentQuestion.answers[answerIndex].answer || 
-                        `Opción ${answerIndex + 1}`;
-
-      const response = await fetch(`${API_BASE_URL}/quiz/answer`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+  // ========================================
+  // FUNCIÓN HANDLEANSWER ACTUALIZADA PARA SELECCIÓN MÚLTIPLE
+  // ========================================
+  const handleAnswer = async (answerIndex, selectedMultiple = null, combinedText = null) => {
+    // Para selección múltiple, usar selectedMultiple
+    if (selectedMultiple) {
+      setSelectedAnswer(selectedMultiple); // Guardar array para visualización
+    } else {
+      setSelectedAnswer(answerIndex); // Selección única normal
+    }
+    
+    setTimeout(async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Preparar datos según tipo de selección
+        const requestBody = {
           sessionId,
           questionId: currentQuestion.id,
-          answerIndex,
-          answerText
-        })
-      });
+        };
 
-      const data = await response.json();
-
-      if (data.success) {
-        if (data.nextStep === "personality_test") {
-          // Backend dice que ahora toca el test de personalidad
-          await startPersonalityTest(sessionId);
-        } else if (data.completed) {
-          // Ambos tests completados → obtener resultado final
-          await getCompleteResult();
+        if (selectedMultiple) {
+          // SELECCIÓN MÚLTIPLE
+          requestBody.selectedAnswers = selectedMultiple;
+          requestBody.answerText = combinedText;
+          requestBody.answerIndex = -1; // Indicador de selección múltiple
         } else {
-          // Continuar con el quiz normal
-          await loadQuestion();
+          // SELECCIÓN ÚNICA (lógica original)
+          requestBody.answerIndex = answerIndex;
+          requestBody.answerText = currentQuestion.answers[answerIndex].text || 
+                                  currentQuestion.answers[answerIndex].answer || 
+                                  `Opción ${answerIndex + 1}`;
         }
-      } else {
-        setError(data.message || 'Error al procesar la respuesta');
+
+        const response = await fetch(`${API_BASE_URL}/quiz/answer`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          if (data.nextStep === "personality_test") {
+            await startPersonalityTest(sessionId);
+          } else if (data.completed) {
+            await getCompleteResult();
+          } else {
+            await loadQuestion();
+          }
+        } else {
+          setError(data.message || 'Error al procesar la respuesta');
+        }
+      } catch (err) {
+        setError('Error de conexión al enviar la respuesta');
+        console.error('Error submitting answer:', err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError('Error de conexión al enviar la respuesta');
-      console.error('Error submitting answer:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, 800);
-};
+    }, 800);
+  };
 
 
   const handlePrevious = async () => {
@@ -361,6 +377,7 @@ const getCompleteResult = async () => {
       case 'perfil': return <Star className="w-6 h-6" />;
       case 'tolerancia al riesgo': return <Shield className="w-6 h-6" />;
       case 'horizonte de inversión': return <Zap className="w-6 h-6" />;
+      case 'tipos de inversión': return <DollarSign className="w-6 h-6" />;
       default: return <DollarSign className="w-6 h-6" />;
     }
   };
@@ -404,7 +421,13 @@ const getCompleteResult = async () => {
           ) : currentQuestion ? (
             <>
               <QuizProgress progress={progress} section={currentQuestion.section} getSectionIcon={getSectionIcon} phase="quiz"/>
-              <QuizQuestion question={currentQuestion} onAnswer={handleAnswer} loading={loading} selectedAnswer={selectedAnswer} />
+              <QuizQuestion 
+                question={currentQuestion} 
+                onAnswer={handleAnswer} 
+                loading={loading} 
+                selectedAnswer={selectedAnswer} 
+                questionIndex={progress.current}
+              />
               {canGoBack && (
                 <div className="flex justify-start mt-6">
                   <button
