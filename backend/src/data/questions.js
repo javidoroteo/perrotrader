@@ -1,3 +1,5 @@
+const { Children } = require("react");
+
 //Las preguntas
 const questions = [
     // Sección 1: Perfil del inversor
@@ -119,11 +121,11 @@ const questions = [
         question: "¿Cuál es tu objetivo principal al invertir?",
         explanation: "",
         answers: [
-            { "text": "Aumentar mi patrimonio a largo plazo", nextQuestion: 109 },
+            { "text": "Aumentar mi patrimonio a largo plazo", nextQuestion: 109, wealthGowth: 1 },
             { "text": "Ahorrar para la jubilación", nextQuestion: 111, pensionFund: 1},
-            { "text": "Comprar una casa", nextQuestion: 112 },
+            { "text": "Comprar una casa", nextQuestion: 112, buyHouse: 1 },
             { "text": "Generar ingresos pasivos", nextQuestion: 113, dividend:1 },
-            { "text": "Ahorrar para la educación de mis hijos", nextQuestion: 115 },
+            { "text": "Ahorrar para la educación de mis hijos", nextQuestion: 115, childrenEducation: 1 },
         ]
     },
     {
@@ -179,21 +181,21 @@ const questions = [
         question: "¿Estarías dispuesto a asumir un riesgo alto para obtener mayores ingresos pasivos?",
         explanation: "",
         answers: [
-            { text: "Sí, estoy dispuesto", conopoints: 2, nextQuestion: 201},
-            { text: "Tal vez, dependiendo de la situación", conopoints: 1, nextQuestion: 201},
-            { text: "No, prefiero mantener mi capital seguro", conopoints: 0, nextQuestion: 201}
+            { text: "Sí, estoy dispuesto", conopoints: 2, nextQuestion: 114},
+            { text: "Tal vez, dependiendo de la situación", conopoints: 1, nextQuestion: 114},
+            { text: "No, prefiero mantener mi capital seguro", conopoints: 0, nextQuestion: 114}
         ]
     },
     {
         id: 114,
         section: "Horizonte de Inversión",
         question: "¿En cúantos años querrías empezar a desinvertir?",
-        explanation: "Se refiere a cuando vas a necesitar ese dinero para otros usos",
+        explanation: "Se refiere a cuando vas a necesitar ese dinero que has invertido para genera ingresos pasivos para otros usos",
         answers: [
-            { text: "3 años o menos", timeValue: 1, nextQuestion: 116},
-            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 116},
-            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 116},
-            { text: "Más de 10 años", timeValue: 4, nextQuestion: 116}
+            { text: "3 años o menos", timeValue: 1, nextQuestion: 201},
+            { text: "De 3 a 5 años", timeValue: 2, nextQuestion: 201},
+            { text: "De 5 a 10 años", timeValue: 3, nextQuestion: 201},
+            { text: "Más de 10 años", timeValue: 4, nextQuestion: 201}
         ]
     },
     {
@@ -431,7 +433,7 @@ const questions = [
         id: 505,
         section: "Tipos de Inversión",
         question: "¿Cuánto te preocupa que la inflación reduzca el valor real de tus ahorros a largo plazo?",
-        explanation:"La inflación es la nueva emisión de moneda y se ve reflejada en la subida de precios de consumo, y puede disminuir el poder adquisitivo de tu dinero con el tiempo.",
+        explanation:"La inflación es la nueva emisión de moneda y se ve reflejada en la subida de precios de consumo.",
         answers: [
             { text: "Mucho", gold: 2, nextQuestion: 506 },
             { text: "Algo", gold: 1},

@@ -215,10 +215,10 @@ const PORTFOLIO_CONFIG = {
     
     // Recomendaciones por horizonte temporal
     TIME_HORIZON: {
-      1: 'Dado tu horizonte temporal corto (3 años o menos), hemos priorizado activos más estables y líquidos.',
-      2: 'Con un horizonte de 3-5 años, tu cartera balancea estabilidad con un crecimiento moderado.',
-      3: 'Tu horizonte de 5-10 años permite aprovechar mejor el potencial de crecimiento de las acciones.',
-      4: 'Con más de 10 años de inversión, puedes maximizar el potencial de crecimiento a largo plazo.'
+      1: 'Corto plazo',
+      2: 'Medio plazo',
+      3: 'Largo plazo',
+      4: 'Muy largo plazo'
     },
   }
 };

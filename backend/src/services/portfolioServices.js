@@ -598,6 +598,12 @@ async generateRentaVariableAdvice(session) {
       mainObjective = 'Jubilación';
     } else if (session.dividend > 0) {
       mainObjective = 'Generar ingresos';
+    } else if (session.wealthGrowth > 0) {
+      mainObjective = 'Aumentar patrimonio';
+    } else if (session.buyHouse > 0) {
+      mainObjective = 'Comprar casa';
+    } else if (session.childEducation > 0) {
+      mainObjective = 'Educación hijos';
     }
 
     // RiskScale: Normalizar totalScore a 0-100
