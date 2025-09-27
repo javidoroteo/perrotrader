@@ -632,7 +632,7 @@ async generateRentaVariableAdvice(session) {
       mainObjective = 'Aumentar patrimonio';
     } else if (session.buyHouse > 0) {
       mainObjective = 'Comprar casa';
-    } else if (session.childEducation > 0) {
+    } else if (session.childrenEducation > 0) {
       mainObjective = 'Educación hijos';
     }
 

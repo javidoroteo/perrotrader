@@ -121,7 +121,7 @@ const questions = [
         question: "¿Cuál es tu objetivo principal al invertir?",
         explanation: "",
         answers: [
-            { "text": "Aumentar mi patrimonio a largo plazo", nextQuestion: 109, wealthGowth: 1 },
+            { "text": "Aumentar mi patrimonio a largo plazo", nextQuestion: 109, wealthGrowth: 1 },
             { "text": "Ahorrar para la jubilación", nextQuestion: 111, pensionFund: 1},
             { "text": "Comprar una casa", nextQuestion: 112, buyHouse: 1 },
             { "text": "Generar ingresos pasivos", nextQuestion: 113, dividend:1 },

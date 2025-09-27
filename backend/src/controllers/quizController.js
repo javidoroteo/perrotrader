@@ -228,7 +228,7 @@ async generateFinalResultIfBothComplete(sessionId) {
       
       let finalAnswer, finalPoints = 0, finalConoPoints = 0, finalExPoints = 0;
       let cryptoExposure = 0, timeValue = 0, emergencyFund = 0, esgValue = 0;
-      let dividend = 0, pensionFund = 0, gold = 0, age = 0;
+      let dividend = 0, pensionFund = 0, gold = 0, age = 0, buyHouse = 0, childrenEducation = 0, wealthGrowth = 0
       let nextQuestionId;
 
       if (question.multipleSelect && selectedAnswers && Array.isArray(selectedAnswers)) {
@@ -253,6 +253,9 @@ async generateFinalResultIfBothComplete(sessionId) {
             pensionFund += answer.pensionFund || 0;
             gold += answer.gold || 0;
             age += answer.age || 0;
+            buyHouse += answer.buyHouse || 0;
+            childrenEducation += answer.childrenEducation || 0;
+            wealthGrowth += answer.wealthGrowth || 0;
           }
         });
 
@@ -282,6 +285,9 @@ async generateFinalResultIfBothComplete(sessionId) {
         pensionFund = answer.pensionFund || 0;
         gold = answer.gold || 0;
         age = answer.age || 0;
+        buyHouse = answer.buyHouse || 0;
+        childrenEducation = answer.childrenEducation || 0;
+        wealthGrowth = answer.wealthGrowth || 0;
         nextQuestionId = answer.nextQuestion || quizService.getNextQuestionId(questionId);
       }
 
@@ -306,7 +312,10 @@ async generateFinalResultIfBothComplete(sessionId) {
           dividend,
           pensionFund,
           gold,
-          age
+          age,
+          buyHouse,
+          childrenEducation,
+          wealthGrowth
         }
       });
 
@@ -324,7 +333,10 @@ async generateFinalResultIfBothComplete(sessionId) {
           dividend: { increment: dividend },
           pensionFund: { increment: pensionFund },
           gold: { increment: gold },
-          age: { increment: age }
+          age: { increment: age },
+          buyHouse: { increment: buyHouse },
+          childrenEducation: { increment: childrenEducation },
+          wealthGrowth: { increment: wealthGrowth }
         },
         include: { answers: true }
       });
@@ -401,6 +413,9 @@ async generateFinalResultIfBothComplete(sessionId) {
           pensionFund: { decrement: lastAnswer.pensionFund || 0 },
           gold: { decrement: lastAnswer.gold || 0 },
           age: { decrement: lastAnswer.age || 0 },
+          buyHouse: { decrement: lastAnswer.buyHouse || 0 },
+          childrenEducation: { decrement: lastAnswer.childrenEducation || 0 },
+          wealthGrowth: { decrement: lastAnswer.wealthGrowth || 0 },
           isCompleted: false
         }
       });
