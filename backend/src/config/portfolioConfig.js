@@ -46,18 +46,18 @@ const PORTFOLIO_CONFIG = {
   PERSONALITY_ADJUSTMENTS: {
     // Conservadurismo vs Ambición (Dimensión 4)
     CONSERVADOR: { // Score positivo en dimensión 4
-      acciones: -15, bonos: +15, criptomonedas: -3, efectivo: +3
+      acciones: -20, bonos: +20, criptomonedas: -5, efectivo: +5
     },
     AMBICIOSO: { // Score negativo en dimensión 4  
-      acciones: +15, bonos: -15, criptomonedas: +3, efectivo: -3
+      acciones: +20, bonos: -20, criptomonedas: +5, efectivo: -5
     },
     
     // Planificación vs Oportunismo (Dimensión 1)
     PLANIFICADOR: { // Score positivo en dimensión 1
-      acciones: -5, bonos: +10, criptomonedas: -3, efectivo: +3
+      acciones: -8, bonos: +17, criptomonedas: -5, efectivo: +5
     },
     OPORTUNISTA: { // Score negativo en dimensión 1
-      acciones: +5, bonos: -10, criptomonedas: +5, efectivo: 0
+      acciones: +8, bonos: -15, criptomonedas: +8, efectivo: 0
     },
     
     // Análisis vs Intuición (Dimensión 2)
@@ -65,7 +65,7 @@ const PORTFOLIO_CONFIG = {
       acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 // No impacta %
     },
     INTUITIVO: { // Score negativo en dimensión 2
-      acciones: 0, bonos: -5, criptomonedas: +3, efectivo: +2
+      acciones: 0, bonos: -8, criptomonedas: +5, efectivo: +3
     },
     
     // Autonomía vs Dependencia (Dimensión 3)
@@ -73,7 +73,7 @@ const PORTFOLIO_CONFIG = {
       acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 // No impacta %
     },
     DEPENDIENTE: { // Score negativo en dimensión 3
-      acciones: -5, bonos: +5, criptomonedas: 0, efectivo: 0
+      acciones: -8, bonos: +8, criptomonedas: 0, efectivo: 0
     }
   },
 

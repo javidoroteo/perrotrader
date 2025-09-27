@@ -54,53 +54,83 @@ class PortfolioService {
   }
 
   /**
-   * Aplica ajustes basados en el test de personalidad
-   * Consulta las 4 dimensiones del perfil psicológico
+   * Aplica ajustes basados en el test de personalidad usando porcentajes
+   * Consulta las 4 dimensiones del perfil psicológico y aplica ajustes escalados
    */
   async applyPersonalityAdjustments(portfolio, sessionId) {
     try {
       const personalityTest = await PersonalityService.getPersonalityTest(sessionId);
       
-      if (!personalityTest || !personalityTest.completed) {
+      if (!personalityTest || !personalityTest.completed || !personalityTest.profile?.dimensions) {
         console.log('Test de personalidad no completado, saltando ajustes');
         return;
       }
 
-      // Dimensión 4: Conservadurismo vs Ambición (más impacto en riesgo)
-      if (personalityTest.ambitionScore > 0) {
-        // Conservador (score positivo)
-        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.CONSERVADOR);
-      } else if (personalityTest.ambitionScore < 0) {
-        // Ambicioso (score negativo) 
-        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.AMBICIOSO);
-      }
+      const dimensions = personalityTest.profile.dimensions;
+      console.log('Aplicando ajustes de personalidad basados en porcentajes...');
+      
+      // Aplicar ajustes por cada dimensión en orden 1-4
+      for (let dimNumber = 1; dimNumber <= 4; dimNumber++) {
+        const dimension = dimensions[dimNumber];
+        if (!dimension) continue;
 
-      // Dimensión 1: Planificación vs Oportunismo (afecta estabilidad vs volatilidad)
-      if (personalityTest.planningScore > 0) {
-        // Planificador (prefiere estabilidad)
-        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.PLANIFICADOR);
-      } else if (personalityTest.planningScore < 0) {
-        // Oportunista (acepta volatilidad)
-        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.OPORTUNISTA);
+        const positivePercentage = dimension.percentages.positive;
+        
+        // Solo aplicar si >= 51%
+        if (positivePercentage >= 51) {
+          const adjustmentKey = this.getAdjustmentKey(dimNumber, true); // true = positivo
+          const adjustments = CONFIG.PERSONALITY_ADJUSTMENTS[adjustmentKey];
+          
+          if (adjustments) {
+            const multiplier = positivePercentage / 100;
+            const scaledAdjustments = {};
+            
+            // Escalar cada ajuste por el porcentaje
+            Object.entries(adjustments).forEach(([asset, baseAdjustment]) => {
+              scaledAdjustments[asset] = baseAdjustment * multiplier;
+            });
+            
+            console.log(`Aplicando ${adjustmentKey}: ${positivePercentage}% →`, scaledAdjustments);
+            this.applyAdjustments(portfolio, scaledAdjustments);
+          }
+        } else {
+          // El lado negativo es dominante
+          const negativePercentage = dimension.percentages.negative;
+          if (negativePercentage >= 51) {
+            const adjustmentKey = this.getAdjustmentKey(dimNumber, false); // false = negativo
+            const adjustments = CONFIG.PERSONALITY_ADJUSTMENTS[adjustmentKey];
+            
+            if (adjustments) {
+              const multiplier = negativePercentage / 100;
+              const scaledAdjustments = {};
+              
+              Object.entries(adjustments).forEach(([asset, baseAdjustment]) => {
+                scaledAdjustments[asset] = baseAdjustment * multiplier;
+              });
+              
+              console.log(`Aplicando ${adjustmentKey}: ${negativePercentage}% →`, scaledAdjustments);
+              this.applyAdjustments(portfolio, scaledAdjustments);
+            }
+          }
+        }
       }
-
-      // Dimensión 2: Análisis vs Intuición (afecta tipo de producto, no %)
-      if (personalityTest.analysisScore < 0) {
-        // Intuitivo (prefiere apuestas más arriesgadas)
-        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.INTUITIVO);
-      }
-      // Analítico no tiene ajuste de % según documento
-
-      // Dimensión 3: Autonomía vs Dependencia (formato, pero algunos ajustes de %)
-      if (personalityTest.autonomyScore < 0) {
-        // Dependiente (prefiere fondos gestionados)
-        this.applyAdjustments(portfolio, CONFIG.PERSONALITY_ADJUSTMENTS.DEPENDIENTE);
-      }
-      // Autónomo no tiene ajuste de % según documento
-
     } catch (error) {
       console.error('Error aplicando ajustes de personalidad:', error);
     }
+  }
+
+  /**
+   * Método auxiliar para mapear dimensión y polo a clave de ajuste
+   */
+  getAdjustmentKey(dimensionNumber, isPositive) {
+    const mappings = {
+      1: { positive: 'PLANIFICADOR', negative: 'OPORTUNISTA' },
+      2: { positive: 'ANALITICO', negative: 'INTUITIVO' },
+      3: { positive: 'AUTONOMO', negative: 'DEPENDIENTE' },
+      4: { positive: 'CONSERVADOR', negative: 'AMBICIOSO' }
+    };
+    
+    return mappings[dimensionNumber]?.[isPositive ? 'positive' : 'negative'];
   }
 
   /**
