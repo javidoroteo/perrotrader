@@ -1,5 +1,5 @@
 import React from 'react';
-import { Brain, Target, Timer, ArrowRight, TrendingUp, Lock } from 'lucide-react';
+import { Brain, Target, Timer, ArrowRight, TrendingUp, Lock, FileText, CheckCircle, BarChart3 } from 'lucide-react';
 
 const QuizStart = ({ onStart, loading, onOpenPrivacyPolicy, hasConsent = false }) => (
   <div className="text-center space-y-10 fade-in">
@@ -63,6 +63,39 @@ const QuizStart = ({ onStart, loading, onOpenPrivacyPolicy, hasConsent = false }
     <p className="text-sm text-gray-600 max-w-sm mx-auto leading-normal">
       Herramienta educativa. No constituye asesoramiento financiero.
     </p>
+
+    {/* Nueva sección: Lo que recibirás gratis */}
+    <div className="max-w-4xl mx-auto mt-12 p-8 bg-gradient-to-r from-green-50/80 to-blue-50/80 border border-green-200/50 rounded-3xl shadow-lg backdrop-blur-sm">
+      <div className="space-y-6">
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <FileText className="w-8 h-8 text-green-600" />
+          <h3 className="text-2xl font-black text-gray-800">Al completar el test recibirás gratis:</h3>
+        </div>
+        
+        <div className="flex items-center gap-4 p-4 bg-white/60 rounded-2xl shadow-sm border border-gray-100">
+          <BarChart3 className="w-6 h-6 text-blue-600 flex-shrink-0" />
+          <div className="text-left">
+            <p className="font-bold text-gray-800">📊 Informe práctico + teórico</p>
+            <p className="text-gray-600 text-sm">Aprende los fundamentos y descubre cómo aplicarlos a tu perfil.</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          {[
+            "Tu nivel de tolerancia al riesgo explicado de forma sencilla",
+            "Ejemplo educativo de cartera adaptada", 
+            "Inversiones en bolsa y en ETFs según tu perfil",
+            "Estrategias de inversión adaptadas a tu perfil",
+            "Cómo encajan los tipos de inversión en tu cartera"
+          ].map((benefit, i) => (
+            <div key={i} className="flex items-start gap-3 p-3 bg-white/40 rounded-xl">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-gray-700 text-sm font-medium">{benefit}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   </div>
 );
 
