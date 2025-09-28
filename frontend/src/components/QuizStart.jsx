@@ -75,7 +75,7 @@ const QuizStart = ({ onStart, loading, onOpenPrivacyPolicy, hasConsent = false }
         <div className="flex items-center gap-4 p-4 bg-white/60 rounded-2xl shadow-sm border border-gray-100">
           <BarChart3 className="w-6 h-6 text-blue-600 flex-shrink-0" />
           <div className="text-left">
-            <p className="font-bold text-gray-800">📊 Informe práctico + teórico</p>
+            <p className="font-bold text-gray-800"> Informe práctico + teórico</p>
             <p className="text-gray-600 text-sm">Aprende los fundamentos y descubre cómo aplicarlos a tu perfil.</p>
           </div>
         </div>
