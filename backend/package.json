@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.7.1",
-    "axios": "^1.6.0",
+    "axios": "^1.12.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^4.18.2",
@@ -24,7 +24,8 @@
     "joi": "^18.0.1",
     "puppeteer": "^24.22.1",
     "react-router-dom": "^7.8.2",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "yahoo-finance2": "^2.13.3"
   },
   "devDependencies": {
     "ngrok": "^5.0.0-beta.2",

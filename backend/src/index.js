@@ -7,6 +7,7 @@ const quizRoutes = require('./routes/quizRoutes');
 const portfolioRoutes = require('./routes/portfolioRoutes');
 const personalityRoutes = require('./routes/personalityRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const financialDetailsRoutes = require('./routes/financialDetailsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5432;
@@ -32,7 +33,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'https://www.isfinz.com',
+  origin: process.env.FRONTEND_URL,
   credentials: true
 }));
 
@@ -51,6 +52,7 @@ app.use('/api/quiz', quizRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/personality', personalityRoutes);
 app.use('/api/report', reportRoutes);
+app.use('/api/financial-details', financialDetailsRoutes);
 
 // Health check (para monitoreo)
 app.get('/health', (req, res) => {
