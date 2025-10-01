@@ -33,7 +33,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL || 'https://www.isfinz.com',
   credentials: true
 }));
 
