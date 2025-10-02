@@ -6,7 +6,6 @@ const { STRATEGIES_EDUCATION } = require('../config/strategiesEducation');
 const { RENTA_VARIABLE_CONFIG } = require('../config/rentaVariableConfig');
 const { RENTA_FIJA_CONFIG } = require('../config/rentaFijaConfig');
 const PersonalityService = require('./personalityServices');
-const portfolioExplanation = require('../config/portfolioExplanationConfig');
 
 class PortfolioService {
   
@@ -931,6 +930,7 @@ async generatePortfolioExplanation(session) {
   const rentaVariableAdvice = await this.generateRentaVariableAdvice(session);
   const investmentStrategiesData = await this.generateInvestmentStrategies(session);
   const educationalGuide = await this.generateEducationalGuide(session);
+  const portfolioExplanation = await this.generatePortfolioExplanation(session);
 
   return {
     sessionId: session.id,
