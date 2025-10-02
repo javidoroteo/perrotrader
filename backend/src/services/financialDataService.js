@@ -100,4 +100,4 @@ class FinancialDataService {
   }
 }
 
-module.exports = new FinancialDataService();
+module.exports = FinancialDataService;
