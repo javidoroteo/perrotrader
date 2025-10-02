@@ -1,32 +1,11 @@
-import React, { useState } from 'react';
-import { BarChart3, TrendingUp, Target, Lightbulb, Users, DollarSign, Award, Shield, Leaf, Clock, Info } from 'lucide-react';
+import React from 'react';
+import { BarChart3, TrendingUp, Target, Lightbulb, Users, DollarSign, Award, Shield, Leaf, Clock } from 'lucide-react';
 import ModernSection from './ModernSection';
-import FinancialDetailsModal from './FinancialDetailsModal';
 
 const RentaVariableSection = ({ rentaVariableAdvice }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-
   if (!rentaVariableAdvice) {
     return null;
   }
-
-  // Mapeo de productos de renta variable
-  const productTickerMap = {
-    'iShares Core MSCI World UCITS ETF': 'IWDA.L',
-    'Vanguard FTSE All-World UCITS ETF': 'VWCE.DE',
-    'Xtrackers MSCI World UCITS ETF': 'XMWO.L',
-    'iShares MSCI World Dividend UCITS ETF': 'WQDV.L',
-    'Vanguard FTSE All-World High Dividend Yield': 'VHYL.L',
-    'SPDR S&P Global Dividend Aristocrats': 'GLDV.L',
-    'SPDR S&P 500 UCITS ETF': 'SPY5.L'
-  };
-
-  const openProductDetails = (product) => {
-    const ticker = productTickerMap[product.name] || product.name;
-    setSelectedProduct({ ...product, ticker });
-    setModalOpen(true);
-  };
 
   const getBlockIcon = (blockType) => {
     switch (blockType) {
@@ -50,87 +29,182 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
 
   const getBlockGlow = (blockType) => {
     switch (blockType) {
-      case 'TECNOLOGIA': return 'shadow-blue-200';
-      case 'ESG': return 'shadow-green-200';
-      case 'LARGO_PLAZO': return 'shadow-orange-200';
-      case 'MUY_CONSERVADOR': return 'shadow-gray-200';
-      default: return 'shadow-indigo-200';
+      case 'TECNOLOGIA': return 'blue';
+      case 'ESG': return 'green';
+      case 'LARGO_PLAZO': return 'orange';
+      case 'MUY_CONSERVADOR': return 'gray';
+      default: return 'purple';
     }
+  };
+
+  const formatContent = (content) => {
+    return content.split('\n\n').map((paragraph, index) => (
+      <p key={index} className="text-gray-700 mb-4 leading-relaxed">
+        {paragraph}
+      </p>
+    ));
   };
 
   return (
     <ModernSection
+      title="Renta Variable - Guía Personalizada"
       icon={BarChart3}
-      title="Renta Variable Recomendada"
-      subtitle="ETFs de renta variable seleccionados para tu perfil inversor"
-      gradient="from-purple-600 to-pink-700"
+      defaultOpen={false}
+      gradient="from-blue-600 to-purple-600"
+      glow="blue"
     >
       <div className="space-y-8">
+        {/* Header con información del perfil */}
         <div className="text-center mb-8">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">{rentaVariableAdvice.mainContent.title}</h3>
-          <p className="text-gray-600 max-w-4xl mx-auto leading-relaxed">{rentaVariableAdvice.mainContent.content}</p>
+          <p className="text-lg text-gray-700 mb-4">
+            {rentaVariableAdvice.description}
+          </p>
+          <div className="flex justify-center items-center flex-wrap gap-4 text-sm">
+            <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full">
+              <Users className="w-4 h-4 mr-2 text-blue-600" />
+              <span className="text-blue-800">
+                Nivel: {rentaVariableAdvice.userProfile.experienceLevel}
+              </span>
+            </div>
+            
+            <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full">
+              <Target className="w-4 h-4 mr-2 text-blue-600" />
+              <span className="text-blue-800">
+                {rentaVariableAdvice.userProfile.seeksDividends ? 'Busca dividendos' : 'Busca crecimiento'}
+              </span>
+            </div>
+            
+            <div className="flex items-center bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-2 rounded-full">
+              <BarChart3 className="w-4 h-4 mr-2 text-purple-600" />
+              <span className="text-purple-800">
+                {rentaVariableAdvice.userProfile.equityAllocation}% en acciones
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Productos Recomendados */}
-        {rentaVariableAdvice.mainContent.products && rentaVariableAdvice.mainContent.products.length > 0 && (
-          <div className="mb-8">
-            <h4 className="text-xl font-bold text-gray-900 mb-6 text-center">ETFs Destacados</h4>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {rentaVariableAdvice.mainContent.products.map((product, index) => (
-                <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 overflow-hidden group">
-                  <div className="p-5">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h5 className="font-semibold text-gray-900 text-sm leading-tight mb-2 group-hover:text-purple-600 transition-colors">
-                          {product.name}
-                        </h5>
-                        <p className="text-xs text-gray-600 mb-3 line-clamp-2">
-                          {product.description}
-                        </p>
+        {/* Contenido principal */}
+        <div className="bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl border border-white/30 p-8">
+          <div className="flex items-center mb-6">
+            <div className="p-3 rounded-xl bg-gradient-to-brfrom-blue-500 to-indigo-600 shadow-lg mr-4">
+              <Award className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800">
+              {rentaVariableAdvice.mainContent.title}
+            </h3>
+          </div>
+          
+          <div className="space-y-6">
+            {/* Contenido principal */}
+            <div className="prose prose-gray max-w-none">
+              {formatContent(rentaVariableAdvice.mainContent.content)}
+            </div>
+
+            {/* Tips destacados - Layout responsive */}
+            {rentaVariableAdvice.mainContent.tips && rentaVariableAdvice.mainContent.tips.length > 0 && (
+              <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 border border-yellow-200">
+                {/* Mobile: Icon arriba del título */}
+                <div className="block sm:hidden text-center mb-4">
+                  <div className="inline-flex p-2 rounded-lg bg-yellow-100 mb-2">
+                    <Lightbulb className="w-5 h-5 text-yellow-600" />
+                  </div>
+                  <h4 className="font-semibold text-yellow-800">Consejos importantes:</h4>
+                </div>
+                
+                {/* Desktop: Icon a la izquierda del título */}
+                <div className="hidden sm:flex items-center mb-4">
+                  <Lightbulb className="w-5 h-5 text-yellow-600 mr-2" />
+                  <h4 className="font-semibold text-yellow-800">Consejos importantes:</h4>
+                </div>
+                
+                <ul className="space-y-2">
+                  {rentaVariableAdvice.mainContent.tips.map((tip, index) => (
+                    <li key={index} className="text-sm text-yellow-700 flex items-start">
+                      <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 mt-1.5 mr-3 flex-shrink-0" />
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Productos recomendados */}
+            {rentaVariableAdvice.mainContent.products && rentaVariableAdvice.mainContent.products.length > 0 && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                <div className="flex items-center mb-4">
+                  <DollarSign className="w-5 h-5 text-blue-600 mr-2" />
+                  <h4 className="font-semibold text-blue-800">Productos destacados para tu perfil:</h4>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {rentaVariableAdvice.mainContent.products.map((product, index) => (
+                    <div key={index} className="bg-white/50 rounded-lg p-4 border border-blue-200">
+                    <h5 className="font-semibold text-blue-900 mb-2 bg-blue-100 px-3 py-1 rounded-md">
+                      {product.name}
+                    </h5>
+                    <p className="text-sm text-blue-700">{product.description}</p>
+                  </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bloques adicionales - Layout responsive */}
+        {rentaVariableAdvice.additionalBlocks && rentaVariableAdvice.additionalBlocks.length > 0 && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Consideraciones Adicionales</h3>
+              <p className="text-gray-600">Basadas en tu perfil específico</p>
+            </div>
+            
+            <div className="grid gap-6">
+              {rentaVariableAdvice.additionalBlocks.map((block, index) => {
+                const IconComponent = getBlockIcon(block.type);
+                const gradient = getBlockGradient(block.type);
+                const glow = getBlockGlow(block.type);
+                
+                return (
+                  <div
+                    key={index}
+                    className={`relative rounded-2xl backdrop-blur-lg bg-white/15 border border-white/30 p-6 transition-all duration-300 hover:scale-[1.01] hover:bg-white/20 shadow-lg hover:shadow-2xl hover:shadow-${glow}-500/20`}
+                  >
+                    {/* Mobile: Icon arriba del título */}
+                    <div className="block sm:hidden text-center mb-4">
+                      <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg mb-3`}>
+                        <IconComponent className="w-6 h-6 text-white" />
+                      </div>
+                      <h4 className="text-lg font-bold text-gray-800">
+                        {block.title}
+                      </h4>
+                    </div>
+                    
+                    {/* Desktop: Icon a la izquierda */}
+                    <div className="hidden sm:flex items-start space-x-4">
+                      <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg flex-shrink-0`}>
+                        <IconComponent className="w-6 h-6 text-white" />
                       </div>
                       
-                      {/* Botón minimalista "Saber más" */}
-                      <button
-                        onClick={() => openProductDetails(product)}
-                        className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-purple-100 hover:text-purple-600 transition-all duration-200 group-hover:scale-110 ml-2"
-                        title="Ver detalles"
-                      >
-                        <Info size={16} />
-                      </button>
+                      <div className="flex-1">
+                        <h4 className="text-lg font-bold text-gray-800 mb-3">
+                          {block.title}
+                        </h4>
+                      </div>
                     </div>
-
-                    {/* Stats del producto */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="text-center p-2 bg-gray-50 rounded-lg">
-                        <p className="text-xs font-semibold text-gray-900">{product.ter || 'N/A'}</p>
-                        <p className="text-xs text-gray-500">TER</p>
-                      </div>
-                      <div className="text-center p-2 bg-gray-50 rounded-lg">
-                        <p className="text-xs font-semibold text-gray-900">{product.riesgo || 'Medio'}</p>
-                        <p className="text-xs text-gray-500">Riesgo</p>
-                      </div>
+                    
+                    {/* Contenido - mismo para ambos layouts */}
+                    <div className="prose prose-gray max-w-none">
+                      {formatContent(block.content)}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
-
-        {/* Resto del componente igual que antes... */}
-        {/* Bloques, tips, etc. */}
       </div>
-
-      {/* Modal de detalles */}
-      <FinancialDetailsModal 
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        symbol={selectedProduct?.ticker}
-        productName={selectedProduct?.name}
-      />
     </ModernSection>
   );
 };
 
 export default RentaVariableSection;
-
