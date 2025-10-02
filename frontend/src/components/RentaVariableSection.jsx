@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BarChart3, TrendingUp, Target, Lightbulb, Users, DollarSign, Award, Shield, Leaf, Clock, Info } from 'lucide-react';
 import ModernSection from './ModernSection';
-import FinancialDetailsModal from './FinancialDetailsModal_v2';
+import FinancialDetailsModal from './FinancialDetailsModal';
 
 const RentaVariableSection = ({ rentaVariableAdvice }) => {
   const [modalOpen, setModalOpen] = useState(false);

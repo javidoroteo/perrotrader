@@ -85,7 +85,6 @@ const ModernInvestorProfile = ({ result, sessionId, onRestart }) => {
       rentaVariableAdvice: backendResult.rentaVariableAdvice || null,
       rentaFijaAdvice: backendResult.rentaFijaAdvice || null,
       educationalGuide: backendResult.educationalGuide || null,
-      educationalGuide: backendResult.educationalGuide || null,
       portfolioExplanation : backendResult.portfolioExplanation || null,
       originalData: backendResult
     };

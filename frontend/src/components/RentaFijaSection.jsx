@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Building2, TrendingDown, Target, Lightbulb, Users, DollarSign, Award, Shield, Leaf, Clock, Timer, PiggyBank, TrendingUp, Info } from 'lucide-react';
 import ModernSection from './ModernSection';
-import FinancialDetailsModal from './FinancialDetailsModal_v2';
+import FinancialDetailsModal from './FinancialDetailsModal';
 
 const RentaFijaSection = ({ rentaFijaAdvice }) => {
   const [modalOpen, setModalOpen] = useState(false);
