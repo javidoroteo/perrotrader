@@ -664,6 +664,184 @@ async generateRentaVariableAdvice(session) {
   }
 
   /**
+ * Genera la explicación de cómo se construyó la cartera
+ */
+async generatePortfolioExplanation(session) {
+  const CONFIG_EXPLANATION = require('../config/portfolioExplanationConfig');
+  const portfolio = await this.calculatePortfolio(session);
+  const personalityTest = await PersonalityService.getPersonalityTest(session.id);
+  
+  const experienceLevel = this.getExperienceLevel(session.experienceScore);
+  const ageLevel = this.getAgeLevel(session.age);
+  const incomeLevel = this.getIncomeLevel(session.experienceScore);
+  const riskLevel = this.getRiskLevel(session.totalScore);
+  const timeLevel = this.getTimeHorizonLevel(session.timeValue);
+  const emergencyLevel = session.emergencyFund <= 1 ? 'LOW' : 'HIGH';
+  
+  const explanations = [];
+  
+  // 1. Explicación del perfil de riesgo (siempre)
+  const riskExplanation = CONFIG_EXPLANATION.RISK_PROFILE_EXPLANATION[portfolio.riskProfile];
+  if (riskExplanation) {
+    explanations.push({
+      category: 'riskProfile',
+      ...riskExplanation,
+      currentLevel: portfolio.riskProfile
+    });
+  }
+  
+  // 2. Explicación de experiencia (siempre)
+  const experienceLevelName = CONFIG.EXPERIENCE_LEVELS[experienceLevel]?.name || experienceLevel;
+  const expExplanation = CONFIG_EXPLANATION.EXPERIENCE_LEVEL_EXPLANATION[experienceLevelName];
+  if (expExplanation) {
+    explanations.push({
+      category: 'experience',
+      ...expExplanation,
+      currentLevel: experienceLevelName
+    });
+  }
+  
+  // 3. Explicación de edad (siempre)
+  const ageLevelName = CONFIG.AGE_LEVELS[ageLevel]?.name || ageLevel;
+  const ageExplanation = CONFIG_EXPLANATION.AGE_EXPLANATION[ageLevelName];
+  if (ageExplanation) {
+    explanations.push({
+      category: 'age',
+      ...ageExplanation,
+      currentLevel: ageLevelName
+    });
+  }
+  
+  // 4. Explicación de ingresos (siempre)
+  const incomeLevelName = CONFIG.INCOME_LEVELS[incomeLevel]?.name || incomeLevel;
+  const incomeExplanation = CONFIG_EXPLANATION.INCOME_EXPLANATION[incomeLevelName];
+  if (incomeExplanation) {
+    explanations.push({
+      category: 'income',
+      ...incomeExplanation,
+      currentLevel: incomeLevelName
+    });
+  }
+  
+  // 5. Explicación de fondo de emergencia (siempre)
+  const emergencyExplanation = CONFIG_EXPLANATION.EMERGENCY_FUND_EXPLANATION[emergencyLevel];
+  if (emergencyExplanation) {
+    explanations.push({
+      category: 'emergencyFund',
+      ...emergencyExplanation,
+      currentLevel: emergencyLevel === 'LOW' ? 'Insuficiente' : 'Sólido'
+    });
+  }
+  
+  // 6. Explicación de horizonte temporal (siempre)
+  const timeExplanation = CONFIG_EXPLANATION.TIME_HORIZON_EXPLANATION[timeLevel];
+  if (timeExplanation) {
+    explanations.push({
+      category: 'timeHorizon',
+      ...timeExplanation,
+      currentLevel: timeLevel
+    });
+  }
+  
+  // 7. Explicación de dividendos (siempre)
+  const dividendKey = session.dividend === 1 ? 'YES' : 'NO';
+  const dividendExplanation = CONFIG_EXPLANATION.DIVIDEND_EXPLANATION[dividendKey];
+  if (dividendExplanation) {
+    explanations.push({
+      category: 'dividend',
+      ...dividendExplanation,
+      currentLevel: dividendKey === 'YES' ? 'Generación de ingresos' : 'Crecimiento de capital'
+    });
+  }
+  
+  // 8. Explicación de pensión (siempre)
+  const pensionKey = session.pensionFund === 1 ? 'YES' : 'NO';
+  const pensionExplanation = CONFIG_EXPLANATION.PENSION_EXPLANATION[pensionKey];
+  if (pensionExplanation) {
+    explanations.push({
+      category: 'pension',
+      ...pensionExplanation,
+      currentLevel: pensionKey === 'YES' ? 'Ahorro para jubilación' : 'Otros objetivos'
+    });
+  }
+  
+  // 9. Explicación de criptomonedas (solo si tiene o no tiene)
+  const hasCrypto = portfolio.allocation.criptomonedas > 0;
+  const cryptoKey = hasCrypto ? 'HAS_CRYPTO' : 'NO_CRYPTO';
+  const cryptoExplanation = CONFIG_EXPLANATION.CRYPTO_EXPLANATION[cryptoKey];
+  if (cryptoExplanation) {
+    explanations.push({
+      category: 'crypto',
+      ...cryptoExplanation,
+      currentLevel: hasCrypto ? `${Math.round(portfolio.allocation.criptomonedas)}%` : 'Sin exposición',
+      hasCrypto
+    });
+  }
+  
+  // 10. Explicación de oro (solo si tiene o no tiene)
+  const hasGold = portfolio.allocation.oro > 0;
+  const goldKey = hasGold ? 'HAS_GOLD' : 'NO_GOLD';
+  const goldExplanation = CONFIG_EXPLANATION.GOLD_EXPLANATION[goldKey];
+  if (goldExplanation) {
+    explanations.push({
+      category: 'gold',
+      ...goldExplanation,
+      currentLevel: hasGold ? `${Math.round(portfolio.allocation.oro)}%` : 'Sin exposición',
+      hasGold
+    });
+  }
+  
+  // 11. Explicaciones de personalidad (solo las dimensiones dominantes ≥51%)
+  if (personalityTest?.completed && personalityTest.profile?.dimensions) {
+    const dimensions = personalityTest.profile.dimensions;
+    
+    for (let dimNumber = 1; dimNumber <= 4; dimNumber++) {
+      const dimension = dimensions[dimNumber];
+      if (!dimension) continue;
+      
+      const positivePercentage = dimension.percentages.positive;
+      const negativePercentage = dimension.percentages.negative;
+      
+      let personalityKey = null;
+      let percentage = 0;
+      
+      if (positivePercentage >= 51) {
+        personalityKey = this.getAdjustmentKey(dimNumber, true);
+        percentage = positivePercentage;
+      } else if (negativePercentage >= 51) {
+        personalityKey = this.getAdjustmentKey(dimNumber, false);
+        percentage = negativePercentage;
+      }
+      
+      if (personalityKey) {
+        const personalityExplanation = CONFIG_EXPLANATION.PERSONALITY_EXPLANATION[personalityKey];
+        if (personalityExplanation) {
+          explanations.push({
+            category: 'personality',
+            dimension: dimNumber,
+            trait: personalityKey,
+            percentage,
+            ...personalityExplanation
+          });
+        }
+      }
+    }
+  }
+  
+  return {
+    title: CONFIG_EXPLANATION.SECTION_TITLE,
+    description: CONFIG_EXPLANATION.SECTION_DESCRIPTION,
+    intro: CONFIG_EXPLANATION.INTRO_TEXT,
+    explanations,
+    generalAdjustments: CONFIG_EXPLANATION.GENERAL_ADJUSTMENTS,
+    closingMessage: CONFIG_EXPLANATION.CLOSING_MESSAGE,
+    currentAllocation: portfolio.allocation,
+    riskProfile: portfolio.riskProfile
+  };
+}
+
+
+  /**
    * Genera recomendaciones personalizadas basadas en respuestas específicas
    */
   
@@ -763,7 +941,8 @@ async generateRentaVariableAdvice(session) {
     rentaVariableAdvice,                            // Objeto directo
     investmentStrategies: investmentStrategiesData, // Objeto completo con metadata
     educationalGuide,                               // Objeto directo
-    investorProfile: investorProfile.profile       // Solo objeto principal
+    investorProfile: investorProfile.profile,       // Solo objeto principal
+    portfolioExplanation
   };
 }
     };

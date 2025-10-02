@@ -1,7 +1,7 @@
 // backend/src/services/emailService.js
 
 const axios = require('axios');
-const PDFService = require('./pdfService');
+const pdfService = require('./pdfService');
 
 class EmailService {
   constructor() {
@@ -22,7 +22,7 @@ class EmailService {
     console.log('SessionData keys:', Object.keys(sessionData));
 
       // 1. Generar el PDF del reporte
-      const pdfBuffer = await PDFService.generateReportPDF(reportData, sessionData);
+      const pdfBuffer = await pdfService.generateReportPDF(reportData, sessionData);
       console.log('✅ PDF generado exitosamente. Tamaño:', pdfBuffer.length, 'bytes');
       
       // 2. Convertir PDF a base64 para adjunto

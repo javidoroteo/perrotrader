@@ -22,11 +22,6 @@ const RiskMeter = ({ value, color, profileData }) => {
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-bounce" />
         </div>
       </div>
-      <div className="flex justify-between text-xs font-medium text-gray-600 mt-2">
-        <span>🐌 Zen</span>
-        <span>⚡ Balanced</span>
-        <span>🚀 Beast Mode</span>
-      </div>
       <div className="text-center mt-3">
         <div className={`inline-flex items-center px-4 py-2 rounded-full font-bold text-sm`} style={{ backgroundColor: `${color}20`, color }}>
           {value > 66 ? '🚀' : value > 33 ? '⚡' : '🐌'} {value}/100 {profileData.profile.investorType}

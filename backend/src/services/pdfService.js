@@ -1139,4 +1139,4 @@ class PDFService {
     }
 }
 
-module.exports = PDFService;
+module.exports = new PDFService();

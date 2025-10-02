@@ -9,6 +9,7 @@ import StrategiesSection from './strategiesSection';
 import EducationalGuide from './EducationalGuide';
 import RentaFijaSection from './RentaFijaSection';
 import PersonalityDimensionsChart from './PersonalityDimensionsChart';
+import PortfolioExplanationSection from './PortfolioExplanationSection';
 
 const ModernInvestorProfile = ({ result, sessionId, onRestart }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -141,6 +142,11 @@ console.log('SessionId attempts:', {
         {result.rentaVariableAdvice && <RentaVariableSection rentaVariableAdvice={result.rentaVariableAdvice} />}
         {result.investmentStrategies && <StrategiesSection strategies={result.investmentStrategies} />}
         {mappedResult.educationalGuide && <EducationalGuide guide={mappedResult.educationalGuide} />}
+        {result.portfolioExplanation && (
+        <PortfolioExplanationSection 
+          portfolioExplanation={result.portfolioExplanation}
+        />
+      )}
       </div>
 
       <div className="text-center mt-12 relative z-10">

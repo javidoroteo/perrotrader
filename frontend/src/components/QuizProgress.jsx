@@ -11,7 +11,7 @@ const QuizProgress = ({ progress, section, getSectionIcon, phase = 'quiz' }) => 
   const phases = {
     quiz: {
       title: 'Cuestionario Principal',
-      color: 'from-purple-500 to-blue-500',
+      color: 'from-blue-600 to-purple-600',
       sections: [
         'Conociendote',
         'Experiencia de Inversión',
@@ -20,7 +20,7 @@ const QuizProgress = ({ progress, section, getSectionIcon, phase = 'quiz' }) => 
     },
     personality: {
       title: 'Test de Personalidad',
-      color: 'from-pink-500 to-purple-600',
+      color: 'from-blue-600 to-purple-600',
       sections: ['Bloque 1', 'Bloque 2', 'Bloque 3', 'Bloque 4']
     }
   };
@@ -38,7 +38,7 @@ const QuizProgress = ({ progress, section, getSectionIcon, phase = 'quiz' }) => 
           </div>
           <div>
             <div className="text-sm text-gray-600 font-medium">{currentPhase.title}</div>
-            <span className="text-purple-800 font-bold text-lg">
+            <span className="text-purple-600 font-bold text-lg">
               {phase === 'personality' ? `Bloque ${progress.current || 1} de 4` : section}
             </span>
           </div>
