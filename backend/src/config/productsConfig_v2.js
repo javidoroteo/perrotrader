@@ -92,9 +92,9 @@ const FINANCIAL_PRODUCTS = {
   },
 
   // Bonos del Tesoro USA
-  'IDTU.L': {
+  'IBTM.L': {
     name: 'iShares USD Treasury Bond 7-10yr UCITS ETF',
-    ticker: 'IDTU.L',
+    ticker: 'IBTM.L',
     isin: 'IE00B1FZS574',
     ter: '0.20%',
     type: 'RENTA_FIJA',

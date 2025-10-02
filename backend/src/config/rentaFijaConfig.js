@@ -91,8 +91,8 @@ Con tu nivel de experiencia, también puedes considerar estrategias como el "cor
             description: "Exposición a corporativos europeos grado inversión"
           },
           {
-            name: "iShares USD Treasury Bond 7-10yr UCITS ETF (IDTU)",
-            ticker: "IDTU.L",
+            name: "iShares USD Treasury Bond 7-10yr UCITS ETF (IBTM)",
+            ticker: "IBTM.L",
             description: "Exposición específica al Tesoro americano a medio-largo plazo"
           },
           {
