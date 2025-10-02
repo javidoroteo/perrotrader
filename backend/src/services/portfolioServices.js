@@ -6,6 +6,7 @@ const { STRATEGIES_EDUCATION } = require('../config/strategiesEducation');
 const { RENTA_VARIABLE_CONFIG } = require('../config/rentaVariableConfig');
 const { RENTA_FIJA_CONFIG } = require('../config/rentaFijaConfig');
 const PersonalityService = require('./personalityServices');
+const portfolioExplanation = require('../config/portfolioExplanationConfig');
 
 class PortfolioService {
   
