@@ -8,7 +8,7 @@ import ModernInvestorProfile from './components/report';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorAlert from './components/ErrorAlert';
 
-const API_BASE_URL = 'http://localhost:5432/api'; // Cambia esto según tu configuración
+const API_BASE_URL = 'https://isfinz.onrender.com/api'; // Cambia esto según tu configuración
 
 function ModernInvestmentQuiz({ onOpenPrivacyPolicy, hasConsent = false }) {
   const [loading, setLoading] = useState(false);
