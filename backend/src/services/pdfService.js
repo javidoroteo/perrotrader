@@ -13,13 +13,12 @@ class PDFService {
     const isRender = process.env.RENDER === 'true' || process.env.RENDER_SERVICE_ID;
     
     if (!isProduction && !isRender) {
-      return true; // En desarrollo local, Chrome normalmente está disponible
+      return true;
     }
 
     try {
       console.log('🔍 Verificando instalación de Chrome...');
       
-      // Intentar usar el Chrome por defecto primero
       const defaultPath = puppeteer.executablePath();
       console.log('📍 Ruta por defecto de Chrome:', defaultPath);
       
@@ -29,15 +28,13 @@ class PDFService {
         return true;
       }
 
-      // Si no existe, intentar instalar Chrome dinámicamente
       console.log('⚠️ Chrome no encontrado, intentando instalación dinámica...');
       
       const { execSync } = require('child_process');
       
-      // Instalar Chrome usando el comando de Puppeteer
       await execSync('npx puppeteer browsers install chrome', { 
         stdio: 'inherit',
-        timeout: 60000 // 1 minuto timeout
+        timeout: 60000
       });
       
       console.log('✅ Chrome instalado dinámicamente');
@@ -59,7 +56,6 @@ class PDFService {
     console.log(`🔍 Entorno detectado - Production: ${isProduction}, Render: ${isRender}`);
     
     if (isProduction || isRender) {
-      // Configuración específica para Render - SIN executablePath personalizado
       const config = {
         headless: 'new',
         args: [
@@ -80,12 +76,10 @@ class PDFService {
         ]
       };
 
-      // NO especificar executablePath - dejar que Puppeteer lo encuentre automáticamente
       console.log('📍 Usando Chrome automático de Puppeteer');
       
       return config;
     } else {
-      // Configuración para desarrollo local
       return {
         headless: 'new',
         args: [
@@ -102,7 +96,6 @@ class PDFService {
    */
   async verifyChrome() {
     try {
-      // Asegurar instalación primero
       await this.ensureChromeInstalled();
       
       const config = this.getPuppeteerConfig();
@@ -112,10 +105,9 @@ class PDFService {
         argsCount: config.args.length
       })}`);
 
-      // Test de lanzamiento rápido
       const browser = await puppeteer.launch({
         ...config,
-        timeout: 15000 // 15 segundos timeout
+        timeout: 15000
       });
       
       await browser.close();
@@ -139,13 +131,11 @@ class PDFService {
       console.log('🔧 Entorno:', process.env.NODE_ENV);
       console.log('🌐 Render:', process.env.RENDER || 'false');
       
-      // Asegurar que Chrome está instalado
       const chromeInstalled = await this.ensureChromeInstalled();
       if (!chromeInstalled) {
         throw new Error('No se pudo instalar Chrome');
       }
       
-      // Obtener configuración según entorno
       const config = this.getPuppeteerConfig();
       console.log('⚙️ Configuración Puppeteer:', {
         headless: config.headless,
@@ -154,20 +144,17 @@ class PDFService {
         executablePath: config.executablePath ? config.executablePath.substring(0, 50) + '...' : 'default'
       });
       
-      // Lanzar browser con timeout más largo
       browser = await puppeteer.launch({
         ...config,
-        timeout: 30000 // 30 segundos
+        timeout: 30000
       });
       console.log('✅ Browser lanzado exitosamente');
       
       const page = await browser.newPage();
       console.log('✅ Nueva página creada');
       
-      // Configurar página
       await page.setViewport({ width: 1200, height: 800 });
       
-      // Generar HTML del reporte
       const htmlContent = this.generateReportHTML(reportData, sessionData);
       console.log('✅ HTML generado, longitud:', htmlContent.length);
       
@@ -177,7 +164,6 @@ class PDFService {
       });
       console.log('✅ Contenido HTML cargado en la página');
       
-      // Generar PDF con configuración optimizada para Render
       const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
@@ -201,7 +187,6 @@ class PDFService {
         code: error.code
       });
       
-      // Mensajes de error más específicos
       if (error.message.includes('Could not find Chrome') || error.message.includes('Browser was not found')) {
         throw new Error('Chrome no está disponible en el servidor. El administrador debe revisar la configuración.');
       } else if (error.message.includes('timeout') || error.message.includes('Timeout')) {
@@ -227,10 +212,9 @@ class PDFService {
    * Genera el HTML del reporte con la estética del frontend
    */
   generateReportHTML(reportData, sessionData) {
-    const { portfolio, riskProfile, investorProfile, report, educationalGuide } = reportData;
+    const { portfolio, riskProfile, investorProfile, report, rentaFijaAdvice, rentaVariableAdvice, educationalGuide } = reportData;
     const today = new Date().toLocaleDateString('es-ES');
     
-    // Convertir portfolio a array para gráficos
     const portfolioArray = Object.entries(portfolio || {}).map(([asset, percentage]) => ({
       name: this.getAssetDisplayName(asset),
       value: parseFloat(percentage.toFixed(1)),
@@ -255,6 +239,8 @@ class PDFService {
             ${this.generateInvestorProfile(investorProfile)}
             ${this.generatePortfolioSection(portfolioArray, riskProfile)}
             ${this.generateReportSection(report)}
+            ${rentaFijaAdvice ? this.generateRentaFijaSection(rentaFijaAdvice) : ''}
+            ${rentaVariableAdvice ? this.generateRentaVariableSection(rentaVariableAdvice) : ''}
             ${this.generateEducationalSection(educationalGuide)}
             ${this.generateFooter(today)}
         </div>
@@ -462,15 +448,71 @@ class PDFService {
         border-left: 4px solid #10b981;
     }
     
+    .content-block h3 {
+        color: #065f46;
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+    }
+    
     .content-block h4 {
         color: #065f46;
         font-weight: 600;
         margin-bottom: 10px;
+        margin-top: 15px;
+        font-size: 1.1rem;
     }
     
     .content-block p {
         color: #374151;
         line-height: 1.6;
+        margin-bottom: 10px;
+    }
+    
+    .content-block ul {
+        margin: 10px 0;
+        padding-left: 20px;
+    }
+    
+    .content-block li {
+        color: #374151;
+        line-height: 1.6;
+        margin-bottom: 8px;
+    }
+    
+    .subsection {
+        margin: 15px 0;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 8px;
+        border-left: 3px solid #3b82f6;
+    }
+    
+    .subsection-title {
+        color: #1e40af;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 1.05rem;
+    }
+    
+    .product-list {
+        margin-top: 10px;
+    }
+    
+    .product-item {
+        margin-bottom: 10px;
+        padding-left: 10px;
+    }
+    
+    .product-name {
+        font-weight: 600;
+        color: #1f2937;
+    }
+    
+    .product-description {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-left: 10px;
     }
     
     .footer {
@@ -495,6 +537,8 @@ class PDFService {
         body { -webkit-print-color-adjust: exact; }
         .section { break-inside: avoid; }
         .portfolio-grid { break-inside: avoid; }
+        .content-block { break-inside: avoid; }
+        .subsection { break-inside: avoid; }
     }
     `;
   }
@@ -594,14 +638,137 @@ class PDFService {
     <div class="section">
         <h2 class="section-title">
             <div class="section-icon">📋</div>
-            Análisis de tu perfil
+            Análisis de tu Perfil
         </h2>
         <div class="content-block">
-            <h4>Análisis de tu Perfil</h4>
             <div>${report}</div>
         </div>
     </div>
     `;
+  }
+
+  /**
+   * Sección de Renta Fija
+   */
+  generateRentaFijaSection(rentaFijaAdvice) {
+    if (!rentaFijaAdvice) return '';
+
+    let html = `
+    <div class="section">
+        <h2 class="section-title">
+            <div class="section-icon">🏛️</div>
+            ${rentaFijaAdvice.title || 'Renta Fija - Guía Personalizada'}
+        </h2>
+        <div class="content-block">
+            <p><strong>${rentaFijaAdvice.description || ''}</strong></p>
+        </div>
+    `;
+
+    // Main Content
+    if (rentaFijaAdvice.mainContent) {
+      html += `
+        <div class="content-block">
+            <h3>${rentaFijaAdvice.mainContent.title}</h3>
+            <p>${rentaFijaAdvice.mainContent.content}</p>
+            
+            ${rentaFijaAdvice.mainContent.tips && rentaFijaAdvice.mainContent.tips.length > 0 ? `
+            <h4>Consejos Clave:</h4>
+            <ul>
+                ${rentaFijaAdvice.mainContent.tips.map(tip => `<li>${tip}</li>`).join('')}
+            </ul>
+            ` : ''}
+            
+            ${rentaFijaAdvice.mainContent.products && rentaFijaAdvice.mainContent.products.length > 0 ? `
+            <h4>Productos Recomendados:</h4>
+            <div class="product-list">
+                ${rentaFijaAdvice.mainContent.products.map(product => `
+                <div class="product-item">
+                    <span class="product-name">${product.name}</span>
+                    <div class="product-description">${product.description}</div>
+                </div>
+                `).join('')}
+            </div>
+            ` : ''}
+        </div>
+      `;
+    }
+
+    // Additional Blocks
+    if (rentaFijaAdvice.additionalBlocks && rentaFijaAdvice.additionalBlocks.length > 0) {
+      rentaFijaAdvice.additionalBlocks.forEach(block => {
+        html += `
+        <div class="subsection">
+            <h3 class="subsection-title">${block.title}</h3>
+            <p>${block.content}</p>
+        </div>
+        `;
+      });
+    }
+
+    html += `</div>`;
+    return html;
+  }
+
+  /**
+   * Sección de Renta Variable
+   */
+  generateRentaVariableSection(rentaVariableAdvice) {
+    if (!rentaVariableAdvice) return '';
+
+    let html = `
+    <div class="section">
+        <h2 class="section-title">
+            <div class="section-icon">📈</div>
+            ${rentaVariableAdvice.title || 'Renta Variable - Guía Personalizada'}
+        </h2>
+        <div class="content-block">
+            <p><strong>${rentaVariableAdvice.description || ''}</strong></p>
+        </div>
+    `;
+
+    // Main Content
+    if (rentaVariableAdvice.mainContent) {
+      html += `
+        <div class="content-block">
+            <h3>${rentaVariableAdvice.mainContent.title}</h3>
+            <p>${rentaVariableAdvice.mainContent.content}</p>
+            
+            ${rentaVariableAdvice.mainContent.tips && rentaVariableAdvice.mainContent.tips.length > 0 ? `
+            <h4>Consejos Clave:</h4>
+            <ul>
+                ${rentaVariableAdvice.mainContent.tips.map(tip => `<li>${tip}</li>`).join('')}
+            </ul>
+            ` : ''}
+            
+            ${rentaVariableAdvice.mainContent.products && rentaVariableAdvice.mainContent.products.length > 0 ? `
+            <h4>Productos Recomendados:</h4>
+            <div class="product-list">
+                ${rentaVariableAdvice.mainContent.products.map(product => `
+                <div class="product-item">
+                    <span class="product-name">${product.name}</span>
+                    <div class="product-description">${product.description}</div>
+                </div>
+                `).join('')}
+            </div>
+            ` : ''}
+        </div>
+      `;
+    }
+
+    // Additional Blocks
+    if (rentaVariableAdvice.additionalBlocks && rentaVariableAdvice.additionalBlocks.length > 0) {
+      rentaVariableAdvice.additionalBlocks.forEach(block => {
+        html += `
+        <div class="subsection">
+            <h3 class="subsection-title">${block.title}</h3>
+            <p>${block.content}</p>
+        </div>
+        `;
+      });
+    }
+
+    html += `</div>`;
+    return html;
   }
 
   /**
@@ -622,7 +789,7 @@ class PDFService {
             <p><strong>¿Qué es?</strong> ${asset.description}</p>
             <p><strong>Función en tu cartera:</strong> ${asset.role}</p>
             <p><strong>Rentabilidad esperada:</strong> ${asset.expectedReturn}</p>
-            <p><strong>Comportamineto:</strong> ${asset.behavior}</p>
+            <p><strong>Comportamiento:</strong> ${asset.behavior}</p>
             <p><strong>Ventajas:</strong> ${asset.pros}</p>
             <p><strong>Desventajas:</strong> ${asset.cons}</p>
         </div>

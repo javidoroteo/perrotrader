@@ -18,10 +18,9 @@ Estos fondos están pensados para que estés lo más diversificado posible con l
           "Si te reparten dividendos a tu cuenta hay que pagar impuestos por ello."
         ],
         products: [
-          { name: "S&P 500 ETFs", description: "Acceso a las 500 mayores empresas estadounidenses" },
-          { name: "MSCI World ETFs", description: "Diversificación global en mercados desarrollados" },
-          { name: "IWDA (iShares MSCI World)", description: "ETF global con bajas comisiones" },
-          { name: "VWCE (Vanguard All-World)", description: "Acceso a miles de empresas globales" }
+          { name: "S&P 500 ETFs",ticker:"SPY5.L", description: "Acceso a las 500 mayores empresas estadounidenses" },
+          { name: "MSCI World ETFs", ticker:"IWDA.L", description: "Diversificación global en mercados desarrollados" },
+          { name: "VWCE (Vanguard All-World)", ticker:"VWCE.DE", description: "Acceso a miles de empresas globales" }
         ]
       },
       1: { // Busca dividendos
@@ -39,8 +38,8 @@ Lo bueno de este tipo de empresas es que en general no son tan volátiles, es de
           "Asegúrate de que el reparto se adapte a tu calendario y que el producto sea compatible con tu broker."
         ],
         products: [
-          { name: "iShares MSCI World Dividend UCITS ETF (WQDV)", description: "Invierte en empresas de todo el mundo que reparten dividendo" },
-          { name: "SPDR S&P Global Dividend Aristocrats", description: "Empresas que llevan repartiendo y aumentando dividendo durante los últimos 7 años" }
+          { name: "iShares MSCI World Dividend UCITS ETF (WQDV)",ticker:"WQDV.L", description: "Invierte en empresas de todo el mundo que reparten dividendo" },
+          { name: "SPDR S&P Global Dividend Aristocrats",ticker:"	GLDV.L", description: "Empresas que llevan repartiendo y aumentando dividendo durante los últimos 7 años" }
         ]
       }
     },
@@ -61,9 +60,9 @@ Esto te permite aumentar el potencial de crecimiento sin complicarte con selecci
           "Los ETFs suelen tener comisiones más bajas que los fondos tradicionales, especialmente si inviertes por tu cuenta."
         ],
         products: [
-          { name: "VWCE (Vanguard FTSE All-World)", description: "ETF global de acumulación con muy bajas comisiones" },
-          { name: "IWDA (iShares MSCI World)", description: "Acceso diversificado a mercados desarrollados" },
-          { name: "ETFs sectoriales", description: "Tecnología, sostenibilidad, salud para complementar tu núcleo" }
+          { name: "VWCE (Vanguard FTSE All-World)", ticker:"VHYL.L", description: "ETF global de acumulación con muy bajas comisiones" },
+          { name: "IWDA (iShares MSCI World)", ticker:"	WQDV.L", description: "Acceso diversificado a mercados desarrollados" },
+          { name: "ETFs sectoriales", ticker:"EQQQ.L", description: "Tecnología, sostenibilidad, salud para complementar tu núcleo" }
         ]
       },
       1: { // Dividendos
@@ -80,9 +79,9 @@ Puedes formar el núcleo de tu cartera con un ETF de dividendos global y, si te 
           "Revisa si el ETF tiene domicilio fiscal adecuado para evitar retenciones adicionales (mejor Irlanda que EE.UU.)."
         ],
         products: [
-          { name: "SPDR S&P Global Dividend Aristocrats", description: "Empresas con historial de dividendos crecientes" },
-          { name: "iShares MSCI World Quality Dividend", description: "Dividendos de calidad con criterios de sostenibilidad" },
-          { name: "Vanguard FTSE All-World High Dividend Yield (VHYL)", description: "Alto rendimiento por dividendo con diversificación global" }
+          { name: "SPDR S&P Global Dividend Aristocrats", ticker:"GLDV.L", description: "Empresas con historial de dividendos crecientes" },
+          { name: "iShares MSCI World Quality Dividend", ticker:"	WQDV.L", description: "Dividendos de calidad con criterios de sostenibilidad" },
+          { name: "Vanguard FTSE All-World High Dividend Yield (VHYL)", ticker:"VHYL.L", description: "Alto rendimiento por dividendo con diversificación global" }
         ]
       }
     },

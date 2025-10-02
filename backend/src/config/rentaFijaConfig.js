@@ -82,22 +82,27 @@ Con tu nivel de experiencia, también puedes considerar estrategias como el "cor
         products: [
           {
             name: "iShares Core EUR Govt Bond UCITS ETF (IEAG)",
+            ticker: "IEAG.L",
             description: "Base sólida en soberanos europeos para el core de tu posición"
           },
           {
             name: "Vanguard EUR Corporate Bond UCITS ETF (VECP)",
+            ticker: "VECP.L",
             description: "Exposición a corporativos europeos grado inversión"
           },
           {
             name: "iShares USD Treasury Bond 7-10yr UCITS ETF (IDTU)",
+            ticker: "IDTU.L",
             description: "Exposición específica al Tesoro americano a medio-largo plazo"
           },
           {
             name: "Xtrackers II Global Government Bond UCITS ETF (XGOV)",
+            ticker: "XGOV.L",
             description: "Diversificación global en bonos soberanos"
           },
           {
             name: "iShares Global High Yield Corp Bond UCITS ETF (GHYG)",
+            ticker: "GHYG.L",
             description: "Para una pequeña exposición a high yield (máximo 5-10% del total)"
           }
         ]
@@ -118,22 +123,22 @@ También puedes empezar a considerar la construcción de una "escalera de vencim
         products: [
           {
             name: "iShares EUR High Yield Corp Bond UCITS ETF (IHYG)",
+            ticker: "IHYG.L",
             description: "High yield europeo para mayor rendimiento controlado"
           },
           {
-            name: "Vanguard Global Short-Term Bond Index Fund",
-            description: "Bonos cortos globales para estabilidad y liquidez"
-          },
-          {
             name: "iShares USD Treasury Bond 20+yr UCITS ETF (IDTL)",
+            ticker: "IDTL.L",
             description: "Duración larga para mayor sensibilidad y rendimiento potencial"
           },
           {
             name: "SPDR Bloomberg Euro High Yield Bond UCITS ETF (JNK4)",
+            ticker: "JNK4.L",
             description: "Alternativa en high yield europeo con buena liquidez"
           },
           {
             name: "iShares Global Inflation Linked Govt Bond UCITS ETF (GILD)",
+            ticker: "GILD.L",
             description: "Protección contra inflación manteniendo ingresos reales"
           }
         ]
@@ -155,25 +160,15 @@ Considera también bonos convertibles, preferred shares, y otros instrumentos h�
         ],
         products: [
           {
-            name: "Bonos del Tesoro Español Individuales",
-            description: "Compra directa para control total sobre vencimientos y cupones"
-          },
-          {
             name: "iShares USD TIPS UCITS ETF (TIPS)",
+            ticker: "TIPS.L",
             description: "Bonos indexados a inflación americana para cobertura real"
           },
           {
             name: "Invesco EUR Corporate Bond UCITS ETF (PSCS)",
+            ticker: "PSCS.L",
             description: "Exposición corporativa europea con gestión activa"
           },
-          {
-            name: "VanEck Vectors Fallen Angel High Yield Bond UCITS ETF",
-            description: "Estrategia especializada en 'ángeles caídos' con potencial alpha"
-          },
-          {
-            name: "WisdomTree EUR Aggregate Bond Enhanced Yield UCITS ETF",
-            description: "Estrategia de yield enhancement manteniendo calidad crediticia"
-          }
         ]
       },
       1: { // Con preferencia por ingresos periódicos
@@ -192,26 +187,22 @@ También puedes implementar coberturas dinámicas para proteger tu capital mient
         products: [
           {
             name: "iShares USD Floating Rate Bond UCITS ETF (FLOT)",
+            ticker: "FLOT.L",
             description: "Bonos de tasa flotante para protección en entornos de tipos crecientes"
           },
           {
-            name: "VanEck Vectors Mortgage REIT Income ETF",
-            description: "REITs hipotecarios para yields elevados con gestión profesional"
-          },
-          {
             name: "Global X SuperDividend ETF (SDIV)",
+            ticker : "SDIV.L",
             description: "Estrategia global de altos dividendos incluyendo preferred shares"
           },
           {
             name: "iShares Convertible Bond UCITS ETF (ICVT)",
+            ticker: "ICVT.L",
             description: "Bonos convertibles para combinar income con potencial de upside equity"
           },
           {
-            name: "Invesco Senior Loan UCITS ETF",
-            description: "Préstamos senior floating rate para mayor yield y menor sensibilidad a tipos"
-          },
-          {
             name: "WisdomTree AT1 CoCo Bond UCITS ETF (COCO)",
+            ticker: "COCO.L",
             description: "Bonos contingent convertible para yields atractivos (solo para perfiles muy arriesgados)"
           }
         ]

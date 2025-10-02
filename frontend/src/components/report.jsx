@@ -143,7 +143,7 @@ console.log('SessionId attempts:', {
         {result.rentaVariableAdvice && <RentaVariableSection rentaVariableAdvice={result.rentaVariableAdvice} />}
         {result.investmentStrategies && <StrategiesSection strategies={result.investmentStrategies} />}
         {mappedResult.educationalGuide && <EducationalGuide guide={mappedResult.educationalGuide} />}
-        {result.portfolioExplanation && (
+        {mappedResult.portfolioExplanation && (
         <PortfolioExplanationSection 
           portfolioExplanation={result.portfolioExplanation}
         />

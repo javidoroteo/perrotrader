@@ -1,8 +1,63 @@
-import React from 'react';
+// frontend/src/components/RentaVariableSection.jsx 
+import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, Target, Lightbulb, Users, DollarSign, Award, Shield, Leaf, Clock } from 'lucide-react';
 import ModernSection from './ModernSection';
+import ProductDetailAccordion from './ProductDetailAccordion';
 
 const RentaVariableSection = ({ rentaVariableAdvice }) => {
+  const [productsData, setProductsData] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  // Extraer todos los tickers de los productos recomendados
+  const extractTickers = () => {
+    const tickers = [];
+    if (rentaVariableAdvice?.products) {
+      rentaVariableAdvice.products.forEach(product => {
+        if (product.ticker) {
+          tickers.push(product.ticker);
+        }
+      });
+    }
+    return tickers;
+  };
+
+  // Cargar datos de productos al montar el componente
+  useEffect(() => {
+    const loadProductsData = async () => {
+      const tickers = extractTickers();
+      
+      if (tickers.length === 0) return;
+
+      setIsLoading(true);
+      
+      try {
+        const response = await fetch('http://localhost:3000/api/products/batch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tickers })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          setProductsData(result.data);
+        } else {
+          console.error('Error al cargar productos:', result.error);
+        }
+      } catch (error) {
+        console.error('Error en la petición:', error);
+        setErrors({ general: 'Error al cargar los datos de productos' });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProductsData();
+  }, [rentaVariableAdvice]);
+
   if (!rentaVariableAdvice) {
     return null;
   }
@@ -33,168 +88,96 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
       case 'ESG': return 'green';
       case 'LARGO_PLAZO': return 'orange';
       case 'MUY_CONSERVADOR': return 'gray';
-      default: return 'purple';
+      default: return 'indigo';
     }
-  };
-
-  const formatContent = (content) => {
-    return content.split('\n\n').map((paragraph, index) => (
-      <p key={index} className="text-gray-700 mb-4 leading-relaxed">
-        {paragraph}
-      </p>
-    ));
   };
 
   return (
     <ModernSection
-      title="Renta Variable - Guía Personalizada"
       icon={BarChart3}
-      defaultOpen={false}
-      gradient="from-blue-600 to-purple-600"
-      glow="blue"
+      title="Renta Variable"
+      subtitle="Inversiones en acciones y fondos de renta variable"
+      gradient="from-purple-600 to-pink-600"
+      glow="purple"
     >
       <div className="space-y-8">
-        {/* Header con información del perfil */}
-        <div className="text-center mb-8">
-          <p className="text-lg text-gray-700 mb-4">
-            {rentaVariableAdvice.description}
-          </p>
-          <div className="flex justify-center items-center flex-wrap gap-4 text-sm">
-            <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full">
-              <Users className="w-4 h-4 mr-2 text-blue-600" />
-              <span className="text-blue-800">
-                Nivel: {rentaVariableAdvice.userProfile.experienceLevel}
-              </span>
+        {/* Contenido Principal */}
+        <div className="bg-white rounded-2xl p-8 shadow-lg border border-purple-100">
+          <div className="flex items-start gap-4 mb-6">
+            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl">
+              <Target className="w-6 h-6 text-white" />
             </div>
-            
-            <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full">
-              <Target className="w-4 h-4 mr-2 text-blue-600" />
-              <span className="text-blue-800">
-                {rentaVariableAdvice.userProfile.seeksDividends ? 'Busca dividendos' : 'Busca crecimiento'}
-              </span>
-            </div>
-            
-            <div className="flex items-center bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-2 rounded-full">
-              <BarChart3 className="w-4 h-4 mr-2 text-purple-600" />
-              <span className="text-purple-800">
-                {rentaVariableAdvice.userProfile.equityAllocation}% en acciones
-              </span>
+            <div className="flex-1">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                {rentaVariableAdvice.mainContent.title}
+              </h3>
+              <div className="prose prose-purple max-w-none">
+                {rentaVariableAdvice.mainContent.content.split('\n\n').map((paragraph, idx) => (
+                  <p key={idx} className="text-gray-600 leading-relaxed mb-4">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
+
+          {rentaVariableAdvice.mainContent.tips && (
+            <div className="mt-6 bg-purple-50 rounded-xl p-6">
+              <h4 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+                <Lightbulb className="w-5 h-5" />
+                Consejos Clave
+              </h4>
+              <ul className="space-y-2">
+                {rentaVariableAdvice.mainContent.tips.map((tip, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-purple-800">
+                    <span className="text-purple-600 mt-1">•</span>
+                    <span className="text-sm">{tip}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
-        {/* Contenido principal */}
-        <div className="bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl border border-white/30 p-8">
-          <div className="flex items-center mb-6">
-            <div className="p-3 rounded-xl bg-gradient-to-brfrom-blue-500 to-indigo-600 shadow-lg mr-4">
-              <Award className="w-6 h-6 text-white" />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-800">
-              {rentaVariableAdvice.mainContent.title}
-            </h3>
-          </div>
-          
-          <div className="space-y-6">
-            {/* Contenido principal */}
-            <div className="prose prose-gray max-w-none">
-              {formatContent(rentaVariableAdvice.mainContent.content)}
-            </div>
-
-            {/* Tips destacados - Layout responsive */}
-            {rentaVariableAdvice.mainContent.tips && rentaVariableAdvice.mainContent.tips.length > 0 && (
-              <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 border border-yellow-200">
-                {/* Mobile: Icon arriba del título */}
-                <div className="block sm:hidden text-center mb-4">
-                  <div className="inline-flex p-2 rounded-lg bg-yellow-100 mb-2">
-                    <Lightbulb className="w-5 h-5 text-yellow-600" />
-                  </div>
-                  <h4 className="font-semibold text-yellow-800">Consejos importantes:</h4>
-                </div>
-                
-                {/* Desktop: Icon a la izquierda del título */}
-                <div className="hidden sm:flex items-center mb-4">
-                  <Lightbulb className="w-5 h-5 text-yellow-600 mr-2" />
-                  <h4 className="font-semibold text-yellow-800">Consejos importantes:</h4>
-                </div>
-                
-                <ul className="space-y-2">
-                  {rentaVariableAdvice.mainContent.tips.map((tip, index) => (
-                    <li key={index} className="text-sm text-yellow-700 flex items-start">
-                      <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 mt-1.5 mr-3 flex-shrink-0" />
-                      {tip}
-                    </li>
-                  ))}
-                </ul>
+        {/* Productos Recomendados con Detalles */}
+        {rentaVariableAdvice.products && rentaVariableAdvice.products.length > 0 && (
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-purple-100">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl">
+                <Award className="w-6 h-6 text-white" />
               </div>
-            )}
-
-            {/* Productos recomendados */}
-            {rentaVariableAdvice.mainContent.products && rentaVariableAdvice.mainContent.products.length > 0 && (
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
-                <div className="flex items-center mb-4">
-                  <DollarSign className="w-5 h-5 text-blue-600 mr-2" />
-                  <h4 className="font-semibold text-blue-800">Productos destacados para tu perfil:</h4>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {rentaVariableAdvice.mainContent.products.map((product, index) => (
-                    <div key={index} className="bg-white/50 rounded-lg p-4 border border-blue-200">
-                    <h5 className="font-semibold text-blue-900 mb-2 bg-blue-100 px-3 py-1 rounded-md">
-                      {product.name}
-                    </h5>
-                    <p className="text-sm text-blue-700">{product.description}</p>
-                  </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Bloques adicionales - Layout responsive */}
-        {rentaVariableAdvice.additionalBlocks && rentaVariableAdvice.additionalBlocks.length > 0 && (
-          <div className="space-y-6">
-            <div className="text-center">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Consideraciones Adicionales</h3>
-              <p className="text-gray-600">Basadas en tu perfil específico</p>
+              <h3 className="text-2xl font-bold text-gray-900">
+                Productos Recomendados
+              </h3>
             </div>
-            
-            <div className="grid gap-6">
-              {rentaVariableAdvice.additionalBlocks.map((block, index) => {
-                const IconComponent = getBlockIcon(block.type);
-                const gradient = getBlockGradient(block.type);
-                const glow = getBlockGlow(block.type);
-                
+
+            <div className="space-y-6">
+              {rentaVariableAdvice.products.map((product, idx) => {
+                const productData = productsData[product.ticker];
+                const productInfo = productData?.success ? productData.data : null;
+                const productError = productData && !productData.success ? productData.error : null;
+
                 return (
-                  <div
-                    key={index}
-                    className={`relative rounded-2xl backdrop-blur-lg bg-white/15 border border-white/30 p-6 transition-all duration-300 hover:scale-[1.01] hover:bg-white/20 shadow-lg hover:shadow-2xl hover:shadow-${glow}-500/20`}
-                  >
-                    {/* Mobile: Icon arriba del título */}
-                    <div className="block sm:hidden text-center mb-4">
-                      <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg mb-3`}>
-                        <IconComponent className="w-6 h-6 text-white" />
+                  <div key={idx} className="border border-purple-100 rounded-xl p-6 hover:border-purple-300 transition-colors">
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <DollarSign className="w-5 h-5 text-purple-600" />
                       </div>
-                      <h4 className="text-lg font-bold text-gray-800">
-                        {block.title}
-                      </h4>
-                    </div>
-                    
-                    {/* Desktop: Icon a la izquierda */}
-                    <div className="hidden sm:flex items-start space-x-4">
-                      <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg flex-shrink-0`}>
-                        <IconComponent className="w-6 h-6 text-white" />
-                      </div>
-                      
                       <div className="flex-1">
-                        <h4 className="text-lg font-bold text-gray-800 mb-3">
-                          {block.title}
+                        <h4 className="font-bold text-lg text-gray-900 mb-2">
+                          {product.name}
                         </h4>
+                        <p className="text-gray-600 text-sm mb-3">
+                          {product.description}
+                        </p>
+                        
+                        {/* Acordeón de detalles */}
+                        <ProductDetailAccordion
+                          product={productInfo}
+                          isLoading={isLoading}
+                          error={productError}
+                        />
                       </div>
-                    </div>
-                    
-                    {/* Contenido - mismo para ambos layouts */}
-                    <div className="prose prose-gray max-w-none">
-                      {formatContent(block.content)}
                     </div>
                   </div>
                 );
@@ -202,6 +185,48 @@ const RentaVariableSection = ({ rentaVariableAdvice }) => {
             </div>
           </div>
         )}
+
+        {/* Bloques adicionales existentes... */}
+        {rentaVariableAdvice.additionalBlocks && rentaVariableAdvice.additionalBlocks.map((block, idx) => {
+          const BlockIcon = getBlockIcon(block.type);
+          const gradient = getBlockGradient(block.type);
+          const glow = getBlockGlow(block.type);
+
+          return (
+            <div key={idx} className={`bg-gradient-to-br ${gradient} rounded-2xl p-8 shadow-lg`}>
+              <div className="flex items-start gap-4 mb-6">
+                <div className={`p-3 bg-white/20 rounded-xl backdrop-blur-sm`}>
+                  <BlockIcon className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                    {block.title}
+                  </h3>
+                  <div className="prose prose-purple max-w-none">
+                    {block.content.split('\n\n').map((paragraph, pIdx) => (
+                      <p key={pIdx} className="text-white/90 leading-relaxed mb-4">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {block.tips && (
+                <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                  <ul className="space-y-2">
+                    {block.tips.map((tip, tIdx) => (
+                      <li key={tIdx} className="flex items-start gap-2 text-white">
+                        <span className="mt-1">•</span>
+                        <span className="text-sm">{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </ModernSection>
   );

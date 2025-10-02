@@ -8,6 +8,8 @@ const portfolioRoutes = require('./routes/portfolioRoutes');
 const personalityRoutes = require('./routes/personalityRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const financialDetailsRoutes = require('./routes/financialDetailsRoutes');
+const productRoutes = require('./routes/productRoutes');
+
 
 const app = express();
 const PORT = process.env.PORT || 5432;
@@ -53,6 +55,7 @@ app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/personality', personalityRoutes);
 app.use('/api/report', reportRoutes);
 app.use('/api/financial-details', financialDetailsRoutes);
+app.use('/api/products', productRoutes);
 
 // Health check (para monitoreo)
 app.get('/health', (req, res) => {

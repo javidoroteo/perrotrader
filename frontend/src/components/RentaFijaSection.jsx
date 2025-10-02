@@ -1,8 +1,65 @@
-import React from 'react';
+// frontend/src/components/RentaFijaSection.jsx (MODIFICADO)
+import React, { useState, useEffect } from 'react';
 import { Building2, TrendingDown, Target, Lightbulb, Users, DollarSign, Award, Shield, Leaf, Clock, Timer, PiggyBank } from 'lucide-react';
 import ModernSection from './ModernSection';
+import ProductDetailAccordion from './ProductDetailAccordion';
 
 const RentaFijaSection = ({ rentaFijaAdvice }) => {
+  const [productsData, setProductsData] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  // Extraer todos los tickers de los productos recomendados
+  const extractTickers = () => {
+    const tickers = [];
+    if (rentaFijaAdvice?.products) {
+      rentaFijaAdvice.products.forEach(product => {
+        // Asumiendo que el ticker viene en algún campo del producto
+        // Ajusta esto según tu estructura real
+        if (product.ticker) {
+          tickers.push(product.ticker);
+        }
+      });
+    }
+    return tickers;
+  };
+
+  // Cargar datos de productos al montar el componente
+  useEffect(() => {
+    const loadProductsData = async () => {
+      const tickers = extractTickers();
+      
+      if (tickers.length === 0) return;
+
+      setIsLoading(true);
+      
+      try {
+        const response = await fetch('http://localhost:3000/api/products/batch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tickers })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          setProductsData(result.data);
+        } else {
+          console.error('Error al cargar productos:', result.error);
+        }
+      } catch (error) {
+        console.error('Error en la petición:', error);
+        setErrors({ general: 'Error al cargar los datos de productos' });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProductsData();
+  }, [rentaFijaAdvice]);
+
   if (!rentaFijaAdvice) {
     return null;
   }
@@ -34,167 +91,100 @@ const RentaFijaSection = ({ rentaFijaAdvice }) => {
   const getBlockGlow = (blockType) => {
     switch (blockType) {
       case 'HORIZONTE_CORTO': return 'red';
-      case 'HORIZONTE_MEDIO': return 'yellow';
+      case 'HORIZONTE_MEDIO': return 'orange';
       case 'HORIZONTE_LARGO': return 'blue';
       case 'ESG': return 'green';
       case 'MUY_CONSERVADOR': return 'gray';
       case 'INFLACION_ALTA': return 'orange';
-      default: return 'purple';
+      default: return 'indigo';
     }
-  };
-
-  const formatContent = (content) => {
-    return content.split('\n\n').map((paragraph, index) => (
-      <p key={index} className="text-gray-700 mb-4 leading-relaxed">
-        {paragraph}
-      </p>
-    ));
   };
 
   return (
     <ModernSection
-      title="Renta Fija - Estrategia de Bonos"
       icon={Building2}
-      defaultOpen={false}
-      gradient="from-blue-600 to-purple-600"
-      glow="green"
+      title="Renta Fija"
+      subtitle="Inversiones en bonos y activos de renta fija"
+      gradient="from-blue-600 to-indigo-700"
+      glow="blue"
     >
-      <div className="space-y-6 sm:space-y-8">
-        {/* Header con información del perfil */}
-        <div className="text-center mb-6 sm:mb-8">
-          <p className="text-base sm:text-lg text-gray-700 mb-4">
-            {rentaFijaAdvice.description}
-          </p>
-          {/* Badges responsive: columna en móvil, fila en desktop */}
-          <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-3 sm:gap-6 text-sm">
-            <div className="flex items-center justify-center sm:justify-start bg-gradient-to-r from-emerald-50 to-teal-50 px-3 sm:px-4 py-2 rounded-full">
-              <Users className="w-4 h-4 mr-2 text-emerald-600" />
-              <span className="text-emerald-800">
-                Nivel: {rentaFijaAdvice.userProfile.experienceLevel}
-              </span>
+      <div className="space-y-8">
+        {/* Contenido Principal */}
+        <div className="bg-white rounded-2xl p-8 shadow-lg border border-blue-100">
+          <div className="flex items-start gap-4 mb-6">
+            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl">
+              <Target className="w-6 h-6 text-white" />
             </div>
-            
-            <div className="flex items-center justify-center sm:justify-start bg-gradient-to-r from-green-50 to-emerald-50 px-3 sm:px-4 py-2 rounded-full">
-              <Target className="w-4 h-4 mr-2 text-green-600" />
-              <span className="text-green-800">
-                {rentaFijaAdvice.userProfile.seeksDividends ? 'Busca ingresos' : 'Busca acumulación'}
-              </span>
-            </div>
-            
-            <div className="flex items-center justify-center sm:justify-start bg-gradient-to-r from-purple-50 to-pink-50 px-3 sm:px-4 py-2 rounded-full">
-              <Building2 className="w-4 h-4 mr-2 text-purple-600" />
-              <span className="text-purple-800">
-                {rentaFijaAdvice.userProfile.totalFixedIncomeAllocation}% en renta fija
-              </span>
-            </div>
-
-            {rentaFijaAdvice.userProfile.greenBondsAllocation > 0 && (
-              <div className="flex items-center justify-center sm:justify-start bg-gradient-to-r from-emerald-50 to-green-50 px-3 sm:px-4 py-2 rounded-full">
-                <Leaf className="w-4 h-4 mr-2 text-emerald-600" />
-                <span className="text-emerald-800">
-                  {rentaFijaAdvice.userProfile.greenBondsAllocation}% bonos verdes
-                </span>
+            <div className="flex-1">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                {rentaFijaAdvice.mainContent.title}
+              </h3>
+              <div className="prose prose-blue max-w-none">
+                {rentaFijaAdvice.mainContent.content.split('\n\n').map((paragraph, idx) => (
+                  <p key={idx} className="text-gray-600 leading-relaxed mb-4">
+                    {paragraph}
+                  </p>
+                ))}
               </div>
-            )}
+            </div>
           </div>
+
+          {rentaFijaAdvice.mainContent.tips && (
+            <div className="mt-6 bg-blue-50 rounded-xl p-6">
+              <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                <Lightbulb className="w-5 h-5" />
+                Consejos Clave
+              </h4>
+              <ul className="space-y-2">
+                {rentaFijaAdvice.mainContent.tips.map((tip, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-blue-800">
+                    <span className="text-blue-600 mt-1">•</span>
+                    <span className="text-sm">{tip}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
-        {/* Contenido principal */}
-        <div className="bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl border border-white/30 p-4 sm:p-6 lg:p-8">
-          {/* Header responsivo */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6 text-center sm:text-left">
-            <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg mx-auto sm:mx-0">
-              <Award className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </div>
-            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
-              {rentaFijaAdvice.mainContent.title}
-            </h3>
-          </div>
-          
-          <div className="space-y-4 sm:space-y-6">
-            {/* Contenido principal */}
-            <div className="prose prose-gray max-w-none">
-              {formatContent(rentaFijaAdvice.mainContent.content)}
-            </div>
-
-            {/* Tips destacados */}
-            {rentaFijaAdvice.mainContent.tips && rentaFijaAdvice.mainContent.tips.length > 0 && (
-              <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-4 sm:p-6 border border-yellow-200">
-                {/* Header responsivo: ícono arriba en móvil, izquierda en desktop */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4 text-center sm:text-left">
-                  <div className="p-2 rounded-lg bg-yellow-100 mx-auto sm:mx-0 w-fit">
-                    <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
-                  </div>
-                  <h4 className="font-semibold text-yellow-800">Consejos importantes:</h4>
-                </div>
-                <ul className="space-y-2">
-                  {rentaFijaAdvice.mainContent.tips.map((tip, index) => (
-                    <li key={index} className="text-sm text-yellow-700 flex items-start">
-                      <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 mt-1.5 mr-3 flex-shrink-0" />
-                      {tip}
-                    </li>
-                  ))}
-                </ul>
+        {/* Productos Recomendados con Detalles */}
+        {rentaFijaAdvice.products && rentaFijaAdvice.products.length > 0 && (
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-blue-100">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl">
+                <Award className="w-6 h-6 text-white" />
               </div>
-            )}
-
-            {/* Productos recomendados */}
-            {rentaFijaAdvice.mainContent.products && rentaFijaAdvice.mainContent.products.length > 0 && (
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 sm:p-6 border border-blue-200">
-                {/* Header responsivo */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4 text-center sm:text-left">
-                  <div className="p-2 rounded-lg bg-blue-100 mx-auto sm:mx-0 w-fit">
-                    <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                  </div>
-                  <h4 className="font-semibold text-blue-800">Productos destacados para tu perfil:</h4>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {rentaFijaAdvice.mainContent.products.map((product, index) => (
-                  <div key={index} className="bg-white/50 rounded-lg p-4 border border-blue-200">
-                    <h5 className="font-semibold text-blue-900 mb-2 bg-blue-100 px-3 py-1 rounded-md">
-                      {product.name}
-                    </h5>
-                    <p className="text-sm text-blue-700">{product.description}</p>
-                  </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Bloques adicionales */}
-        {rentaFijaAdvice.additionalBlocks && rentaFijaAdvice.additionalBlocks.length > 0 && (
-          <div className="space-y-4 sm:space-y-6">
-            <div className="text-center">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">Consideraciones Específicas</h3>
-              <p className="text-sm sm:text-base text-gray-600">Adaptadas a tu horizonte temporal y perfil</p>
+              <h3 className="text-2xl font-bold text-gray-900">
+                Productos Recomendados
+              </h3>
             </div>
-            
-            <div className="grid gap-4 sm:gap-6">
-              {rentaFijaAdvice.additionalBlocks.map((block, index) => {
-                const IconComponent = getBlockIcon(block.type);
-                const gradient = getBlockGradient(block.type);
-                const glow = getBlockGlow(block.type);
-                
+
+            <div className="space-y-6">
+              {rentaFijaAdvice.products.map((product, idx) => {
+                const productData = productsData[product.ticker];
+                const productInfo = productData?.success ? productData.data : null;
+                const productError = productData && !productData.success ? productData.error : null;
+
                 return (
-                  <div
-                    key={index}
-                    className={`relative rounded-xl sm:rounded-2xl backdrop-blur-lg bg-white/15 border border-white/30 p-4 sm:p-6 transition-all duration-300 hover:scale-[1.01] hover:bg-white/20 shadow-lg hover:shadow-2xl hover:shadow-${glow}-500/20`}
-                  >
-                    {/* Layout responsivo: columna en móvil, fila en desktop */}
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
-                      <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br ${gradient} shadow-lg mx-auto sm:mx-0 flex-shrink-0`}>
-                        <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                  <div key={idx} className="border border-blue-100 rounded-xl p-6 hover:border-blue-300 transition-colors">
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <DollarSign className="w-5 h-5 text-blue-600" />
                       </div>
-                      
-                      <div className="flex-1 text-center sm:text-left">
-                        <h4 className="text-base sm:text-lg font-bold text-gray-800 mb-2 sm:mb-3">
-                          {block.title}
+                      <div className="flex-1">
+                        <h4 className="font-bold text-lg text-gray-900 mb-2">
+                          {product.name}
                         </h4>
-                        <div className="prose prose-gray max-w-none">
-                          {formatContent(block.content)}
-                        </div>
+                        <p className="text-gray-600 text-sm mb-3">
+                          {product.description}
+                        </p>
+                        
+                        {/* Acordeón de detalles */}
+                        <ProductDetailAccordion
+                          product={productInfo}
+                          isLoading={isLoading}
+                          error={productError}
+                        />
                       </div>
                     </div>
                   </div>
@@ -203,6 +193,48 @@ const RentaFijaSection = ({ rentaFijaAdvice }) => {
             </div>
           </div>
         )}
+
+        {/* Bloques adicionales existentes... */}
+        {rentaFijaAdvice.additionalBlocks && rentaFijaAdvice.additionalBlocks.map((block, idx) => {
+          const BlockIcon = getBlockIcon(block.type);
+          const gradient = getBlockGradient(block.type);
+          const glow = getBlockGlow(block.type);
+
+          return (
+            <div key={idx} className={`bg-gradient-to-br ${gradient} rounded-2xl p-8 shadow-lg`}>
+              <div className="flex items-start gap-4 mb-6">
+                <div className={`p-3 bg-white/20 rounded-xl backdrop-blur-sm`}>
+                  <BlockIcon className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                    {block.title}
+                  </h3>
+                  <div className="prose prose-blue max-w-none">
+                    {block.content.split('\n\n').map((paragraph, pIdx) => (
+                      <p key={pIdx} className="text-white/90 leading-relaxed mb-4">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {block.tips && (
+                <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                  <ul className="space-y-2">
+                    {block.tips.map((tip, tIdx) => (
+                      <li key={tIdx} className="flex items-start gap-2 text-white">
+                        <span className="mt-1">•</span>
+                        <span className="text-sm">{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </ModernSection>
   );
