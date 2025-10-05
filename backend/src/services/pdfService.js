@@ -159,7 +159,7 @@ class PDFService {
       console.log('✅ HTML generado, longitud:', htmlContent.length);
       
       await page.setContent(htmlContent, { 
-        waitUntil: ['domcontentloaded', 'networkidle0'],
+        waitUntil: ['domcontentloaded'],
         timeout: 60000
       });
       console.log('✅ Contenido HTML cargado en la página');
