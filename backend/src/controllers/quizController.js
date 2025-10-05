@@ -97,6 +97,7 @@ async generateFinalResultIfBothComplete(sessionId) {
         investmentStrategies: quizResult.investmentStrategies,
         educationalGuide: quizResult.educationalGuide,
         investorProfile: quizResult.investorProfile,
+        portfolioExplanation: quizResult.portfolioExplanation,
         
         // Datos de personalidad (solo el profile)
         personality: personalityResult ? personalityResult.profile : null

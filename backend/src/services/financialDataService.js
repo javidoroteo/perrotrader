@@ -43,13 +43,11 @@ class FinancialDataService {
         currency: quote.currency || 'USD',
         change: quote.regularMarketChange || 0,
         changePercent: quote.regularMarketChangePercent || 0,
-        volume: quote.regularMarketVolume || 0,
         marketCap: quote.marketCap || null,
         dividendYield: quote.dividendYield ? (quote.dividendYield * 100) : null,
         annualizedReturn5Y: annualizedReturn,
         fiftyTwoWeekHigh: quote.fiftyTwoWeekHigh || null,
         fiftyTwoWeekLow: quote.fiftyTwoWeekLow || null,
-        averageVolume: quote.averageDailyVolume10Day || null,
         lastUpdated: new Date().toISOString()
       };
 

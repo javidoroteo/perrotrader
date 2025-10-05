@@ -103,8 +103,8 @@ Este enfoque te permite capturar crecimiento global sin complicarte con exceso d
           "Si no necesitas ingresos inmediatos, prioriza ETFs de acumulación para optimizar el interés compuesto."
         ],
         products: [
-          { name: "VWCE (Vanguard FTSE All-World)", description: "Núcleo global diversificado" },
-          { name: "IWDA (iShares MSCI World)", description: "Base sólida en mercados desarrollados" },
+          { name: "VWCE (Vanguard FTSE All-World)", ticker:"VHYL.L", description: "Núcleo global diversificado" },
+          { name: "IWDA (iShares MSCI World)", ticker:"IWDA.L", description: "Base sólida en mercados desarrollados" },
           { name: "ETFs temáticos", description: "Satélites en sectores de convicción" },
           { name: "Acciones individuales", description: "10-15% para ideas específicas con criterio propio" }
         ]

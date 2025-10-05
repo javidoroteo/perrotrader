@@ -12,18 +12,21 @@ const QuizStart = ({ onStart, loading, onOpenPrivacyPolicy, hasConsent = false }
         isfinz
       </h1>
       <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-        ¿Qué tipo de inversor eres? Aprende a estructurar tus inversiones en menos de 5 minutos
+        Una herramienta clara, gratuita y pensada para cualquier persona —sin importar su experiencia.
       </p>
       <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-        Obtén claridad sobre tu perfil financiero y descubre cómo los métodos que usan los expertos pueden ayudarte a alcanzar tus metas
+        Conoce tu estilo, entiende tu tolerancia al riesgo y empieza a invertir con seguridad y propósito.
+      </p>
+      <p className="text-xl text-gray-600 bold max-w-2xl mx-auto leading-relaxed">
+        ¿QUÉ VAS A LOGRAR?
       </p>
     </div>
     
     <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto my-12">
       {[
-        { icon: <Brain className="w-8 h-8" />, title: "Conócete mejor", desc: "Identifica tu tolerancia al riesgo y define tu estilo de inversión.", gradient: "from-purple-500 to-purple-600" },
-        { icon: <Timer className="w-8 h-8" />, title: "Ahorra tiempo", desc: "Accede a un marco probado que transforma información compleja en pasos simples", gradient: "from-blue-500 to-blue-600" },
-        { icon: <Target className="w-8 h-8" />, title: "Planifica con propósito", desc: "Establece objetivos claros y aprende a estructurar tu estrategia", gradient: "from-green-500 to-green-600" }
+        { icon: <Brain className="w-8 h-8" />, title: "Conócete mejor", desc: "Identifica tu perfil y evita decisiones que no van contigo.", gradient: "from-purple-500 to-purple-600" },
+        { icon: <Timer className="w-8 h-8" />, title: "Ahorra tiempo y evita errores", desc: "Recibe una guía clara y directa para tomar decisiones sin sentirte abrumado.", gradient: "from-blue-500 to-blue-600" },
+        { icon: <Target className="w-8 h-8" />, title: "Planifica con propósito", desc: "Define metas, estructura tu cartera y aprende a aplicar estrategias reales según tu perfil.", gradient: "from-green-500 to-green-600" }
       ].map((feature, i) => (
         <div key={i} className="card-feature">
           <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center text-white mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg`}>
@@ -61,21 +64,20 @@ const QuizStart = ({ onStart, loading, onOpenPrivacyPolicy, hasConsent = false }
     </div>
     
     <p className="text-sm text-gray-600 max-w-sm mx-auto leading-normal">
-      Herramienta educativa. No constituye asesoramiento financiero.
+      Herramienta educativa. No constituye asesoramiento financiero. Es una herramienta pensada para ayudarte en tu camino como inversor.
     </p>
 
-    {/* Nueva sección: Lo que recibirás gratis */}
     <div className="max-w-4xl mx-auto mt-12 p-8 bg-gradient-to-r from-green-50/80 to-blue-50/80 border border-green-200/50 rounded-3xl shadow-lg backdrop-blur-sm">
       <div className="space-y-6">
         <div className="flex items-center justify-center gap-3 mb-6">
           <FileText className="w-8 h-8 text-green-600" />
-          <h3 className="text-2xl font-black text-gray-800">Al completar el test recibirás gratis:</h3>
+          <h3 className="text-2xl font-black text-gray-800">Al completar el test recibirás GRATIS:</h3>
         </div>
         
         <div className="flex items-center gap-4 p-4 bg-white/60 rounded-2xl shadow-sm border border-gray-100">
           <BarChart3 className="w-6 h-6 text-blue-600 flex-shrink-0" />
           <div className="text-left">
-            <p className="font-bold text-gray-800"> Informe práctico + teórico</p>
+            <p className="font-bold text-gray-800"> Informe práctico + resumen teórico</p>
             <p className="text-gray-600 text-sm">Aprende los fundamentos y descubre cómo aplicarlos a tu perfil.</p>
           </div>
         </div>
@@ -84,9 +86,8 @@ const QuizStart = ({ onStart, loading, onOpenPrivacyPolicy, hasConsent = false }
           {[
             "Tu nivel de tolerancia al riesgo explicado de forma sencilla",
             "Ejemplo educativo de cartera adaptada", 
-            "Inversiones en bolsa y en ETFs según tu perfil",
-            "Estrategias de inversión adaptadas a tu perfil",
-            "Cómo encajan los tipos de inversión en tu cartera"
+            "Estrategias de inversión según a tu perfil",
+            "Cómo encajan acciones, ETFs y otros activos en tu plan"
           ].map((benefit, i) => (
             <div key={i} className="flex items-start gap-3 p-3 bg-white/40 rounded-xl">
               <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />

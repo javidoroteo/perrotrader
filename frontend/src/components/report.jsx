@@ -143,13 +143,21 @@ console.log('SessionId attempts:', {
         {result.rentaVariableAdvice && <RentaVariableSection rentaVariableAdvice={result.rentaVariableAdvice} />}
         {result.investmentStrategies && <StrategiesSection strategies={result.investmentStrategies} />}
         {mappedResult.educationalGuide && <EducationalGuide guide={mappedResult.educationalGuide} />}
-        {mappedResult.portfolioExplanation && (
-        <PortfolioExplanationSection 
-          portfolioExplanation={result.portfolioExplanation}
-        />
-      )}
+        {mappedResult.portfolioExplanation && (<PortfolioExplanationSection portfolioExplanation={mappedResult.portfolioExplanation}/>)}
       </div>
-
+          {/* Link a guía brokers */}
+        <p className="mb-4">
+          Crea tu primera cuenta de broker, visita nuestra{' '}
+          <a
+            href="/guia-brokers"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline hover:text-blue-800"
+          >
+            Guía de Brokers
+          </a>
+          .
+        </p>
       <div className="text-center mt-12 relative z-10">
         <button onClick={onRestart} className="ml-4 px-8 py-4 bg-gray-200 text-gray-800 rounded-full font-semibold hover:bg-gray-300 transition-colors">Reiniciar Quiz</button>
       </div>

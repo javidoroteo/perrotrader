@@ -153,25 +153,30 @@ class PDFService {
       const page = await browser.newPage();
       console.log('✅ Nueva página creada');
       
-      await page.setViewport({ width: 1200, height: 800 });
+      await page.setViewport({ width: 1200, height: 1600 });
       
       const htmlContent = this.generateReportHTML(reportData, sessionData);
       console.log('✅ HTML generado, longitud:', htmlContent.length);
       
       await page.setContent(htmlContent, { 
-        waitUntil: ['domcontentloaded'],
+        waitUntil: ['domcontentloaded', 'networkidle0'],
         timeout: 60000
       });
       console.log('✅ Contenido HTML cargado en la página');
       
+      // Esperar a que las fuentes se carguen
+      await page.evaluateHandle('document.fonts.ready');
+      
       const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
+        preferCSSPageSize: true,
+        displayHeaderFooter: false,
         margin: {
-          top: '20px',
-          bottom: '20px',
-          left: '20px',
-          right: '20px'
+          top: '15mm',
+          bottom: '15mm',
+          left: '15mm',
+          right: '15mm'
         },
         timeout: 60000
       });
@@ -229,19 +234,26 @@ class PDFService {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Reporte de Inversión - IsFinz</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
         <style>
             ${this.getStyles()}
         </style>
     </head>
     <body>
-        <div class="container">
+        <div class="page-wrapper">
             ${this.generateHeader()}
-            ${this.generateInvestorProfile(investorProfile)}
-            ${this.generatePortfolioSection(portfolioArray, riskProfile)}
-            ${this.generateReportSection(report)}
-            ${rentaFijaAdvice ? this.generateRentaFijaSection(rentaFijaAdvice) : ''}
-            ${rentaVariableAdvice ? this.generateRentaVariableSection(rentaVariableAdvice) : ''}
-            ${this.generateEducationalSection(educationalGuide)}
+            
+            <div class="container">
+                ${this.generateInvestorProfile(investorProfile)}
+                ${this.generatePortfolioSection(portfolioArray, riskProfile)}
+                ${this.generateReportSection(report)}
+                ${rentaFijaAdvice ? this.generateRentaFijaSection(rentaFijaAdvice) : ''}
+                ${rentaVariableAdvice ? this.generateRentaVariableSection(rentaVariableAdvice) : ''}
+                ${this.generateEducationalSection(educationalGuide)}
+            </div>
+            
             ${this.generateFooter(today)}
         </div>
     </body>
@@ -250,7 +262,7 @@ class PDFService {
   }
 
   /**
-   * Estilos CSS con la estética del frontend
+   * Estilos CSS mejorados y corregidos
    */
   getStyles() {
     return `
@@ -261,30 +273,38 @@ class PDFService {
     }
     
     body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         line-height: 1.6;
         color: #1f2937;
+        background: #ffffff;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .page-wrapper {
+        width: 100%;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
     }
     
     .container {
-        max-width: 900px;
+        max-width: 100%;
         margin: 0 auto;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        background: #ffffff;
+        padding: 0;
     }
     
+    /* ============================================
+       HEADER
+       ============================================ */
     .header {
         background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
         color: white;
-        padding: 40px;
+        padding: 35px 40px;
         text-align: center;
         position: relative;
-        overflow: hidden;
+        page-break-after: avoid;
+        break-after: avoid;
     }
     
     .header-content {
@@ -295,29 +315,38 @@ class PDFService {
     .logo {
         font-size: 2.5rem;
         font-weight: 900;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
     }
     
     .subtitle {
         font-size: 1.1rem;
-        opacity: 0.9;
-        font-weight: 300;
+        opacity: 0.95;
+        font-weight: 400;
     }
     
     .date {
-        margin-top: 15px;
+        margin-top: 12px;
         font-size: 0.9rem;
-        opacity: 0.8;
+        opacity: 0.85;
     }
     
+    /* ============================================
+       SECTIONS
+       ============================================ */
     .section {
-        margin: 30px;
+        margin: 25px 30px;
         padding: 25px;
-        background: rgba(255, 255, 255, 0.7);
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    .section:first-of-type {
+        margin-top: 30px;
     }
     
     .section-title {
@@ -328,164 +357,198 @@ class PDFService {
         font-weight: 700;
         color: #1f2937;
         margin-bottom: 20px;
-        padding-bottom: 10px;
+        padding-bottom: 12px;
         border-bottom: 2px solid #e5e7eb;
+        page-break-after: avoid;
+        break-after: avoid;
     }
     
     .section-icon {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
         border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-weight: bold;
-    }
-    
-    .portfolio-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-        align-items: start;
-    }
-    
-    @media (max-width: 768px) {
-        .portfolio-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-    
-    .chart-container {
-        position: relative;
-        height: 300px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f8f9fa;
-        border-radius: 12px;
-        color: #666;
-        font-weight: 500;
-    }
-    
-    .asset-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-    
-    .asset-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.8);
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-    
-    .asset-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    
-    .asset-emoji {
-        font-size: 1.5rem;
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .asset-name {
-        font-weight: 600;
-        color: #374151;
-    }
-    
-    .asset-percentage {
         font-size: 1.2rem;
-        font-weight: 700;
-        padding: 6px 12px;
-        border-radius: 20px;
-        color: white;
+        font-weight: bold;
+        font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+        flex-shrink: 0;
     }
     
+    /* ============================================
+       INVESTOR PROFILE
+       ============================================ */
     .profile-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-top: 15px;
     }
     
     .profile-card {
-        padding: 20px;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        border-radius: 12px;
+        padding: 18px 20px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 10px;
         border-left: 4px solid #2563eb;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        min-height: 85px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
     
     .profile-label {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         color: #6b7280;
-        margin-bottom: 5px;
-        font-weight: 500;
+        margin-bottom: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
     .profile-value {
-        font-size: 1.1rem;
-        font-weight: 600;
+        font-size: 1.15rem;
+        font-weight: 700;
         color: #1f2937;
+        line-height: 1.3;
     }
     
+    /* ============================================
+       PORTFOLIO SECTION
+       ============================================ */
+    .portfolio-content {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    .chart-visualization {
+        margin: 20px 0;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    .chart-bar {
+        margin-bottom: 15px;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    .chart-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #374151;
+    }
+    
+    .chart-emoji {
+        font-size: 1.3rem;
+        font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        flex-shrink: 0;
+    }
+    
+    .chart-bar-container {
+        height: 35px;
+        background: #f3f4f6;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .chart-bar-fill {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 12px;
+        color: white;
+        font-weight: 700;
+        font-size: 0.95rem;
+        transition: width 0.3s ease;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* ============================================
+       CONTENT BLOCKS
+       ============================================ */
     .content-block {
         margin: 20px 0;
         padding: 20px;
-        background: rgba(249, 250, 251, 0.8);
-        border-radius: 12px;
+        background: #f9fafb;
+        border-radius: 10px;
         border-left: 4px solid #10b981;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    .content-block:first-of-type {
+        margin-top: 0;
     }
     
     .content-block h3 {
         color: #065f46;
-        font-weight: 600;
-        margin-bottom: 15px;
-        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        font-size: 1.15rem;
+        page-break-after: avoid;
+        break-after: avoid;
     }
     
     .content-block h4 {
-        color: #065f46;
+        color: #047857;
         font-weight: 600;
         margin-bottom: 10px;
         margin-top: 15px;
-        font-size: 1.1rem;
+        font-size: 1.05rem;
+        page-break-after: avoid;
+        break-after: avoid;
     }
     
     .content-block p {
         color: #374151;
-        line-height: 1.6;
-        margin-bottom: 10px;
+        line-height: 1.7;
+        margin-bottom: 12px;
+        orphans: 3;
+        widows: 3;
     }
     
     .content-block ul {
-        margin: 10px 0;
-        padding-left: 20px;
+        margin: 12px 0;
+        padding-left: 25px;
     }
     
     .content-block li {
         color: #374151;
-        line-height: 1.6;
+        line-height: 1.7;
         margin-bottom: 8px;
+        orphans: 2;
+        widows: 2;
     }
     
+    /* ============================================
+       SUBSECTIONS
+       ============================================ */
     .subsection {
-        margin: 15px 0;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.6);
+        margin: 18px 0;
+        padding: 18px;
+        background: rgba(255, 255, 255, 0.7);
         border-radius: 8px;
         border-left: 3px solid #3b82f6;
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
     
     .subsection-title {
@@ -493,52 +556,119 @@ class PDFService {
         font-weight: 600;
         margin-bottom: 10px;
         font-size: 1.05rem;
+        page-break-after: avoid;
+        break-after: avoid;
     }
     
     .product-list {
-        margin-top: 10px;
+        margin-top: 12px;
     }
     
     .product-item {
-        margin-bottom: 10px;
-        padding-left: 10px;
+        margin-bottom: 12px;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 6px;
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
     
     .product-name {
-        font-weight: 600;
+        font-weight: 700;
         color: #1f2937;
+        display: block;
+        margin-bottom: 4px;
     }
     
     .product-description {
         color: #6b7280;
         font-size: 0.95rem;
-        margin-left: 10px;
+        line-height: 1.5;
     }
     
+    /* ============================================
+       FOOTER
+       ============================================ */
     .footer {
         text-align: center;
-        padding: 30px;
+        padding: 30px 40px;
         background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
         color: white;
+        margin-top: 40px;
+        page-break-before: avoid;
+        break-before: avoid;
     }
     
     .footer-logo {
         font-size: 1.8rem;
         font-weight: 800;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
     }
     
     .footer-text {
-        opacity: 0.8;
+        opacity: 0.85;
         font-size: 0.9rem;
+        line-height: 1.6;
     }
     
+    /* ============================================
+       PRINT-SPECIFIC STYLES
+       ============================================ */
     @media print {
-        body { -webkit-print-color-adjust: exact; }
-        .section { break-inside: avoid; }
-        .portfolio-grid { break-inside: avoid; }
-        .content-block { break-inside: avoid; }
-        .subsection { break-inside: avoid; }
+        body { 
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .section { 
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .content-block { 
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .subsection { 
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .portfolio-content {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .profile-grid {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .chart-bar {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        h2, h3, h4 {
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+        
+        p {
+            orphans: 3;
+            widows: 3;
+        }
+        
+        li {
+            orphans: 2;
+            widows: 2;
+        }
+    }
+    
+    @page {
+        margin: 15mm;
     }
     `;
   }
@@ -552,7 +682,12 @@ class PDFService {
         <div class="header-content">
             <div class="logo">IsFinz</div>
             <div class="subtitle">Tu Reporte de Inversión Personalizado</div>
-            <div class="date">Generado el ${new Date().toLocaleDateString('es-ES')}</div>
+            <div class="date">Generado el ${new Date().toLocaleDateString('es-ES', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}</div>
         </div>
     </div>
     `;
@@ -595,7 +730,7 @@ class PDFService {
   }
 
   /**
-   * Sección de la cartera recomendada
+   * Sección de la cartera recomendada con gráfico de barras
    */
   generatePortfolioSection(portfolioArray, riskProfile) {
     return `
@@ -604,21 +739,20 @@ class PDFService {
             <div class="section-icon">📊</div>
             Tu Cartera Recomendada - ${riskProfile}
         </h2>
-        <div class="portfolio-grid">
-            <div class="chart-container">
-                Gráfico de distribución de cartera
-            </div>
-            <div class="asset-list">
+        <div class="portfolio-content">
+            <div class="chart-visualization">
                 ${portfolioArray.map(asset => `
-                <div class="asset-item">
-                    <div class="asset-info">
-                        <div class="asset-emoji" style="background: ${asset.color}20;">
+                <div class="chart-bar">
+                    <div class="chart-label">
+                        <div class="chart-emoji" style="background: ${asset.color}20;">
                             ${asset.emoji}
                         </div>
-                        <div class="asset-name">${asset.name}</div>
+                        <span>${asset.name}</span>
                     </div>
-                    <div class="asset-percentage" style="background: ${asset.color};">
-                        ${asset.value}%
+                    <div class="chart-bar-container">
+                        <div class="chart-bar-fill" style="width: ${asset.value}%; background: ${asset.color};">
+                            ${asset.value}%
+                        </div>
                     </div>
                 </div>
                 `).join('')}
@@ -641,7 +775,7 @@ class PDFService {
             Análisis de tu Perfil
         </h2>
         <div class="content-block">
-            <div>${report}</div>
+            ${report}
         </div>
     </div>
     `;
@@ -659,10 +793,15 @@ class PDFService {
             <div class="section-icon">🏛️</div>
             ${rentaFijaAdvice.title || 'Renta Fija - Guía Personalizada'}
         </h2>
-        <div class="content-block">
-            <p><strong>${rentaFijaAdvice.description || ''}</strong></p>
-        </div>
     `;
+
+    if (rentaFijaAdvice.description) {
+      html += `
+        <div class="content-block">
+            <p><strong>${rentaFijaAdvice.description}</strong></p>
+        </div>
+      `;
+    }
 
     // Main Content
     if (rentaFijaAdvice.mainContent) {
@@ -721,10 +860,15 @@ class PDFService {
             <div class="section-icon">📈</div>
             ${rentaVariableAdvice.title || 'Renta Variable - Guía Personalizada'}
         </h2>
-        <div class="content-block">
-            <p><strong>${rentaVariableAdvice.description || ''}</strong></p>
-        </div>
     `;
+
+    if (rentaVariableAdvice.description) {
+      html += `
+        <div class="content-block">
+            <p><strong>${rentaVariableAdvice.description}</strong></p>
+        </div>
+      `;
+    }
 
     // Main Content
     if (rentaVariableAdvice.mainContent) {
@@ -783,9 +927,9 @@ class PDFService {
             <div class="section-icon">🎓</div>
             Guía Educativa de tus Activos
         </h2>
-        ${educationalGuide.assets.map(asset => `
+        ${educationalGuide.assets.map((asset, index) => `
         <div class="content-block">
-            <h4>${asset.title}</h4>
+            <h3>${asset.title}</h3>
             <p><strong>¿Qué es?</strong> ${asset.description}</p>
             <p><strong>Función en tu cartera:</strong> ${asset.role}</p>
             <p><strong>Rentabilidad esperada:</strong> ${asset.expectedReturn}</p>
@@ -807,7 +951,7 @@ class PDFService {
         <div class="footer-logo">IsFinz</div>
         <div class="footer-text">
             Este reporte ha sido generado automáticamente el ${date}<br>
-            Para más información, visita www.isfinz.com
+            Diseñado para ayudarte a tomar mejores decisiones de inversión
         </div>
     </div>
     `;

@@ -3,13 +3,14 @@ import ModernInvestmentQuiz from './ModernInvestmentQuiz';
 import Footer from './components/Footer';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import GDPRConsentBanner from './components/GDPRConsentBanner';
+import { Routes, Route } from 'react-router-dom';
+import BrokerGuide from './components/BrokerGuide';
 
 function App() {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [hasConsent, setHasConsent] = useState(false);
   const [showConsentBanner, setShowConsentBanner] = useState(false);
 
-  // Verificar consentimiento guardado al cargar
   useEffect(() => {
     const savedConsent = localStorage.getItem('gdpr-consent');
     if (savedConsent === 'accepted') {
@@ -48,18 +49,29 @@ function App() {
       {showPrivacy && (
         <PrivacyPolicyPage onClose={() => setShowPrivacy(false)} />
       )}
-      
-      {/* Contenido principal */}
+
+      {/* Contenido principal con rutas */}
       <div style={{ flex: 1 }}>
-        <ModernInvestmentQuiz 
-          onOpenPrivacyPolicy={handleOpenPrivacyFromFooter}
-          hasConsent={hasConsent}
-        />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ModernInvestmentQuiz
+                onOpenPrivacyPolicy={handleOpenPrivacyFromFooter}
+                hasConsent={hasConsent}
+              />
+            }
+          />
+          <Route
+            path="/guia-brokers"
+            element={<BrokerGuide />}
+          />
+        </Routes>
       </div>
-      
+
       {/* Footer */}
       <Footer onOpenPrivacyPolicy={handleOpenPrivacyFromFooter} />
-      
+
       {/* Banner de consentimiento GDPR */}
       {showConsentBanner && (
         <GDPRConsentBanner
