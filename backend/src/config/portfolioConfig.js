@@ -109,7 +109,7 @@ const PORTFOLIO_CONFIG = {
     
     // Por fondo de emergencia
     EMERGENCY_FUND: {
-      LOW: { acciones: -10, bonos: +5, criptomonedas: 0, efectivo: +5 },
+      LOW: { acciones: -5, bonos: +3, criptomonedas: 0, efectivo: +2 },
       HIGH: { acciones: +5, bonos: -5, criptomonedas: 0, efectivo: 0 }
     },
     
