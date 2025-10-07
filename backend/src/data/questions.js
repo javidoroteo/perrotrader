@@ -11,11 +11,11 @@ const questions = [
         answers: [
             { text: "Entre 18 y 25 años", age: 1, nextQuestion: 1011 },
             { text: "Entre 26 y 30 años", age: 2, nextQuestion: 1011},
-            { text: "Entre 31 y 35 años", age: 2, nextQuestion: 1012 },
-            { text: "Entre 36 y 45 años", age: 3, nextQuestion: 1012},
-            { text: "Entre 46 y 55 años", age: 4, nextQuestion: 1013},
-            { text: "Entre 56 y 66 años", age: 5, nextQuestion: 1013},
-            { text: "66 años o más", age: 6, nextQuestion: 1013},
+            { text: "Entre 31 y 35 años", age: 3, nextQuestion: 1012 },
+            { text: "Entre 36 y 45 años", age: 4, nextQuestion: 1012},
+            { text: "Entre 46 y 55 años", age: 5, nextQuestion: 1013},
+            { text: "Entre 56 y 66 años", age: 6, nextQuestion: 1013},
+            { text: "66 años o más", age: 7, nextQuestion: 1013},
         ]
     },
     {

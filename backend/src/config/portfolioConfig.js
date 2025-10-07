@@ -26,9 +26,13 @@ const PORTFOLIO_CONFIG = {
 
   // Nuevos rangos de edad (age 1-6)
   AGE_LEVELS: {
-    YOUNG: { min: 1, max: 2, name: 'Joven' },     // 18-30 años
-    MIDDLE: { min: 3, max: 4, name: 'Media' },    // 31-55 años  
-    SENIOR: { min: 5, max: 6, name: 'Mayor' }     // 56+ años
+    YOUNG: { min: 1, max: 1, name: 'Joven' },     // 18-25 años
+    YOUNG_ADULT: { min: 2, max: 2, name: 'Adulto Joven' },     // 26-30 años
+    ADULT: { min: 3, max: 3, name: 'Adulto' },     // 31-35 años
+    MIDDLE: { min: 4, max: 4, name: 'Media' },     // 36-45 años
+    EXPERIENCED: { min: 5, max: 5, name: 'Maduro' },     // 46-55 años
+    MATURE: { min: 6, max: 6, name: 'Senior' },    // 56-66 años  
+    SENIOR: { min: 7, max: 7, name: 'Mayor' }     // 66+ años
   },
   ESG_LEVEL: {
     BEGINNER: { min: 1, max: 2, name: 'Bajo' },        // Poco interés en ESG
@@ -88,8 +92,12 @@ const PORTFOLIO_CONFIG = {
     
     // Por edad
     AGE: {
-      YOUNG: { acciones: +15, bonos: -15, criptomonedas: +3, efectivo: -3 },
-      MIDDLE: { acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 },
+      YOUNG: { acciones: +15, bonos: -15, criptomonedas: +4, efectivo: -4 },
+      YOUNG_ADULT: { acciones: +12, bonos: -12, criptomonedas: +3, efectivo: -3 },
+      ADULT: { acciones: +10, bonos: -10, criptomonedas: +2, efectivo: -2 },
+      MIDDLE: { acciones: +5, bonos: -5, criptomonedas: 0, efectivo: 0 },
+      EXPERIENCED: { acciones: -5, bonos: +5, criptomonedas: -2, efectivo: +2 },
+      MATURE: { acciones: -15, bonos: +15, criptomonedas: -3, efectivo: +3 },
       SENIOR: { acciones: -20, bonos: +20, criptomonedas: -5, efectivo: +5 }
     },
     
@@ -109,15 +117,18 @@ const PORTFOLIO_CONFIG = {
     
     // Por fondo de emergencia
     EMERGENCY_FUND: {
-      LOW: { acciones: -5, bonos: +3, criptomonedas: 0, efectivo: +2 },
-      HIGH: { acciones: +5, bonos: -5, criptomonedas: 0, efectivo: 0 }
+      NONE: { acciones: -10, bonos: 5, criptomonedas: -3, efectivo: 8 },      // Sin fondo
+      LOW: { acciones: -5, bonos: 3, criptomonedas: 0, efectivo: 2 },         // Poco fondo
+      MEDIUM: { acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 },       // Fondo parcial
+      HIGH: { acciones: 5, bonos: -5, criptomonedas: 0, efectivo: 0 }         // Fondo completo
     },
     
     // Por horizonte temporal
     TIME_HORIZON: {
       SHORT: { acciones: -15, bonos: +10, criptomonedas: -5, efectivo: +10 },
-      MEDIUM: { acciones: 0, bonos: 0, criptomonedas: 0, efectivo: 0 },
-      LONG: { acciones: +15, bonos: -10, criptomonedas: +5, efectivo: -10 }
+      MEDIUM: { acciones: +5, bonos: -5, criptomonedas: +2, efectivo: -2 },
+      LONG: { acciones: +15, bonos: -10, criptomonedas: +5, efectivo: -10 },
+      VERY_LONG: { acciones: +20, bonos: -15, criptomonedas: +10, efectivo: -15 }
     },
     
     // Por preferencia de dividendos

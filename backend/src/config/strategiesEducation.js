@@ -2,40 +2,40 @@
 
 const STRATEGIES_EDUCATION = {
   DCA: {
-    name: "Dollar Cost Averaging (DCA)",
-    shortDescription: "Inversión periódica de cantidades fijas",
-    description: "El Dollar Cost Averaging consiste en invertir una cantidad fija de dinero de forma regular (mensual, trimestral, etc.) independientemente de las condiciones del mercado. Esta estrategia elimina la necesidad de intentar predecir el mejor momento para invertir.",
-    howItWorks: "Inviertes la misma cantidad cada periodo, comprando más participaciones cuando los precios están bajos y menos cuando están altos, promediando el costo de compra a lo largo del tiempo.",
-    advantages: [
-      "Reduce el riesgo de timing del mercado",
-      "Disciplina automática de inversión",
-      "Ideal para principiantes sin experiencia en análisis de mercados",
-      "Reduce el impacto emocional de la volatilidad",
-      "Permite invertir sin necesidad de grandes sumas iniciales"
-    ],
-    disadvantages: [
-      "Puede ser menos rentable que una inversión de suma global en mercados alcistas",
-      "No aprovecha oportunidades puntuales del mercado",
-      "Requiere constancia y disciplina a largo plazo"
-    ],
-    suitability: {
-      'Bajo Riesgo': {
-        'Principiante': "Perfecta para ti: elimina la presión de decidir cuándo invertir y reduce la ansiedad asociada con la volatilidad del mercado.",
-        'Intermedia': "Excelente estrategia que complementa tu perfil conservador, permitiendo una entrada gradual y controlada al mercado.",
-        'Avanzada': "Aunque tengas experiencia, esta estrategia te permite mantener un enfoque disciplinado sin asumir riesgos de timing."
-      },
-      'Riesgo Moderado': {
-        'Principiante': "Ideal para construir confianza mientras aprendes sobre los mercados, reduciendo el riesgo de tomar decisiones emocionales.",
-        'Intermedia': "Te permite mantener una estrategia consistente mientras desarrollas tu comprensión de los ciclos del mercado.",
-        'Avanzada': "Una base sólida que puedes combinar con otras estrategias más sofisticadas según las oportunidades del mercado."
-      },
-      'Alto Riesgo': {
-        'Principiante': "Te ayuda a entrar al mercado de forma controlada, evitando la tentación de apostar todo en momentos de alta volatilidad.",
-        'Intermedia': "Proporciona estabilidad a tu estrategia general, complementando posibles inversiones más arriesgadas.",
-        'Avanzada': "Una estrategia core que te permite mantener disciplina mientras exploras oportunidades más agresivas con parte de tu capital."
-      }
+  name: "Dollar Cost Averaging (DCA)",
+  shortDescription: "Inversión periódica de cantidades fijas",
+  description: "Inviertes una cantidad fija regularmente (mensual, trimestral) sin importar las condiciones del mercado. Elimina intentar predecir el mejor momento.",
+  howItWorks: "Elige una fecha como puede ser principios de mes e inviertes lo mismo cada vez.",
+  advantages: [
+    "Elimina timing del mercado",
+    "Disciplina automática",
+    "Ideal para principiantes",
+    "Reduce impacto emocional",
+    "No necesitas grandes sumas iniciales"
+  ],
+  disadvantages: [
+    "Menos rentable que suma global en mercados alcistas",
+    "No aprovecha oportunidades puntuales",
+    "Requiere constancia"
+  ],
+  suitability: {
+    'Bajo Riesgo': {
+      'Principiante': "Perfecta para ti: elimina presión de decidir cuándo invertir y reduce ansiedad.",
+      'Intermedia': "Excelente: permite entrada gradual y controlada.",
+      'Avanzada': "Mantiene enfoque disciplinado sin riesgos de timing."
+    },
+    'Riesgo Moderado': {
+      'Principiante': "Ideal para ganar confianza mientras aprendes, reduce decisiones emocionales.",
+      'Intermedia': "Estrategia consistente mientras desarrollas comprensión de ciclos.",
+      'Avanzada': "Base sólida que puedes combinar con estrategias más sofisticadas."
+    },
+    'Alto Riesgo': {
+      'Principiante': "Te ayuda a entrar de forma controlada, evita apostar todo en volatilidad.",
+      'Intermedia': "Proporciona estabilidad, complementa inversiones más arriesgadas.",
+      'Avanzada': "Estrategia core para mantener disciplina mientras exploras oportunidades."
     }
-  },
+  }
+},
 
   PERIODIC: {
     name: "Inversión Periódica Simple",

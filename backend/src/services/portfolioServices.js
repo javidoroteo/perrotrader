@@ -320,10 +320,19 @@ class PortfolioService {
     return CONFIG.RISK_PROFILES[level].name;
   }
 
+  getEmergencyFundLevel(emergencyValue) {
+  if (emergencyValue === 0) return 'NONE';      // Sin fondo de emergencia
+  if (emergencyValue === 1) return 'LOW';       // Empezando a construirlo
+  if (emergencyValue === 2) return 'MEDIUM';    // Parcialmente construido
+  return 'HIGH';                                 // Fondo completo (3 o más)
+}
+
+
   getTimeHorizonLevel(timeValue) {
     if (timeValue <= 1) return 'SHORT';      // 3 años o menos
-    if (timeValue <= 3) return 'MEDIUM';     // 3-10 años  
-    return 'LONG';                           // Más de 10 años
+    if (timeValue <= 2) return 'MEDIUM';     // 3-5 años  
+    if (timeValue <= 3) return 'LONG';       // 5-10 años
+    return 'VERY_LONG';                           // Más de 10 años
   }
   /**
    * Genera el reporte del fondo de emergencia
@@ -676,7 +685,7 @@ async generatePortfolioExplanation(session) {
   const incomeLevel = this.getIncomeLevel(session.experienceScore);
   const riskLevel = this.getRiskLevel(session.totalScore);
   const timeLevel = this.getTimeHorizonLevel(session.timeValue);
-  const emergencyLevel = session.emergencyFund <= 1 ? 'LOW' : 'HIGH';
+  const emergencyLevel = this.getEmergencyFundLevel(session.emergencyFund);
   
   const explanations = [];
   

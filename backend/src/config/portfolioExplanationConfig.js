@@ -58,19 +58,39 @@ const PORTFOLIO_EXPLANATION_CONFIG = {
   // Explicaciones por edad
   AGE_EXPLANATION: {
     'Joven': {
-      title: "Tu edad: 18-30 años",
+      title: "Tu edad: 18-25 años",
       impact: "Tu juventud permite un horizonte temporal largo, por lo que tu cartera tiene mayor exposición a acciones para aprovechar el crecimiento compuesto. Tienes décadas para recuperarte de caídas temporales.",
       ifDifferent: "Si tus objetivos son de corto plazo (comprar casa en 2-3 años, por ejemplo) a pesar de tu edad, considera aumentar bonos y efectivo para reducir el riesgo de tener que vender acciones en un mal momento."
     },
+    'Adulto Joven': {
+      title: "Tu edad: 26-30 años",
+      impact: "Tu juventud permite un horizonte temporal largo, por lo que tu cartera tiene mayor exposición a acciones para aprovechar el crecimiento compuesto. Tienes décadas para recuperarte de caídas temporales.",
+      ifDifferent: "Si tus objetivos son de corto plazo (comprar casa en 2-3 años, por ejemplo) a pesar de tu edad, considera aumentar bonos y efectivo para reducir el riesgo de tener que vender acciones en un mal momento."
+    },
+    'Adulto': {
+      title: "Tu edad: 31-35 años",
+      impact: "En esta etapa, tu cartera equilibra crecimiento con algo de protección. Aún tienes horizonte temporal para aprovechar el crecimiento de acciones pero con más conservadurismo que inversores más jóvenes.",
+      ifDifferent: "",
+    },
     'Media': {
-      title: "Tu edad: 31-55 años",
+      title: "Tu edad: 36-45 años",
       impact: "En edad media, tu cartera balancea crecimiento con algo de protección. Aún tienes horizonte temporal para aprovechar el crecimiento de acciones pero con más conservadurismo que inversores más jóvenes.",
-      ifDifferent: "Si estás en la parte más joven de este rango (31-40) y cómodo con riesgo, considera aumentar acciones. Si estás más cerca de 55 y priorizas estabilidad, aumenta bonos y reduce acciones gradualmente."
+      ifDifferent: "Si estás en la parte más joven de este rango (36-40) y cómodo con riesgo, considera aumentar acciones. Si estás más cerca de 45 y priorizas estabilidad, aumenta bonos y reduce acciones gradualmente."
+    },
+    'Maduro': {
+      title: "Tu edad: 46-55 años",
+      impact: "En este rango de edad, tu cartera empieza a priorizar la preservación del capital mediante mayor asignación a bonos y efectivo, reduciendo exposición a acciones volátiles. El enfoque es proteger lo acumulado.",
+      ifDifferent: "Si estás en la parte más joven de este rango (46-50) y cómodo con riesgo, considera aumentar acciones. Si estás más cerca de 55 y priorizas estabilidad, aumenta bonos y reduce acciones gradualmente."
+    },
+    'Senior': {
+      title: "Tu edad: 56-66 años",
+      impact: "Con menor horizonte temporal, tu cartera prioriza la preservación del capital mediante mayor asignación a bonos y efectivo, reduciendo exposición a acciones volátiles. El enfoque es proteger lo acumulado.",
+      ifDifferent: "Si tu situación financiera te permiten mantener un horizonte más largo (planeas no tocar inversiones por 10+ años), podrías mantener más acciones. Si necesitas el dinero pronto, aumenta aún más bonos y efectivo."
     },
     'Mayor': {
-      title: "Tu edad: 56+ años",
+      title: "Tu edad: 66 años o más",
       impact: "Con menor horizonte temporal, tu cartera prioriza la preservación del capital mediante mayor asignación a bonos y efectivo, reduciendo exposición a acciones volátiles. El enfoque es proteger lo acumulado.",
-      ifDifferent: "Si tu salud y situación financiera te permiten mantener un horizonte más largo (planeas no tocar inversiones por 10+ años), podrías mantener más acciones. Si necesitas el dinero pronto, aumenta aún más bonos y efectivo."
+      ifDifferent: "Si situación financiera te permiten mantener un horizonte más largo (planeas no tocar inversiones por 10+ años), podrías mantener más acciones. Si necesitas el dinero pronto, aumenta aún más bonos y efectivo."
     }
   },
 
@@ -95,17 +115,28 @@ const PORTFOLIO_EXPLANATION_CONFIG = {
 
   // Explicaciones por fondo de emergencia
   EMERGENCY_FUND_EXPLANATION: {
-    LOW: {
-      title: "Fondo de emergencia: Insuficiente (0-4 meses)",
-      impact: "Sin un colchón robusto, tu cartera tiene mayor asignación a efectivo y activos líquidos. Priorizamos que tengas acceso rápido a dinero en caso de imprevistos.",
-      ifDifferent: "Si ya has construido un fondo de emergencia de 6+ meses después de hacer el test, puedes reducir efectivo y aumentar acciones para buscar mayor crecimiento."
-    },
-    HIGH: {
-      title: "Fondo de emergencia: Sólido (6+ meses)",
-      impact: "Con un buen fondo de emergencia, tu cartera puede tener menor asignación a efectivo y mayor exposición a activos de crecimiento. Tienes la tranquilidad de no necesitar vender inversiones ante imprevistos.",
-      ifDifferent: "Si tu fondo de emergencia ha disminuido desde el test, considera aumentar efectivo dentro de la cartera como precaución adicional."
-    }
+  NONE: {
+    title: "Fondo de emergencia: Sin colchón (0 meses)",
+    impact: "Priorizamos liquidez. Tu cartera tiene más efectivo y menos activos volátiles para asegurar acceso rápido al dinero.",
+    ifDifferent: "Si ya has construido un fondo de emergencia después de hacer el test, actualiza tu perfil para reducir efectivo y aumentar exposición a activos de crecimiento."
   },
+  LOW: {
+    title: "Fondo de emergencia: En construcción (1-3 meses)",
+    impact: "Mantenemos precaución con mayor efectivo y bonos mientras completas tu colchón financiero.",
+    ifDifferent: "Si ya has alcanzado 6+ meses de gastos cubiertos, considera actualizar tu perfil para optimizar la asignación hacia activos de mayor rentabilidad."
+  },
+  MEDIUM: {
+    title: "Fondo de emergencia: Casi completo (4-5 meses)",
+    impact: "Con tu fondo casi completo, tu cartera adopta un enfoque equilibrado. Mantienes suficiente liquidez pero comienzas a aprovechar mejor oportunidades de crecimiento a mediano plazo.",
+    ifDifferent: "Si tu situación ha cambiado y tu fondo se ha reducido, considera aumentar temporalmente efectivo en la cartera como medida de precaución adicional."
+  },
+  HIGH: {
+    title: "Fondo de emergencia: Sólido (6+ meses)",
+    impact: "Con un fondo de emergencia robusto, tu cartera puede optimizar el crecimiento con menor asignación a efectivo y mayor exposición a activos de rentabilidad. Tienes la tranquilidad de no necesitar vender inversiones ante imprevistos.",
+    ifDifferent: "Si tu fondo de emergencia ha disminuido desde el test, considera aumentar efectivo dentro de la cartera como precaución adicional."
+  }
+},
+
 
   // Explicaciones por horizonte temporal
   TIME_HORIZON_EXPLANATION: {
@@ -115,13 +146,18 @@ const PORTFOLIO_EXPLANATION_CONFIG = {
       ifDifferent: "Si tu horizonte es realmente más largo (no necesitarás el dinero por 5+ años), aumenta acciones y reduce bonos para aprovechar el potencial de crecimiento a largo plazo."
     },
     MEDIUM: {
-      title: "Horizonte temporal: Medio plazo (3-10 años)",
+      title: "Horizonte temporal: Medio plazo (3-5 años)",
       impact: "Con horizonte medio, tu cartera balancea crecimiento y estabilidad. Tienes tiempo para recuperarte de volatilidad pero no tanto como para ser completamente agresivo.",
-      ifDifferent: "Si tu horizonte es más corto (necesitas el dinero en 1-2 años), aumenta bonos y efectivo. Si es más largo (10+ años), aumenta acciones."
+      ifDifferent: "Si tu horizonte es más corto (necesitas el dinero en 1-2 años), aumenta bonos y efectivo. Si es más largo (5+ años), aumenta acciones."
     },
     LONG: {
-      title: "Horizonte temporal: Largo plazo (10+ años)",
+      title: "Horizonte temporal: Largo plazo (5-10 años)",
       impact: "Con horizonte largo, tu cartera tiene mayor exposición a acciones para maximizar el crecimiento compuesto. Puedes permitirte ignorar la volatilidad de corto plazo.",
+      ifDifferent: "Si en realidad necesitarás parte del dinero antes de lo planificado, aumenta bonos y efectivo para esa porción que puedas necesitar en los próximos años."
+    },
+    VERY_LONG: {
+      title: "Horizonte temporal: Muy largo plazo (10+ años)",
+      impact: "Con horizonte muy largo, tu cartera maximiza exposición a acciones y activos de crecimiento. Tienes décadas para beneficiarte del crecimiento compuesto y recuperarte de caídas.",
       ifDifferent: "Si en realidad necesitarás parte del dinero antes de lo planificado, aumenta bonos y efectivo para esa porción que puedas necesitar en los próximos años."
     }
   },

@@ -3,46 +3,45 @@
 const RENTA_VARIABLE_CONFIG = {
   // Contenido principal por experiencia y dividendos
   MAIN_CONTENT: {
-    'Principiante': {
-      0: { // No busca dividendos
-        title: "Fondos indexados diversificados",
-        content: `Empieza con un fondo que replique el S&P 500 o MSCI World. Son automáticos, diversificados y perfectos para aprender sin complicarte. Tienen ventaja fiscal: puedes hacer traspasos entre fondos sin pagar impuestos hasta que retires el dinero.
+'Principiante': {
+  0: { // No busca dividendos
+    title: "Fondos indexados diversificados",
+    content: `Empieza con fondos que repliquen S&P 500 o MSCI World. Automáticos, diversificados y fáciles. Ventaja fiscal: traspasos entre fondos sin impuestos hasta retirar.
 
-Una vez cómodo con fondos, considera ETFs como IWDA (iShares MSCI World) o VWCE (Vanguard All-World). Menor coste que los fondos activos y acceso a miles de empresas globales.
+Luego prueba ETFs como IWDA o VWCE. Menor coste y acceso a miles de empresas globales.
 
-Lo mejor al principio es crear un hábito de inversión, ir creando la cartera mientras que obtienes experiencia y empiezas a comprender mejor el mercado.
+Crea un hábito de inversión. Ve construyendo tu cartera mientras ganas experiencia.`,
 
-Estos fondos están pensados para que estés lo más diversificado posible con la menor complicación. Son perfectos para principiantes para ir adentrándose en el mundo de la inversión.`,
-        tips: [
-          "Busca fondos indexados y ETFs de tipo acumulación, donde reinvierten los dividendos en las mismas acciones, así generas interés compuesto y lo ahorras en impuestos.",
-          "Si te reparten dividendos a tu cuenta hay que pagar impuestos por ello."
-        ],
-        products: [
-          { name: "S&P 500 ETFs",ticker:"SPY5.L", description: "Acceso a las 500 mayores empresas estadounidenses" },
-          { name: "MSCI World ETFs", ticker:"IWDA.L", description: "Diversificación global en mercados desarrollados" },
-          { name: "VWCE (Vanguard All-World)", ticker:"VWCE.DE", description: "Acceso a miles de empresas globales" }
-        ]
-      },
-      1: { // Busca dividendos
-        title: "Fondos y ETFs que reparten dividendos",
-        content: `Si tu objetivo es generar ingresos periódicos, puedes empezar por fondos indexados o ETFs de distribución. Estos productos reparten los dividendos generados por las empresas que componen el índice directamente en tu cuenta.
+    tips: [
+      "Busca fondos de acumulación: reinvierten dividendos y ahorras impuestos",
+      "Si te reparten dividendos, pagas impuestos por ello"
+    ],
+    products: [
+      { name: "S&P 500 ETFs", ticker: "SPY5.L", description: "500 mayores empresas estadounidenses" },
+      { name: "MSCI World ETFs", ticker: "IWDA.L", description: "Diversificación global" },
+      { name: "VWCE (Vanguard All-World)", ticker: "VWCE.DE", description: "Miles de empresas globales" }
+    ]
+  },
 
-Aunque tienen una estructura sencilla como los fondos de acumulación, los de distribución están diseñados específicamente para que recibas ese flujo de caja sin necesidad de vender.
+  1: { // Busca dividendos
+    title: "Fondos y ETFs que reparten dividendos",
+    content: `Para ingresos periódicos, usa fondos o ETFs de distribución. Reparten dividendos directamente en tu cuenta.
 
-Puedes buscar fondos o ETFs que sigan índices amplios como el MSCI World, el S&P 500 o incluso índices centrados en empresas que reparten dividendos de forma consistente, como los Dividend Aristocrats.
+Busca fondos que sigan índices amplios (MSCI World, S&P 500) o Dividend Aristocrats.
 
-Lo bueno de este tipo de empresas es que en general no son tan volátiles, es decir sus movimientos no son tan bruscos, ni para abajo ni para arriba, así que en general se consideran menos arriesgadas. Pero recuerda, rendimientos pasados no garantizan rendimientos futuros.`,
-        tips: [
-          "Revisa la política de reparto y la fiscalidad",
-          "A diferencia de los fondos de acumulación, aquí sí tributarás por los dividendos cobrados cada año.",
-          "Asegúrate de que el reparto se adapte a tu calendario y que el producto sea compatible con tu broker."
-        ],
-        products: [
-          { name: "iShares MSCI World Dividend UCITS ETF (WQDV)",ticker:"WQDV.L", description: "Invierte en empresas de todo el mundo que reparten dividendo" },
-          { name: "SPDR S&P Global Dividend Aristocrats",ticker:"	GLDV.L", description: "Empresas que llevan repartiendo y aumentando dividendo durante los últimos 7 años" }
-        ]
-      }
-    },
+Estas empresas suelen ser menos volátiles, más estables. Pero recuerda: rentabilidades pasadas no garantizan futuras.`,
+
+    tips: [
+      "Revisa política de reparto y fiscalidad",
+      "Tributarás por dividendos cobrados cada año",
+      "Asegúrate que el reparto se adapte a tu calendario"
+    ],
+    products: [
+      { name: "iShares MSCI World Dividend UCITS ETF (WQDV)", ticker: "WQDV.L", description: "Empresas globales que reparten dividendo" },
+      { name: "SPDR S&P Global Dividend Aristocrats", ticker: "GLDV.L", description: "Empresas con 7+ años aumentando dividendos" }
+    ]
+  }
+},
     'Intermedia': {
       0: { // No dividendos
         title: "Fondos y ETFs para crecer sin complicarte",

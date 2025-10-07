@@ -4,67 +4,69 @@ const RENTA_FIJA_CONFIG = {
   // Contenido principal por experiencia y preferencia de dividendos
   MAIN_CONTENT: {
     'Principiante': {
-      0: { // Sin preferencia por ingresos periódicos (acumulación)
-        title: "Renta Fija para Acumulación - Nivel Principiante",
-        content: `Como inversor principiante que prioriza la acumulación de capital, la renta fija será tu ancla de estabilidad en la cartera. Te recomendamos comenzar con fondos diversificados que reinviertan automáticamente los cupones para maximizar el efecto del interés compuesto.
+  0: { // Sin preferencia por ingresos periódicos (acumulación)
+    title: "Renta Fija para Acumulación - Nivel Principiante",
+    content: `La renta fija estabiliza tu cartera. Empieza con fondos diversificados que reinviertan los cupones automáticamente: así aprovechas el interés compuesto.
 
-Los ETFs de acumulación son ideales para tu perfil porque no generan distribuciones gravables periódicas, permitiéndote diferir los impuestos hasta la venta. Esto es especialmente ventajoso si tienes un horizonte temporal medio-largo.
+Los ETFs de acumulación son ideales porque no generan impuestos hasta que vendas. Perfecto para horizonte medio-largo.
 
-Evita la compra directa de bonos individuales al principio, ya que requiere mayor capital y conocimiento para diversificar adecuadamente el riesgo de crédito y duración.`,
-        tips: [
-          "Prioriza fondos de acumulación sobre los de distribución para optimizar la fiscalidad",
-          "Comienza con fondos globales diversificados antes de especializarte en sectores",
-          "Reinvierte automáticamente cualquier distribución accidental para mantener el crecimiento compuesto",
-          "Considera la duración del fondo según tu horizonte temporal específico"
-        ],
-        products: [
-          {
-            name: "iShares Core Global Aggregate Bond UCITS ETF (AGGG)",
-            description: "ETF de acumulación con exposición global diversificada, ideal para principiantes"
-          },
-          {
-            name: "Vanguard Global Aggregate Bond UCITS ETF (VAGF)",
-            description: "Fondo de acumulación con comisiones muy bajas y amplia diversificación geográfica"
-          },
-          {
-            name: "Xtrackers Global Government Bond UCITS ETF (XGOV)",
-            description: "Enfocado en bonos soberanos globales, menor riesgo de crédito"
-          }
-        ]
+Evita bonos individuales al principio: necesitas más capital y conocimiento para diversificar bien.`,
+
+    tips: [
+      "Usa fondos de acumulación para diferir impuestos",
+      "Empieza con fondos globales antes de especializarte",
+      "Considera la duración según tu horizonte temporal"
+    ],
+    products: [
+      {
+        name: "iShares Core Global Aggregate Bond UCITS ETF (AGGG)",
+        description: "ETF de acumulación global diversificado, ideal para empezar"
       },
-      1: { // Con preferencia por ingresos periódicos
-        title: "Renta Fija para Ingresos - Nivel Principiante",
-        content: `Al buscar ingresos periódicos de la renta fija, necesitas productos que distribuyan cupones de forma regular. Los fondos y ETFs de distribución serán tus aliados principales, ya que te ofrecen diversificación profesional y pagos periódicos predecibles.
-
-Es importante que entiendas que los ingresos por cupones están sujetos a tributación anual, independientemente de si los reinviertes o no. Por ello, asegúrate de tener un plan fiscal claro.
-
-Para principiantes, recomendamos fondos que combinen bonos soberanos y corporativos de alta calidad, evitando especializaciones muy arriesgadas como high yield o mercados emergentes.`,
-        tips: [
-          "Los cupones se tributan como rendimientos del capital mobiliario en el año que se reciben",
-          "Planifica la liquidez para los pagos de impuestos sobre los cupones recibidos",
-          "Busca fondos con historial de distribuciones consistentes y predecibles",
-          "Considera el calendario de pagos para planificar tu flujo de caja personal"
-        ],
-        products: [
-          {
-            name: "iShares Core Global Aggregate Bond UCITS ETF Dist (SAGG)",
-            description: "Versión distribuidora del agregado global, pagos trimestrales"
-          },
-          {
-            name: "Vanguard EUR Corporate Bond UCITS ETF (VECP)",
-            description: "Bonos corporativos europeos con distribuciones regulares"
-          },
-          {
-            name: "iShares EUR Government Bond UCITS ETF Dist (SEGA)",
-            description: "Bonos soberanos europeos con pagos predecibles"
-          },
-          {
-            name: "Xtrackers EUR Corporate Bond UCITS ETF Dist (XEUC)",
-            description: "Corporativos europeos grado inversión con distribución mensual"
-          }
-        ]
+      {
+        name: "Vanguard Global Aggregate Bond UCITS ETF (VAGF)",
+        description: "Comisiones muy bajas y diversificación geográfica amplia"
+      },
+      {
+        name: "Xtrackers Global Government Bond UCITS ETF (XGOV)",
+        description: "Bonos soberanos globales, menor riesgo"
       }
-    },
+    ]
+  },
+
+  1: { // Con preferencia por ingresos periódicos
+    title: "Renta Fija para Ingresos - Nivel Principiante",
+    content: `Si buscas ingresos periódicos, usa fondos o ETFs de distribución. Te dan diversificación profesional y pagos predecibles.
+
+Los cupones tributan anualmente aunque los reinviertas. Ten un plan fiscal claro.
+
+Para empezar, combina bonos soberanos y corporativos de alta calidad. Evita high yield o mercados emergentes.`,
+
+    tips: [
+      "Los cupones tributan como rendimientos del capital mobiliario",
+      "Planifica liquidez para impuestos de cupones",
+      "Busca fondos con distribuciones consistentes",
+      "Revisa calendario de pagos para tu flujo de caja"
+    ],
+    products: [
+      {
+        name: "iShares Core Global Aggregate Bond UCITS ETF Dist (SAGG)",
+        description: "Agregado global con pagos trimestrales"
+      },
+      {
+        name: "Vanguard EUR Corporate Bond UCITS ETF (VECP)",
+        description: "Corporativos europeos con distribuciones regulares"
+      },
+      {
+        name: "iShares EUR Government Bond UCITS ETF Dist (SEGA)",
+        description: "Soberanos europeos con pagos predecibles"
+      },
+      {
+        name: "Xtrackers EUR Corporate Bond UCITS ETF Dist (XEUC)",
+        description: "Corporativos grado inversión con distribución mensual"
+      }
+    ]
+  }
+},
     'Intermedia': {
       0: { // Sin preferencia por ingresos periódicos (acumulación)
         title: "Estrategia de Renta Fija Intermedia - Acumulación",
