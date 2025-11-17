@@ -1,0 +1,121 @@
+// frontend/src/components/Navbar.jsx
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/authContext';
+import LoginButton from './Auth/LoginButton';
+import UserProfile from './Auth/UserProfile';
+import { LayoutDashboard, Home, Search, Menu, X } from 'lucide-react';
+
+const Navbar = () => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navLinks = isAuthenticated ? [
+    { name: 'Inicio', path: '/', icon: Home },
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Buscar Activos', path: '/assets', icon: Search },
+  ] : [
+    { name: 'Inicio', path: '/', icon: Home },
+  ];
+
+  return (
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-transform">
+              <span className="text-white font-bold text-xl">IF</span>
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              IsFinz
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-6">
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              const isActive = location.pathname === link.path;
+              
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? 'bg-blue-50 text-blue-600 font-semibold'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{link.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Auth Section */}
+          <div className="hidden md:flex items-center gap-4">
+            {isAuthenticated ? (
+              <UserProfile compact />
+            ) : (
+              <LoginButton variant="primary" />
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6 text-gray-600" />
+            ) : (
+              <Menu className="w-6 h-6 text-gray-600" />
+            )}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden py-4 border-t border-gray-200 animate-in slide-in-from-top-2 duration-200">
+            <div className="flex flex-col gap-2">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = location.pathname === link.path;
+                
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-blue-50 text-blue-600 font-semibold'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span>{link.name}</span>
+                  </Link>
+                );
+              })}
+              
+              <div className="pt-4 border-t border-gray-200 mt-2">
+                {isAuthenticated ? (
+                  <UserProfile compact />
+                ) : (
+                  <LoginButton variant="primary" fullWidth />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;

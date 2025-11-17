@@ -101,7 +101,34 @@ class ReportApiService {
       throw error;
     }
   }
+  // En tu reportService.js, AGREGAR esta función:
+
+/**
+ * Obtiene el último reporte guardado del usuario autenticado
+ */
+async getMyReport() {
+  try {
+    const response = await fetch(`${this.baseURL}/reports/my-report`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting my report:', error);
+    throw error;
+  }
 }
+}
+
 
 // Exportar instancia singleton
 export const reportApiService = new ReportApiService();

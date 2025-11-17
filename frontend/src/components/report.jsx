@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import EmailReportSection from './EmailReportSection';
 import InvestorProfileSection from './InvestorProfileSection';
 import PersonalityProfileSection from './PersonalityProfileSection';
 import ModernPortfolioChart from './ModernPortfolioChart';
@@ -11,7 +10,8 @@ import RentaFijaSection from './RentaFijaSection';
 import PersonalityDimensionsChart from './PersonalityDimensionsChart';
 import PortfolioExplanationSection from './PortfolioExplanationSection';
 
-const ModernInvestorProfile = ({ result, sessionId, onRestart }) => {
+const ModernInvestorProfile = ({ result, sessionId, onRestart, hideEmailSection = false }) => {
+
   const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
@@ -30,67 +30,59 @@ const ModernInvestorProfile = ({ result, sessionId, onRestart }) => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [result]);
-// Función auxiliar para convertir riskProfile a valor numérico
-  const getRiskScaleValue = (riskProfile) => {
-    switch (riskProfile?.toLowerCase()) {
-      case 'bajo riesgo':
-      case 'conservador': return 20;
-      case 'riesgo moderado':
-      case 'moderado': return 50;
-      case 'alto riesgo':
-      case 'agresivo': return 80;
-      default: return 5;
-    }
-  };
 
-  // Función auxiliar para obtener color del riesgo
-  const getRiskColor = (riskProfile) => {
-    switch (riskProfile?.toLowerCase()) {
-      case 'bajo riesgo':
-      case 'conservador': return 'green';
-      case 'riesgo moderado':
-      case 'moderado': return 'yellow';
-      case 'alto riesgo':
-      case 'agresivo': return 'red';
-      default: return 'blue';
-    };
-  };
-  // Mapear los datos del backend a la estructura que esperan los componentes
   const mapBackendData = (backendResult) => {
-    
-    if (!backendResult) {
-      return null;
-    }
-    // Usar la estructura real que envía el backend
-    const investorProfile = backendResult.investorProfile || {
-      investorType: 'Inversor',
-      mainObjective: 'Crecimiento patrimonial',
-      experienceLevel: backendResult.experienceLevel || 'Principiante',
-      timeHorizon: 'Largo plazo'
-    };
+  if (!backendResult) {
+    return null;
+  }
 
-    const riskScale = {
-      value: getRiskScaleValue(backendResult.riskProfile),
-      color: getRiskColor(backendResult.riskProfile)
-    };
-
-    const result = {
-      investorProfile: { 
-        profile: investorProfile, 
-        riskScale 
-      },
-      portfolio: backendResult.portfolio,                    // Usar directamente
-      report: backendResult.report || null,
-      investmentStrategies: backendResult.investmentStrategies || null,
-      rentaVariableAdvice: backendResult.rentaVariableAdvice || null,
-      rentaFijaAdvice: backendResult.rentaFijaAdvice || null,
-      educationalGuide: backendResult.educationalGuide || null,
-      portfolioExplanation : backendResult.portfolioExplanation || null,
-      originalData: backendResult
-    };
-    
-    return result;
+  // Usar la estructura real que envía el backend
+  const investorProfile = backendResult.investorProfile || {
+    investorType: 'Inversor',
+    mainObjective: 'Crecimiento patrimonial',
+    experienceLevel: backendResult.experienceLevel || 'Principiante',
+    timeHorizon: 'Largo plazo'
   };
+
+  // 🆕 OBTENER RISKSCORE REAL DEL BACKEND (0-100)
+  const riskScoreValue = backendResult.riskScore || 
+                         backendResult.investorProfile?.riskScore || 
+                         50; // Fallback por si no existe
+
+  // 🆕 CALCULAR COLOR BASADO EN EL VALOR NUMÉRICO
+  let riskColor = 'yellow';
+  if (riskScoreValue <= 33) {
+    riskColor = 'green';
+  } else if (riskScoreValue <= 66) {
+    riskColor = 'yellow';
+  } else {
+    riskColor = 'red';
+  }
+
+  // 🆕 CREAR riskScale CON VALOR REAL
+  const riskScale = {
+    value: riskScoreValue,  // Número 0-100 del backend
+    color: riskColor        // Verde/Amarillo/Rojo según el valor
+  };
+
+  const result = {
+    investorProfile: { 
+      profile: investorProfile, 
+      riskScale 
+    },
+    portfolio: backendResult.portfolio,
+    report: backendResult.report || null,
+    investmentStrategies: backendResult.investmentStrategies || null,
+    rentaVariableAdvice: backendResult.rentaVariableAdvice || null,
+    rentaFijaAdvice: backendResult.rentaFijaAdvice || null,
+    educationalGuide: backendResult.educationalGuide || null,
+    portfolioExplanation: backendResult.portfolioExplanation || null,
+    originalData: backendResult
+  };
+  
+  return result;
+};
+
 
   // Mapear los datos
   const mappedResult = mapBackendData(result);
@@ -121,9 +113,6 @@ console.log('SessionId attempts:', {
         <p className="text-xl text-gray-600 max-w-2xl mx-auto mt-4 opacity-0 animate-[fadeInUp_0.7s_ease-out_0.3s_forwards]">
           El plan de inversión basado en perfiles similares al tuyo🚀
         </p>
-        <div className="max-w-2xl mx-auto mt-8 opacity-0 animate-[fadeInUp_0.7s_ease-out_0.6s_forwards]">
-            <EmailReportSection sessionId={sessionId} />
-        </div>
       </header>
 
       <div className="max-w-6xl mx-auto py-12 space-y-8 relative z-10">
