@@ -78,22 +78,14 @@ app.use('/api/rebalance', rebalanceRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
+app.get(['/', '/health', '/ready', '/live'], (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'IsFinz backend vivo y funcionando',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    services: {
-      quiz: 'active',
-      portfolio: 'active',
-      personality: 'active',
-      report: 'active',
-      auth: 'active',
-      assets: 'active',
-      rebalance: 'active',
-      database: 'connected',
-      priceUpdater: process.env.ENABLE_PRICE_UPDATER !== 'false' ? 'active' : 'disabled'
-    }
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0'
   });
 });
 
@@ -124,23 +116,11 @@ app.get("/stats", async (req, res) => {
 });
 
 // Manejo de errores 404
-app.use('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).json({
     error: 'Endpoint no encontrado',
     path: req.originalUrl,
-    method: req.method,
-    availableRoutes: [
-      'GET /health',
-      'GET /sessions',
-      'GET /stats',
-      'POST /api/quiz/*',
-      'POST /api/portfolio/*',
-      'POST /api/personality/*',
-      'POST /api/report/*',
-      'POST /api/auth/*',
-      'GET /api/assets/*',
-      'GET /api/rebalance/*'
-    ]
+    method: req.method
   });
 });
 
@@ -170,7 +150,7 @@ Stack: ${err.stack}
   });
 });
 
-// ✅ CORRECCIÓN: Guardar la referencia del servidor
+//Guardar la referencia del servidor
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`
 🚀 IsFinz Server Started Successfully!
