@@ -21,7 +21,13 @@ const recommendationRoutes = require('./routes/recommendationRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-const prisma = require('./utils/prisma');
+let prismaInstance = null;
+const getPrisma = () => {
+  if (!prismaInstance) {
+    prismaInstance = require('./utils/prisma');
+  }
+  return prismaInstance;
+};
 
 // Middlewares de seguridad
 app.use(helmet({
@@ -94,7 +100,7 @@ app.get('/health', (req, res) => {
 // Endpoints adicionales
 app.get("/sessions", async (req, res) => {
   try {
-    const sessions = await prisma.quizSession.findMany({
+    const sessions = await getPrisma().quizSession.findMany({
       include: {
         answers: true,
         personalityTest: true
@@ -109,7 +115,7 @@ app.get("/sessions", async (req, res) => {
 
 app.get("/stats", async (req, res) => {
   try {
-    const stats = await prisma.quizStats.findMany();
+    const stats = await getPrisma().quizStats.findMany();
     res.json(stats);
   } catch (error) {
     console.error("Error obteniendo stats:", error);
@@ -212,7 +218,7 @@ const gracefulShutdown = async (signal) => {
     console.log('✅ Servidor HTTP cerrado');
     
     try {
-      await prisma.$disconnect();
+      await getPrisma().$disconnect();
       console.log('✅ Base de datos desconectada');
       process.exit(0);
     } catch (error) {
