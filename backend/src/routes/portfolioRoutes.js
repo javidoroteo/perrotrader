@@ -1,18 +1,22 @@
-// Rutas del backend para la API del portfolio
+// backend/src/routes/portfolioRoutes.js
 
 const express = require('express');
-const portfolioService = require('../services/portfolioServices');
 const router = express.Router();
+const portfolioService = require('../services/portfolioServices'); // Servicio original del quiz
+const portfolioManagerController = require('../controllers/portfolioManagerController');
+const reportService = require('../services/reportService');
+const { isAuthenticated, checkAuth } = require('../middleware/auth');
+
+// ===== RUTAS DEL QUIZ (PÚBLICAS) =====
 
 /**
  * POST /api/portfolio/generate
  * Genera un reporte completo basado en la sesión del usuario
  */
-router.post('/generate', async (req, res) => {
+router.post('/generate', checkAuth, async (req, res) => {
   try {
     const sessionData = req.body;
-    
-    // Validar datos requeridos
+
     if (!sessionData.totalScore && sessionData.totalScore !== 0) {
       return res.status(400).json({
         error: 'Datos de sesión inválidos',
@@ -20,15 +24,20 @@ router.post('/generate', async (req, res) => {
       });
     }
 
-    // Generar resultado completo
     const result = await portfolioService.completeFinalResult(sessionData);
-
-    // AGREGAR sessionId al resultado
     result.sessionId = sessionData.id;
-    
-    // Agregar datos de sesión para el mapeo frontend
     result.session = sessionData;
-    
+
+    if (req.user) {
+      try {
+        await reportService.saveReport(sessionData.id, result);
+        result.reportSaved = true;
+      } catch (error) {
+        console.error('Error saving report:', error);
+        result.reportSaved = false;
+      }
+    }
+
     res.json(result);
   } catch (error) {
     console.error('Error generating report:', error);
@@ -46,10 +55,11 @@ router.post('/generate', async (req, res) => {
 router.post('/calculate', async (req, res) => {
   try {
     const sessionData = req.body;
-    const portfolioResult = portfolioService.calculatePortfolio(sessionData);
+    const portfolioResult = await portfolioService.calculatePortfolio(sessionData);
     
     res.json({
       riskProfile: portfolioResult.riskProfile,
+      riskScore: portfolioResult.riskScore,
       portfolio: portfolioResult.allocation
     });
   } catch (error) {
@@ -69,7 +79,6 @@ router.post('/recommendations', async (req, res) => {
   try {
     const sessionData = req.body;
     const recommendations = portfolioService.generateRecommendations(sessionData);
-    
     res.json(recommendations);
   } catch (error) {
     console.error('Error generating recommendations:', error);
@@ -87,8 +96,7 @@ router.post('/recommendations', async (req, res) => {
 router.post('/education', async (req, res) => {
   try {
     const sessionData = req.body;
-    const educationalGuide = portfolioService.generateEducationalGuide(sessionData);
-    
+    const educationalGuide = await portfolioService.generateEducationalGuide(sessionData);
     res.json(educationalGuide);
   } catch (error) {
     console.error('Error generating educational guide:', error);
@@ -99,9 +107,83 @@ router.post('/education', async (req, res) => {
   }
 });
 
+// ===== RUTAS DE GESTIÓN DE PORTFOLIOS (REQUIEREN AUTENTICACIÓN) =====
+
+/**
+ * POST /api/portfolio/create
+ * Crear portfolio desde quiz
+ */
+router.post('/create', isAuthenticated, portfolioManagerController.createFromQuiz);
+
+/**
+ * GET /api/portfolio/list
+ * Listar portfolios del usuario
+ */
+router.get('/list', isAuthenticated, portfolioManagerController.listPortfolios);
+
+/**
+ * GET /api/portfolio/:portfolioId
+ * Obtener detalles de un portfolio
+ */
+router.get('/:portfolioId', isAuthenticated, portfolioManagerController.getPortfolio);
+
+/**
+ * PUT /api/portfolio/:portfolioId
+ * Actualizar portfolio
+ */
+router.put('/:portfolioId', isAuthenticated, portfolioManagerController.updatePortfolio);
+
+/**
+ * DELETE /api/portfolio/:portfolioId
+ * Eliminar portfolio
+ */
+router.delete('/:portfolioId', isAuthenticated, portfolioManagerController.deletePortfolio);
+
+/**
+ * POST /api/portfolio/:portfolioId/holdings
+ * Agregar holding a portfolio
+ */
+router.post('/:portfolioId/holdings', isAuthenticated, portfolioManagerController.addHolding);
+
+/**
+ * GET /api/portfolio/:portfolioId/suggestions
+ * Obtener sugerencias de inversión
+ */
+router.get('/:portfolioId/suggestions', isAuthenticated, portfolioManagerController.getInvestmentSuggestions);
+
+// ===== 🆕 NUEVAS RUTAS: COMPARTIR PORTFOLIO (CORREGIDAS) =====
+
+/**
+ * POST /api/portfolio/:portfolioId/share
+ * Generar link para compartir portfolio (7 días de validez)
+ * ✅ CORREGIDO: Usa isAuthenticated
+ */
+router.post('/:portfolioId/share', isAuthenticated, portfolioManagerController.createShareLink);
+
+/**
+ * GET /api/portfolio/shared/:token
+ * Obtener portfolio compartido (PÚBLICO - no requiere auth)
+ * ✅ Registra visualización para analytics
+ */
+router.get('/shared/:token', portfolioManagerController.getSharedPortfolio);
+
+/**
+ * GET /api/portfolio/my-share-links
+ * Listar mis links compartidos con analytics
+ * ✅ CORREGIDO: Usa isAuthenticated y ruta sin conflictos
+ */
+router.get('/my-share-links', isAuthenticated, portfolioManagerController.getMyShareLinks);
+
+/**
+ * DELETE /api/portfolio/share-links/:token
+ * Eliminar/revocar un link compartido
+ * ✅ CORREGIDO: Usa isAuthenticated
+ */
+router.delete('/share-links/:token', isAuthenticated, portfolioManagerController.deleteShareLink);
+
 /**
  * GET /api/portfolio/health
- * Endpoint de salud para verificar que el servicio funciona
+ * Endpoint de salud
  */
 router.get('/health', (req, res) => {
   res.json({
@@ -109,6 +191,23 @@ router.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     service: 'portfolio-service'
   });
+
+  // ===== CREAR PORTFOLIO MANUAL (SIN QUIZ) =====
+/**
+ * POST /api/portfolio/create-manual
+ * Crear portfolio desde cero (sin quiz)
+ * Body: { name, totalSavings, manualProfile? }
+ */
+router.post('/create-manual', isAuthenticated, portfolioManagerController.createManualPortfolio);
+
+/**
+ * PUT /api/portfolio/:portfolioId/convert-to-quiz
+ * Convertir portfolio manual a portfolio con quiz
+ * Body: { sessionId }
+ */
+router.put('/:portfolioId/convert-to-quiz', isAuthenticated, portfolioManagerController.convertToQuizPortfolio);
+
 });
+
 
 module.exports = router;

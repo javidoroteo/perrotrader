@@ -1,11 +1,11 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../utils/prisma');
 const { v4: uuidv4 } = require('uuid');
 const quizService = require('../services/quizService');
 const portfolioService = require('../services/portfolioServices');
 const personalityService = require('../services/personalityServices');
 const questions = require('../data/questions');
 const personalityQuestions = require('../data/personalityQuestions');
+const { generateUserProfileEmbedding } = require('../services/embeddingService');
 
 
 class QuizController {
@@ -17,17 +17,18 @@ class QuizController {
     try {
       // Verificar quiz
       const session = await prisma.quizSession.findUnique({
-        where: { id: sessionId }
+        where: { id: sessionId },
+        include: { user: true } // NUEVO: incluir info del usuario si existe
       });
-      
+
       // Verificar test de personalidad
       const personalityTest = await prisma.personalityTest.findUnique({
         where: { sessionId }
       });
-      
+
       const quizComplete = session ? session.isCompleted : false;
       const personalityComplete = personalityTest ? personalityTest.completed : false;
-      
+
       return {
         quizComplete,
         personalityComplete,
@@ -50,55 +51,193 @@ class QuizController {
   /**
    * Genera resultado final solo cuando ambos tests estén completos
    */
-async generateFinalResultIfBothComplete(sessionId) {
+  async generateFinalResultIfBothComplete(sessionId) {
   const testStatus = await this.checkBothTestsComplete(sessionId);
-  
+
   if (!testStatus.bothComplete) {
     return {
       success: true,
       completed: false,
       quizComplete: testStatus.quizComplete,
       personalityComplete: testStatus.personalityComplete,
-      message: testStatus.quizComplete 
+      message: testStatus.quizComplete
         ? 'Quiz completado. Esperando test de personalidad.'
         : 'Test de personalidad completado. Esperando quiz.',
-      nextStep: testStatus.quizComplete ? 'personality_test' : 'continue_quiz'
+      nextStep: testStatus.quizComplete ? 'personality_test' : 'continue_quiz',
+      canLinkToUser: testStatus.quizComplete && !testStatus.session.userId
     };
   }
-  
+
   try {
     // Resultado del quiz
     const quizResult = await portfolioService.completeFinalResult(testStatus.session);
 
     // Resultado de personalidad
-    const personalityResult = testStatus.personalityTest 
+    const personalityResult = testStatus.personalityTest
       ? await personalityService.processCompleteTest(
-          sessionId, 
+          sessionId,
           Array.isArray(testStatus.personalityTest.responses)
             ? testStatus.personalityTest.responses
             : JSON.parse(testStatus.personalityTest.responses)
         )
       : null;
 
-      
-    // *** CAMBIO PRINCIPAL: Estructura correcta ***
+    // ========================================
+    // NUEVO: Crear y vectorizar perfil de inversión
+    // ========================================
+    try {
+      // Solo crear perfil si el usuario está vinculado
+      if (testStatus.session.userId) {
+        
+        // Extraer datos del perfil desde el quiz result
+// Extraer datos del perfil desde TU quiz result REAL
+const profileData = {
+  // Edad: desde session.age (valores 1-7 del quiz)
+  age: calculateAgeFromLevel(testStatus.session.age) || 35,
+  
+  // Ingresos y ahorros: NO los guardas directamente
+  // Los estimamos desde experienceScore (conopoints acumulados)
+  income: estimateIncomeFromConopoints(testStatus.session.experienceScore),
+  savings: estimateSavingsFromConopoints(testStatus.session.experienceScore),
+  
+  // Nivel de conocimientos: basado en experienceScore (expoints)
+  financialKnowledge: testStatus.session.experienceScore >= 9 ? 'ADVANCED' 
+    : testStatus.session.experienceScore >= 5 ? 'INTERMEDIATE' 
+    : 'BEGINNER',
+  
+  // Tolerancia al riesgo: desde riskProfile del resultado
+  riskTolerance: quizResult.riskProfile || 'Riesgo Moderado',
+  
+  // Preferencias: extraídas de los valores del quiz
+  investmentPreferences: extractPreferences(testStatus.session),
+  
+  // Horizonte temporal: basado en timeValue del quiz
+  timeHorizon: testStatus.session.timeValue >= 4 ? 'LARGO' 
+    : testStatus.session.timeValue >= 2 ? 'MEDIO' 
+    : 'CORTO'
+};
+
+// Funciones auxiliares para estimar ingresos y ahorros
+function calculateAgeFromLevel(ageLevel) {
+  const ageMap = {
+    1: 22,  // 18-25
+    2: 28,  // 26-30
+    3: 33,  // 31-35
+    4: 40,  // 36-45
+    5: 50,  // 46-55
+    6: 60,  // 56-66
+    7: 70   // 66+
+  };
+  return ageMap[ageLevel] || 35;
+}
+
+function estimateIncomeFromConopoints(conopoints) {
+  // Conopoints reflejan patrimonio + ingresos + ahorro
+  // Valores típicos: -1 a 22 puntos
+  if (conopoints <= 3) return 15000;   // Bajo
+  if (conopoints <= 7) return 30000;   // Medio-bajo
+  if (conopoints <= 12) return 50000;  // Medio
+  if (conopoints <= 18) return 80000;  // Medio-alto
+  return 120000;                        // Alto
+}
+
+function estimateSavingsFromConopoints(conopoints) {
+  // Estimación de ahorros basada en conopoints
+  if (conopoints <= 3) return 5000;
+  if (conopoints <= 7) return 15000;
+  if (conopoints <= 12) return 30000;
+  if (conopoints <= 18) return 60000;
+  return 100000;
+}
+
+
+        // Verificar si ya existe perfil para este usuario
+        const existingProfile = await prisma.userInvestmentProfile.findUnique({
+          where: { userId: testStatus.session.userId }
+        });
+
+        if (existingProfile) {
+          // Actualizar perfil existente
+          const { generateUserProfileEmbedding } = require('../services/embeddingService');
+          const { embedding, profileText } = await generateUserProfileEmbedding(profileData);
+          const embeddingStr = `[${embedding.join(',')}]`;
+          
+          await prisma.$executeRawUnsafe(`
+            UPDATE user_investment_profiles 
+            SET 
+              age = $1,
+              income = $2,
+              savings = $3,
+              "financialKnowledge" = $4,
+              "riskTolerance" = $5,
+              "investmentPreferences" = $6,
+              "timeHorizon" = $7,
+              "profileText" = $8,
+              embedding = $9::vector,
+              "updatedAt" = NOW()
+            WHERE "userId" = $10
+          `, 
+            profileData.age,
+            profileData.income,
+            profileData.savings,
+            profileData.financialKnowledge,
+            profileData.riskTolerance,
+            profileData.investmentPreferences,
+            profileData.timeHorizon,
+            profileText,
+            embeddingStr,
+            testStatus.session.userId
+          );
+          
+          console.log('✓ Perfil de inversión actualizado y vectorizado');
+          
+        } else {
+          const { generateUserProfileEmbedding } = require('../services/embeddingService');
+          const { embedding, profileText } = await generateUserProfileEmbedding(profileData);
+          
+          const profile = await prisma.userInvestmentProfile.create({
+            data: {
+              userId: testStatus.session.userId,
+              ...profileData,
+              profileText
+            }
+          });
+
+          // Vectorizar el perfil
+          const embeddingStr = `[${embedding.join(',')}]`;
+          await prisma.$executeRawUnsafe(`
+            UPDATE user_investment_profiles 
+            SET embedding = $1::vector
+            WHERE id = $2
+          `, embeddingStr, profile.id);
+          
+          console.log('✓ Perfil de inversión creado y vectorizado');
+        }
+      }
+    } catch (vectorError) {
+      console.error('Error creando/vectorizando perfil:', vectorError);
+      // No fallar si falla la vectorización
+    }
+    // ========================================
+
     return {
       success: true,
       completed: true,
       result: {
         sessionId: sessionId,
+        userId: testStatus.session.userId,
+        isLinkedToUser: !!testStatus.session.userId,
         // Datos del quiz (portfolioService.completeFinalResult)
         riskProfile: quizResult.riskProfile,
         experienceLevel: quizResult.experienceLevel,
         portfolio: quizResult.portfolio,
-        report: quizResult.report,                    // <- Aquí está tu report
+        report: quizResult.report,
         rentaFijaAdvice: quizResult.rentaFijaAdvice,
         rentaVariableAdvice: quizResult.rentaVariableAdvice,
         investmentStrategies: quizResult.investmentStrategies,
         educationalGuide: quizResult.educationalGuide,
         investorProfile: quizResult.investorProfile,
         portfolioExplanation: quizResult.portfolioExplanation,
-        
         // Datos de personalidad (solo el profile)
         personality: personalityResult ? personalityResult.profile : null
       }
@@ -112,17 +251,24 @@ async generateFinalResultIfBothComplete(sessionId) {
   }
 }
 
-  // Iniciar nueva sesión del cuestionario
+  /**
+   * Iniciar nueva sesión del cuestionario
+   * MODIFICADO: Ahora puede vincular con usuario si está autenticado
+   */
   async startQuiz(req, res) {
     try {
       const sessionId = uuidv4();
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
 
+      // NUEVO: Obtener userId si está autenticado (viene del middleware checkAuth)
+      const userId = req.user?.id || null;
+
       const session = await prisma.quizSession.create({
         data: {
           id: sessionId,
           expiresAt,
-          currentQuestionId: 101 // Primera pregunta
+          currentQuestionId: 101, // Primera pregunta
+          userId // NUEVO: vincular con usuario si está loggeado
         }
       });
 
@@ -131,6 +277,7 @@ async generateFinalResultIfBothComplete(sessionId) {
       res.json({
         success: true,
         sessionId,
+        userId: userId, // NUEVO: informar si está vinculado a usuario
         question: firstQuestion,
         progress: {
           current: 1,
@@ -144,14 +291,121 @@ async generateFinalResultIfBothComplete(sessionId) {
     }
   }
 
+  /**
+   * NUEVO: Vincular sesión existente con usuario autenticado
+   * Se usa cuando el usuario completa el quiz sin cuenta y luego se registra
+   */
+  async linkSessionToUser(req, res) {
+    try {
+      const { sessionId } = req.body;
+
+      if (!req.user) {
+        return res.status(401).json({
+          error: 'Usuario no autenticado'
+        });
+      }
+
+      // Verificar que la sesión existe y no está vinculada a otro usuario
+      const session = await prisma.quizSession.findUnique({
+        where: { id: sessionId }
+      });
+
+      if (!session) {
+        return res.status(404).json({
+          error: 'Sesión no encontrada'
+        });
+      }
+
+      if (session.userId && session.userId !== req.user.id) {
+        return res.status(403).json({
+          error: 'Esta sesión ya está vinculada a otro usuario'
+        });
+      }
+
+      // Vincular sesión al usuario
+      const updatedSession = await prisma.quizSession.update({
+        where: { id: sessionId },
+        data: {
+          userId: req.user.id,
+          email: req.user.email // Actualizar email también
+        }
+      });
+
+      res.json({
+        success: true,
+        message: 'Sesión vinculada correctamente al usuario',
+        sessionId: updatedSession.id,
+        userId: updatedSession.userId
+      });
+    } catch (error) {
+      console.error('Error linking session to user:', error);
+      res.status(500).json({
+        error: 'Error vinculando sesión',
+        message: error.message
+      });
+    }
+  }
+
+  /**
+   * NUEVO: Obtener historial de sesiones del usuario autenticado
+   */
+  async getUserSessions(req, res) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          error: 'Usuario no autenticado'
+        });
+      }
+
+      const sessions = await prisma.quizSession.findMany({
+        where: {
+          userId: req.user.id
+        },
+        include: {
+          personalityTest: true,
+          _count: {
+            select: { answers: true }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+
+      res.json({
+        success: true,
+        count: sessions.length,
+        sessions: sessions.map(s => ({
+          id: s.id,
+          createdAt: s.createdAt,
+          updatedAt: s.updatedAt,
+          isCompleted: s.isCompleted,
+          riskProfile: s.riskProfile,
+          totalScore: s.totalScore,
+          answersCount: s._count.answers,
+          hasPersonalityTest: !!s.personalityTest
+        }))
+      });
+    } catch (error) {
+      console.error('Error getting user sessions:', error);
+      res.status(500).json({
+        error: 'Error obteniendo sesiones del usuario',
+        message: error.message
+      });
+    }
+  }
+
   // Obtener pregunta actual
   async getCurrentQuestion(req, res) {
     try {
       const { sessionId } = req.params;
-      
+
       const session = await prisma.quizSession.findUnique({
         where: { id: sessionId },
-        include: { answers: { orderBy: { createdAt: 'asc' } } }
+        include: { 
+          answers: { orderBy: { createdAt: 'asc' } },
+          user: true
+        }
       });
 
       if (!session) {
@@ -169,18 +423,18 @@ async generateFinalResultIfBothComplete(sessionId) {
       }
 
       const question = quizService.getQuestionById(session.currentQuestionId);
-      
+
       // Usar el sistema de progreso consistente
       const progress = quizService.calculateProgress(session.answers.length, questions.length);
 
       // Agregar conteo de preguntas respondidas para la barra
       progress.answeredCount = session.answers.length;
-      
+
       // Agregar progreso global si hay test de personalidad
       const personalityTest = await prisma.personalityTest.findUnique({
         where: { sessionId }
       });
-      
+
       if (personalityTest) {
         const personalityProgress = quizService.calculatePersonalityProgress(
           personalityTest.currentBlock || 1
@@ -192,7 +446,9 @@ async generateFinalResultIfBothComplete(sessionId) {
         success: true,
         question,
         progress,
-        canGoBack: session.answers.length > 0
+        canGoBack: session.answers.length > 0,
+        userId: session.userId, // NUEVO: informar si está vinculado
+        isLinkedToUser: !!session.userId // NUEVO: flag
       });
     } catch (error) {
       console.error('Error getting current question:', error);
@@ -200,7 +456,7 @@ async generateFinalResultIfBothComplete(sessionId) {
     }
   }
 
-  // Responder pregunta
+  // Responder pregunta (SIN CAMBIOS - mantener toda la lógica existente)
   async answerQuestion(req, res) {
     try {
       const { sessionId, questionId, answerIndex, answerText, selectedAnswers } = req.body;
@@ -224,16 +480,15 @@ async generateFinalResultIfBothComplete(sessionId) {
       }
 
       // ========================================
-      // NUEVA LÓGICA PARA SELECCIÓN MÚLTIPLE
+      // LÓGICA PARA SELECCIÓN MÚLTIPLE (SIN CAMBIOS)
       // ========================================
-      
       let finalAnswer, finalPoints = 0, finalConoPoints = 0, finalExPoints = 0;
       let cryptoExposure = 0, timeValue = 0, emergencyFund = 0, esgValue = 0;
-      let dividend = 0, pensionFund = 0, gold = 0, age = 0, buyHouse = 0, childrenEducation = 0, wealthGrowth = 0
+      let dividend = 0, pensionFund = 0, gold = 0, age = 0, buyHouse = 0, childrenEducation = 0, wealthGrowth = 0;
       let nextQuestionId;
 
       if (question.multipleSelect && selectedAnswers && Array.isArray(selectedAnswers)) {
-        // SELECCIÓN MÚLTIPLE: Procesar array de respuestas
+        // SELECCIÓN MÚLTIPLE
         const selectedTexts = [];
         let maxExPoints = 0;
 
@@ -241,11 +496,9 @@ async generateFinalResultIfBothComplete(sessionId) {
           const answer = question.answers[index];
           if (answer) {
             selectedTexts.push(answer.text);
-            
-            // Sumar todos los puntos excepto Expoints (donde tomamos el máximo)
             finalPoints += answer.points || 0;
             finalConoPoints += answer.conopoints || 0;
-            maxExPoints = Math.max(maxExPoints, answer.Expoints || 0); // ← MÁXIMO para Expoints
+            maxExPoints = Math.max(maxExPoints, answer.Expoints || 0);
             cryptoExposure += answer.criptoExposure || 0;
             timeValue += answer.timeValue || 0;
             emergencyFund += answer.emergencyFund || 0;
@@ -260,15 +513,12 @@ async generateFinalResultIfBothComplete(sessionId) {
           }
         });
 
-        finalExPoints = maxExPoints; // ← Usar el máximo para Expoints
-        finalAnswer = answerText; // Ya viene combinado del frontend
-        
-        // Usar nextQuestion del primer elemento seleccionado
-        nextQuestionId = question.answers[selectedAnswers[0]]?.nextQuestion || 
-                       quizService.getNextQuestionId(questionId);
-
+        finalExPoints = maxExPoints;
+        finalAnswer = answerText;
+        nextQuestionId = question.answers[selectedAnswers[0]]?.nextQuestion ||
+          quizService.getNextQuestionId(questionId);
       } else {
-        // SELECCIÓN ÚNICA: Lógica original (SIN CAMBIOS)
+        // SELECCIÓN ÚNICA
         const answer = question.answers[answerIndex];
         if (!answer) {
           return res.status(400).json({ error: 'Respuesta no válida' });
@@ -292,16 +542,12 @@ async generateFinalResultIfBothComplete(sessionId) {
         nextQuestionId = answer.nextQuestion || quizService.getNextQuestionId(questionId);
       }
 
-      // ========================================
-      // GUARDAR RESPUESTA (actualizado para usar variables finales)
-      // ========================================
-
       // Guardar respuesta
       await prisma.quizAnswer.create({
         data: {
           sessionId,
           questionId,
-          answerIndex: question.multipleSelect ? -1 : answerIndex, // -1 para múltiple
+          answerIndex: question.multipleSelect ? -1 : answerIndex,
           answerText: finalAnswer,
           points: finalPoints,
           conoPoints: finalConoPoints,
@@ -349,17 +595,15 @@ async generateFinalResultIfBothComplete(sessionId) {
           where: { id: sessionId },
           data: { isCompleted: true }
         });
-        
+
         // Verificar si ambos tests están completos antes de generar resultado final
         const finalResult = await this.generateFinalResultIfBothComplete(sessionId);
-        
         return res.json(finalResult);
       }
 
       // Obtener siguiente pregunta y calcular progreso
       const nextQuestion = quizService.getQuestionById(nextQuestionId);
       const progress = quizService.calculateProgress(updatedSession.answers.length, questions.length);
-      // Agregar conteo de preguntas respondidas para la barra
       progress.answeredCount = updatedSession.answers.length;
 
       res.json({
@@ -368,24 +612,23 @@ async generateFinalResultIfBothComplete(sessionId) {
         progress,
         canGoBack: true
       });
-
     } catch (error) {
       console.error('Error answering question:', error);
       res.status(500).json({ error: 'Error al procesar la respuesta' });
     }
   }
 
-  // Ir a pregunta anterior
+  // Los siguientes métodos permanecen SIN CAMBIOS
   async goToPreviousQuestion(req, res) {
     try {
       const { sessionId } = req.body;
 
       const session = await prisma.quizSession.findUnique({
         where: { id: sessionId },
-        include: { 
-          answers: { 
+        include: {
+          answers: {
             orderBy: { createdAt: 'desc' }
-          } 
+          }
         }
       });
 
@@ -393,13 +636,12 @@ async generateFinalResultIfBothComplete(sessionId) {
         return res.status(400).json({ error: 'No hay preguntas anteriores' });
       }
 
-      // Eliminar la última respuesta
       const lastAnswer = session.answers[0];
+
       await prisma.quizAnswer.delete({
         where: { id: lastAnswer.id }
       });
 
-      // Actualizar puntuaciones de la sesión (restar los puntos de la respuesta eliminada)
       await prisma.quizSession.update({
         where: { id: sessionId },
         data: {
@@ -409,7 +651,7 @@ async generateFinalResultIfBothComplete(sessionId) {
           cryptoScore: { decrement: lastAnswer.cryptoExposure || 0 },
           timeValue: { decrement: lastAnswer.timeValue || 0 },
           emergencyFund: { decrement: lastAnswer.emergencyFund || 0 },
-          esgValue: { decrement: lastAnswer.esg || 0 },
+          esgValue: { decrement: lastAnswer.esgValue || 0 },
           dividend: { decrement: lastAnswer.dividend || 0 },
           pensionFund: { decrement: lastAnswer.pensionFund || 0 },
           gold: { decrement: lastAnswer.gold || 0 },
@@ -421,7 +663,6 @@ async generateFinalResultIfBothComplete(sessionId) {
         }
       });
 
-      // Obtener pregunta actual
       const question = quizService.getQuestionById(lastAnswer.questionId);
       const remainingAnswers = session.answers.slice(1);
       const progress = quizService.calculateProgress(remainingAnswers.length, questions.length);
@@ -432,18 +673,16 @@ async generateFinalResultIfBothComplete(sessionId) {
         progress,
         canGoBack: remainingAnswers.length > 0
       });
-
     } catch (error) {
       console.error('Error going to previous question:', error);
       res.status(500).json({ error: 'Error al retroceder' });
     }
   }
 
-  // Obtener progreso
   async getProgress(req, res) {
     try {
       const { sessionId } = req.params;
-      
+
       const session = await prisma.quizSession.findUnique({
         where: { id: sessionId },
         include: { answers: true }
@@ -455,7 +694,7 @@ async generateFinalResultIfBothComplete(sessionId) {
 
       const progress = quizService.calculateProgress(session.answers.length, questions.length);
       progress.answeredCount = session.answers.length;
-      
+
       res.json({
         success: true,
         progress,
@@ -469,11 +708,9 @@ async generateFinalResultIfBothComplete(sessionId) {
     }
   }
 
-  // Obtener resultado final
   async getFinalResult(req, res) {
     try {
       const { sessionId } = req.params;
-      
       const finalResult = await this.generateFinalResultIfBothComplete(sessionId);
       res.json(finalResult);
     } catch (error) {
@@ -482,17 +719,14 @@ async generateFinalResultIfBothComplete(sessionId) {
     }
   }
 
-  // Reiniciar cuestionario
   async restartQuiz(req, res) {
     try {
       const { sessionId } = req.params;
-      
-      // Eliminar respuestas existentes
+
       await prisma.quizAnswer.deleteMany({
         where: { sessionId }
       });
 
-      // Resetear sesión
       await prisma.quizSession.update({
         where: { id: sessionId },
         data: {
@@ -504,10 +738,13 @@ async generateFinalResultIfBothComplete(sessionId) {
           timeValue: 0,
           emergencyFund: 0,
           esgValue: 0,
-          dividend  : 0,
+          dividend: 0,
           pensionFund: 0,
           gold: 0,
           age: 0,
+          buyHouse: 0,
+          childrenEducation: 0,
+          wealthGrowth: 0,
           riskProfile: null,
           portfolioData: null,
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
@@ -531,7 +768,6 @@ async generateFinalResultIfBothComplete(sessionId) {
     }
   }
 
-  // Obtener todas las preguntas (para debug)
   async getAllQuestions(req, res) {
     try {
       res.json({
@@ -546,4 +782,56 @@ async generateFinalResultIfBothComplete(sessionId) {
   }
 }
 
+// Función auxiliar para extraer preferencias de inversión
+// Función auxiliar para extraer preferencias de inversión
+// Basada en tus valores REALES del quiz
+function extractPreferences(session) {
+  const preferences = [];
+  
+  // ESG/Sostenibilidad (session.esgValue: 0, 1 o 2)
+  if (session.esgValue && session.esgValue > 0) {
+    preferences.push('sostenibilidad');
+  }
+  
+  // Dividendos (session.dividend: 0 o 1)
+  if (session.dividend === 1) {
+    preferences.push('dividendos');
+  }
+  
+  // Fondo de pensión (session.pensionFund: 0 o 1)
+  if (session.pensionFund === 1) {
+    preferences.push('pensión');
+  }
+  
+  // Oro (session.gold: 0, 1 o 2)
+  if (session.gold && session.gold > 0) {
+    preferences.push('oro');
+  }
+  
+  // Criptomonedas (session.cryptoScore: -1, 1, 2 o 3)
+  if (session.cryptoScore && session.cryptoScore > 1) {
+    preferences.push('criptomonedas');
+  }
+  
+  // Comprar vivienda (session.buyHouse: 0 o 1)
+  if (session.buyHouse === 1) {
+    preferences.push('vivienda');
+  }
+  
+  // Educación hijos (session.childrenEducation: 0 o 1)
+  if (session.childrenEducation === 1) {
+    preferences.push('educación');
+  }
+  
+  // Crecimiento patrimonial (session.wealthGrowth: 0 o 1)
+  if (session.wealthGrowth === 1) {
+    preferences.push('crecimiento');
+  }
+  
+  // Si no hay preferencias, poner "diversificación"
+  return preferences.length > 0 ? preferences : ['diversificación'];
+}
+
+
 module.exports = new QuizController();
+

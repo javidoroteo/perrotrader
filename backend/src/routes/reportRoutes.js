@@ -4,8 +4,11 @@ const express = require('express');
 const router = express.Router();
 const PDFService = require('../services/pdfService');
 const EmailService = require('../services/emailService');
+const reportController = require('../controllers/reportController');
+const { isAuthenticated } = require('../middleware/auth');
 const PortfolioService = require('../services/portfolioServices');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../utils/prismaClient');
+
 
 // Importar validadores de Joi
 const {
@@ -439,4 +442,28 @@ router.get('/debug-chrome', (req, res) => {
     cacheContents
   });
 });
+// ===== NUEVAS RUTAS: REPORTES GUARDADOS EN BD =====
+
+
+/**
+ * GET /api/report/saved/:sessionId
+ * Obtener reporte guardado en BD por sessionId
+ */
+router.get('/saved/:sessionId', reportController.getReport);
+
+/**
+ * GET /api/report/user/my-reports  
+ * Obtener todos los reportes guardados del usuario autenticado
+ */
+router.get('/user/my-reports', isAuthenticated, reportController.getUserReports);
+
+/**
+ * DELETE /api/report/saved/:sessionId
+ * Eliminar reporte guardado de la BD
+ */
+router.delete('/saved/:sessionId', isAuthenticated, reportController.deleteReport);
+// ====================================================
+
+router.get('/my-report', isAuthenticated, reportController.getMyReport);
+
 module.exports = router;

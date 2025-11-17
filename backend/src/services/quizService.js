@@ -1,4 +1,4 @@
-const { PrismaClient } = require('../utils/prismaCLients');
+const prisma = require('../utils/prismaClient');
 const questions = require('../data/questions');
 
 class QuizService {
@@ -139,12 +139,6 @@ calculateProgress(answeredQuestions, totalQuestions) {
         percentage: Math.min(percentage, 100), // Asegurar que no exceda 100%
         answeredCount: answeredQuestions
     };
-}
-
-// También agregar esta función auxiliar que usa tu controlador
-getQuestionById(questionId) {
-    const { questions } = require('../data/questions');
-    return questions.find(q => q.id === questionId);
 }
 
 // Y esta función que también necesitas

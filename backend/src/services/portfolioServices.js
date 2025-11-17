@@ -46,12 +46,132 @@ class PortfolioService {
     //console.log('7. Cartera final normalizada:', portfolio);
     
     const riskProfile = this.getRiskProfile(session.totalScore);
+
+    // 🆕 9. CALCULAR RISK SCORE DINÁMICO (0-100)
+  let personalityData = null;
+  try {
+    personalityData = await PersonalityService.calculatePersonality(session.id);
+  } catch (error) {
+    console.warn('⚠️ No se pudo calcular personalidad para risk score:', error.message);
+  }
+
+  const riskScore = this.calculateRiskScore(session, portfolio, personalityData);
+
+  // 🆕 10. DETERMINAR CATEGORÍA DE RIESGO BASADA EN SCORE
+  let riskProfileName;
+  if (riskScore <= 33) {
+    riskProfileName = 'Bajo Riesgo';
+  } else if (riskScore <= 66) {
+    riskProfileName = 'Riesgo Moderado';
+  } else {
+    riskProfileName = 'Alto Riesgo';
+  }
     
     return {
       riskProfile,
+      riskScore: riskScore, //Valor de 0 a 100
       allocation: portfolio
     };
   }
+
+  /**
+ * Calcula el nivel de riesgo real (0-100) basado en múltiples factores
+ * @param {Object} session - Sesión del usuario con todos los datos
+ * @param {Object} portfolio - Portfolio final calculado
+ * @param {Object} personalityData - Datos de personalidad del usuario
+ * @returns {number} Risk score de 0-100
+ */
+calculateRiskScore(session, portfolio, personalityData) {
+  let riskScore = 0;
+
+  // 1. SCORE BASE DEL QUIZ (30% - max 30 puntos)
+  const quizScore = (session.totalScore / 25) * 30;
+  riskScore += quizScore;
+
+  // 2. COMPOSICIÓN DEL PORTFOLIO (30% - max 30 puntos)
+  const assetRiskWeights = {
+    criptomonedas: 1.0,   // Máximo riesgo
+    acciones: 0.75,       // Alto riesgo
+    oro: 0.25,            // Bajo-medio riesgo
+    bonos: 0.20,          // Bajo riesgo
+    efectivo: 0.0         // Sin riesgo
+  };
+
+  let portfolioRisk = 0;
+  for (const [asset, percentage] of Object.entries(portfolio)) {
+    const weight = assetRiskWeights[asset] || 0;
+    portfolioRisk += (percentage / 100) * weight;
+  }
+  
+  const portfolioScore = portfolioRisk * 30;
+  riskScore += portfolioScore;
+
+  // 3. FACTORES OBJETIVOS (25% - max 25 puntos)
+  let objectiveScore = 0;
+
+  // 3.1 Edad (0-7 puntos)
+  const age = session.age || 30;
+  if (age < 30) objectiveScore += 7;
+  else if (age < 40) objectiveScore += 5.5;
+  else if (age < 50) objectiveScore += 4;
+  else if (age < 60) objectiveScore += 2.5;
+  else objectiveScore += 1;
+
+  // 3.2 Experiencia (0-7 puntos)
+  const expPoints = session.expoints || 0;
+  if (expPoints >= 9) objectiveScore += 7;
+  else if (expPoints >= 5) objectiveScore += 4.5;
+  else objectiveScore += 2;
+
+  // 3.3 Horizonte temporal (0-6 puntos)
+  const horizon = session.horizon || 1;
+  if (horizon >= 10) objectiveScore += 6;
+  else if (horizon >= 5) objectiveScore += 4;
+  else if (horizon >= 3) objectiveScore += 2.5;
+  else objectiveScore += 1;
+
+  // 3.4 Fondo de emergencia (0-5 puntos)
+  const emergencyFund = session.emergencyFund || 0;
+  if (emergencyFund >= 6) objectiveScore += 5;
+  else if (emergencyFund >= 3) objectiveScore += 3;
+  else if (emergencyFund >= 1) objectiveScore += 1.5;
+
+  riskScore += objectiveScore;
+
+  // 4. FACTORES DE PERSONALIDAD (15% - max 15 puntos)
+  let personalityScore = 0;
+
+  if (personalityData && personalityData.percentages) {
+    const dims = personalityData.percentages;
+    
+    // Ambición (0-6 puntos)
+    personalityScore += (dims.B || 0) / 100 * 6;
+    
+    // Oportunismo (0-4 puntos)
+    personalityScore += (dims.O || 0) / 100 * 4;
+    
+    // Autonomía (0-3 puntos)
+    personalityScore += (dims.T || 0) / 100 * 3;
+    
+    // Intuición (0-2 puntos)
+    personalityScore += (dims.I || 0) / 100 * 2;
+  }
+
+  riskScore += personalityScore;
+
+  // 5. NORMALIZACIÓN
+  riskScore = Math.min(100, Math.max(0, Math.round(riskScore)));
+
+  console.log('📊 Risk Score Calculation:');
+  console.log('  Quiz Score:', quizScore.toFixed(2));
+  console.log('  Portfolio Score:', portfolioScore.toFixed(2));
+  console.log('  Objective Score:', objectiveScore.toFixed(2));
+  console.log('  Personality Score:', personalityScore.toFixed(2));
+  console.log('  FINAL RISK SCORE:', riskScore);
+
+  return riskScore;
+}
+
 
   /**
    * Aplica ajustes basados en el test de personalidad usando porcentajes
@@ -656,10 +776,20 @@ async generateRentaVariableAdvice(session) {
       HIGH: 'red'
     };
 
+    // Determinar riskLevel basado en riskScore (0-100)
+  let riskLevelName;
+  if (riskScore <= 33) {
+    riskLevelName = 'Bajo Riesgo';
+  } else if (riskScore <= 66) {
+    riskLevelName = 'Riesgo Moderado';
+  } else {
+    riskLevelName = 'Alto Riesgo';
+  }
+
     return {
       riskScale: {
-        value: riskValue,
-        color: riskColorMap[riskProfile] || 'gray'
+        value: riskScore,  // 🆕 Ahora es el valor real 0-100
+        color: riskScore <= 33 ? 'green' : riskScore <= 66 ? 'yellow' : 'red'
       },
       profile: {
         investorType,
@@ -933,7 +1063,10 @@ async generatePortfolioExplanation(session) {
    */
   async completeFinalResult(session) {
   const portfolio = await this.calculatePortfolio(session);
-  const investorProfile = await this.generateInvestorProfile(session);
+   const investorProfile = await this.generateInvestorProfile(
+    session, 
+    portfolioResult.riskScore  // Pasar el riskScore calculado
+  );
   const report = await this.generateReport(session);
   const rentaFijaAdvice = await this.generateRentaFijaAdvice(session);
   const rentaVariableAdvice = await this.generateRentaVariableAdvice(session);
@@ -944,6 +1077,7 @@ async generatePortfolioExplanation(session) {
   return {
     sessionId: session.id,
     riskProfile: portfolio.riskProfile,
+    riskScore: portfolioResult.riskScore,
     experienceLevel: this.getExperienceLevel(session.experienceScore),
     portfolio: portfolio.allocation,               // Plano
     report,                                         // Objeto directo
@@ -955,6 +1089,178 @@ async generatePortfolioExplanation(session) {
     portfolioExplanation
   };
 }
-    };
+   // ===== 🆕 MÉTODOS PARA EXPORTAR Y COMPARTIR =====
+
+  /**
+   * Generar link para compartir portfolio (válido 7 días)
+   */
+  async createShareLink(portfolioId, userId) {
+    try {
+      const prisma = require('@prisma/client').PrismaClient;
+      const db = new prisma();
+
+      // Verificar que el portfolio pertenece al usuario
+      const portfolio = await db.portfolio.findUnique({
+        where: { id: portfolioId }
+      });
+
+      if (!portfolio || portfolio.userId !== userId) {
+        throw new Error('Portfolio no encontrado o no tienes permiso');
+      }
+
+      // Eliminar links expirados
+      await db.sharedPortfolio.deleteMany({
+        where: {
+          expiresAt: { lt: new Date() }
+        }
+      });
+
+      // Crear nuevo link (válido 7 días)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7);
+
+      const shareLink = await db.sharedPortfolio.create({
+        data: {
+          portfolioId,
+          createdBy: userId,
+          expiresAt
+        }
+      });
+
+      return {
+        success: true,
+        token: shareLink.token,
+        shareUrl: `${process.env.FRONTEND_URL}/shared-portfolio/${shareLink.token}`,
+        expiresAt: shareLink.expiresAt
+      };
+    } catch (error) {
+      console.error('Error creating share link:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener portfolio compartido por token
+   */
+  async getSharedPortfolio(token) {
+    try {
+      const prisma = require('@prisma/client').PrismaClient;
+      const db = new prisma();
+
+      const shared = await db.sharedPortfolio.findUnique({
+        where: { token },
+        include: {
+          portfolio: {
+            include: {
+              holdings: {
+                include: {
+                  asset: true,
+                  financialProduct: true
+                }
+              }
+            }
+          },
+          owner: {
+            select: { name: true, email: true }
+          }
+        }
+      });
+
+      if (!shared) {
+        throw new Error('Link no encontrado o expirado');
+      }
+
+      // Verificar si expiró
+      if (new Date() > shared.expiresAt) {
+        await db.sharedPortfolio.delete({ where: { token } });
+        throw new Error('Este link ha expirado');
+      }
+
+      // Incrementar view count
+      await db.sharedPortfolio.update({
+        where: { token },
+        data: {
+          viewCount: { increment: 1 },
+          lastViewedAt: new Date()
+        }
+      });
+
+      return {
+        success: true,
+        portfolio: shared.portfolio,
+        sharedBy: shared.owner,
+        viewCount: shared.viewCount + 1
+      };
+    } catch (error) {
+      console.error('Error getting shared portfolio:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Listar mis links compartidos activos
+   */
+  async getMyShareLinks(userId) {
+    try {
+      const prisma = require('@prisma/client').PrismaClient;
+      const db = new prisma();
+
+      const links = await db.sharedPortfolio.findMany({
+        where: {
+          createdBy: userId,
+          expiresAt: { gt: new Date() }
+        },
+        include: {
+          portfolio: {
+            select: { name: true, currentValue: true }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      return {
+        success: true,
+        links: links.map(link => ({
+          token: link.token,
+          portfolioName: link.portfolio.name,
+          shareUrl: `${process.env.FRONTEND_URL}/shared-portfolio/${link.token}`,
+          expiresAt: link.expiresAt,
+          viewCount: link.viewCount,
+          createdAt: link.createdAt
+        }))
+      };
+    } catch (error) {
+      console.error('Error getting my share links:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Eliminar link compartido
+   */
+  async deleteShareLink(token, userId) {
+    try {
+      const prisma = require('@prisma/client').PrismaClient;
+      const db = new prisma();
+
+      const shared = await db.sharedPortfolio.findUnique({
+        where: { token }
+      });
+
+      if (!shared || shared.createdBy !== userId) {
+        throw new Error('No tienes permiso para eliminar este link');
+      }
+
+      await db.sharedPortfolio.delete({
+        where: { token }
+      });
+
+      return { success: true, message: 'Link eliminado' };
+    } catch (error) {
+      console.error('Error deleting share link:', error);
+      throw error;
+    }
+  }
+}
 
 module.exports = new PortfolioService();

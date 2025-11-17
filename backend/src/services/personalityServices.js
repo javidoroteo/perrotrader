@@ -1,9 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../utils/prismaClient');
 const { personalityQuestions } = require('../data/personalityQuestions');
 const { archetypeDetails } = require('../config/archetypes');
-
-
-const prisma = new PrismaClient();
 
 class PersonalityService {
   constructor() {

@@ -7,31 +7,67 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ===== MODELO DE USUARIO =====
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  name        String?
+  dateOfBirth DateTime?
+  googleId    String?   @unique
+  provider    String    @default("local")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+
+  hasCompletedQuiz Boolean @default(false)
+
+  // Relaciones existentes
+  quizSessions QuizSession[]
+  portfolios   Portfolio[]
+  transactions Transaction[]
+  sharedLinks  SharedPortfolio[]
+
+  // Relación con perfil de inversión vectorizado
+  investmentProfile      UserInvestmentProfile?
+  productRecommendations ProductRecommendation[]
+  //Compartir portafolio
+  sharedPortfolios       SharedPortfolio[]       @relation("SharedPortfoliosCreated")
+
+  @@map("users")
+}
+
+// ===== SESIONES DE QUIZ =====
 model QuizSession {
-  id                String           @id @default(uuid())
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id                String   @id @default(uuid())
+  userId            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
   expiresAt         DateTime
   currentQuestionId Int?
-  isCompleted       Boolean          @default(false)
-  totalScore        Int              @default(0)
-  experienceScore   Int              @default(0)
-  cryptoScore       Int              @default(0)
-  timeValue         Int              @default(0)
-  emergencyFund     Int              @default(0)
-  esgValue          Int              @default(0)
-  pensionFund       Int              @default(0)
-  dividend          Int              @default(0)
-  age               Int              @default(0)
-  gold              Int              @default(0)
-  buyHouse          Int              @default(0)
-  childrenEducation Int              @default(0)
-  wealthGrowth      Int              @default(0)
+  isCompleted       Boolean  @default(false)
+  totalScore        Int      @default(0)
+  experienceScore   Int      @default(0)
+  cryptoScore       Int      @default(0)
+  timeValue         Int      @default(0)
+  emergencyFund     Int      @default(0)
+  esgValue          Int      @default(0)
+  pensionFund       Int      @default(0)
+  dividend          Int      @default(0)
+  age               Int      @default(0)
+  gold              Int      @default(0)
+  buyHouse          Int      @default(0)
+  childrenEducation Int      @default(0)
+  wealthGrowth      Int      @default(0)
   riskProfile       String?
-  portfolioData     String?
+  portfolioData     String? // JSON del reporte completo
   email             String?
-  personalityTest   PersonalityTest?
-  answers           QuizAnswer[]
+
+  savedReport SavedReport?
+
+  // Relaciones
+  user            User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  personalityTest PersonalityTest?
+  answers         QuizAnswer[]
 
   @@map("quiz_sessions")
 }
@@ -91,4 +127,278 @@ model QuizStats {
   monthlyIncome  String?
 
   @@map("quiz_stats")
+}
+
+model SavedReport {
+  id        String   @id @default(uuid())
+  sessionId String   @unique
+  userId    String?
+  createdAt DateTime @default(now())
+
+  riskProfile          String
+  experienceLevel      String
+  portfolioAllocation  String // JSON: { bonos: 30, acciones: 60, ... }
+  investorProfile      String // JSON del perfil completo
+  recommendations      String // JSON de recomendaciones
+  educationalGuide     String // JSON de la guía educativa
+  rentaFijaAdvice      String // JSON
+  rentaVariableAdvice  String // JSON
+  investmentStrategies String // JSON
+  personalityProfile   String? // JSON del test de personalidad
+
+  session QuizSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("saved_reports")
+}
+
+// ===== PORTFOLIO MANAGER =====
+model Portfolio {
+  id              String   @id @default(uuid())
+  userId          String
+  name            String   @default("Mi Portfolio")
+  totalSavings    Float    @default(0)
+  currentValue    Float    @default(0)
+  riskProfile     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdFromQuiz Boolean  @default(false)
+  sessionId       String?
+
+  recommendedRentaFija     Float @default(0)
+  recommendedRentaVariable Float @default(0)
+  recommendedCrypto        Float @default(0)
+  recommendedGold          Float @default(0)
+  recommendedCash          Float @default(0)
+
+  actualRentaFija     Float @default(0)
+  actualRentaVariable Float @default(0)
+  actualCrypto        Float @default(0)
+  actualGold          Float @default(0)
+  actualCash          Float @default(0)
+
+  manualAdjustments    String?
+  lastManualAdjustment DateTime?
+
+  needsRebalancing   Boolean   @default(false)
+  lastRebalanceCheck DateTime?
+
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  holdings         Holding[]
+  transactions     Transaction[]
+  rebalanceHistory RebalanceHistory[]
+  sharedLinks      SharedPortfolio[]
+
+  @@map("portfolios")
+}
+
+model Asset {
+  id           String   @id @default(uuid())
+  ticker       String   @unique
+  name         String
+  type         String // "ETF", "CRYPTO", "GOLD", "CASH"
+  category     String // "RENTA_FIJA", "RENTA_VARIABLE", "CRYPTO", "GOLD", "CASH"
+  description  String?
+  currentPrice Float    @default(0)
+  currency     String   @default("USD")
+  lastUpdated  DateTime @default(now())
+
+  baseTicker String?
+  exchange   String?
+  isin       String?
+  ter        String?
+
+  riskLevel      String?
+  expenseRatio   Float?
+  isRecommended  Boolean @default(false)
+  recommendedFor String?
+
+  holdings     Holding[]
+  transactions Transaction[]
+  priceHistory AssetPrice[]
+
+  @@map("assets")
+}
+
+model Holding {
+  id                 String   @id @default(uuid())
+  portfolioId        String
+  assetId            String? // MODIFICADO: Opcional para usar FinancialProduct
+  financialProductId String? // NUEVO: Relación con productos vectorizados
+  quantity           Float
+  averagePrice       Float
+  currentValue       Float
+  allocation         Float
+  targetAmount       Float?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  portfolio        Portfolio         @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  asset            Asset?            @relation(fields: [assetId], references: [id])
+  financialProduct FinancialProduct? @relation(fields: [financialProductId], references: [id])
+
+  @@unique([portfolioId, assetId])
+  @@map("holdings")
+}
+
+model Transaction {
+  id           String   @id @default(uuid())
+  userId       String
+  portfolioId  String
+  assetId      String
+  type         String
+  quantity     Float
+  pricePerUnit Float
+  totalAmount  Float
+  fee          Float    @default(0)
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id])
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  asset     Asset     @relation(fields: [assetId], references: [id])
+
+  @@map("transactions")
+}
+
+model AssetPrice {
+  id      String   @id @default(uuid())
+  assetId String
+  price   Float
+  date    DateTime @default(now())
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, date])
+  @@map("asset_prices")
+}
+
+model RebalanceHistory {
+  id          String    @id @default(uuid())
+  portfolioId String
+  createdAt   DateTime  @default(now())
+  suggestions String
+  deviation   Float
+  executed    Boolean   @default(false)
+  executedAt  DateTime?
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("rebalance_history")
+}
+
+// ===== VECTORIZACIÓN: PRODUCTOS FINANCIEROS =====
+model FinancialProduct {
+  id             String   @id @default(uuid())
+  name           String
+  description    String   @db.Text
+  ticker         String?  @unique
+  type           String // ETF, FUND, STOCK, CRYPTO, BOND
+  category       String // RENTA_VARIABLE, RENTA_FIJA, CRYPTO, etc
+  marketcap      String? // SMALL, MID, LARGE
+  recommendedFor String[] // ["Bajo Riesgo", "Riesgo Moderado", "Alto Riesgo"]
+
+  // Metadata adicional
+  assetClass    String? // Acciones, Bonos, Mixto
+  geography     String? // Global, USA, Europa, Emergentes
+  sector        String? // Tecnología, Salud, Diversificado
+  expense_ratio Float? // TER en %
+
+  // Vector embedding (1536 dimensiones de OpenAI text-embedding-3-small)
+  embedding Unsupported("vector(1536)")?
+
+  // Tracking de popularidad
+  viewCount   Int @default(0)
+  selectCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  holdings        Holding[]
+  recommendations ProductRecommendation[]
+
+  @@index([type, category])
+  @@index([ticker])
+  @@map("financial_products")
+}
+
+// ===== VECTORIZACIÓN: PERFIL DE USUARIO =====
+model UserInvestmentProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Datos del cuestionario (extraídos de QuizSession/SavedReport)
+  age                   Int
+  income                Float // Renta anual
+  savings               Float // Ahorro disponible
+  financialKnowledge    String // BEGINNER, INTERMEDIATE, ADVANCED
+  riskTolerance         String // Bajo Riesgo, Riesgo Moderado, Alto Riesgo
+  investmentPreferences String[] // ["sostenibilidad", "dividendos", "tecnología"]
+  timeHorizon           String // CORTO (<3 años), MEDIO (3-7), LARGO (>7)
+
+  // Texto descriptivo generado para embeddings
+  profileText String? @db.Text
+
+  // Vector del perfil (1536 dimensiones)
+  embedding Unsupported("vector(1536)")?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recommendations ProductRecommendation[]
+
+  @@map("user_investment_profiles")
+}
+
+// ===== VECTORIZACIÓN: HISTORIAL DE RECOMENDACIONES =====
+model ProductRecommendation {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   FinancialProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  profileId String?
+  profile   UserInvestmentProfile? @relation(fields: [profileId], references: [id], onDelete: SetNull)
+
+  // Métricas de recomendación
+  similarityScore Float // 0.0 - 1.0 (similitud coseno)
+  query           String? @db.Text // Query en lenguaje natural (si aplica)
+  action          String // VIEWED, CLICKED, SELECTED, IGNORED
+
+  // Explicación de la recomendación
+  explanation Json? // { reasons: [...], score: 85 }
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([productId])
+  @@index([action])
+  @@map("product_recommendations")
+}
+
+// ===== COMPARTIR PORTFOLIOS =====
+model SharedPortfolio {
+  id          String @id @default(uuid())
+  portfolioId String
+  createdBy   String // userId de quien compartió
+  token       String @unique @default(cuid())
+
+  expiresAt    DateTime // Expira en 7 días
+  viewCount    Int       @default(0)
+  lastViewedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  owner     User      @relation("SharedPortfoliosCreated", fields: [createdBy], references: [id], onDelete: Cascade)
+  User      User?     @relation(fields: [userId], references: [id])
+  userId    String?
+
+  @@index([token])
+  @@index([portfolioId])
+  @@map("shared_portfolios")
 }

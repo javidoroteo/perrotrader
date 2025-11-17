@@ -41,7 +41,7 @@ const PORTFOLIO_EXPLANATION_CONFIG = {
     'Principiante': {
       title: "Tu experiencia: Principiante",
       impact: "Al ser nuevo en inversiones, tu cartera tiene una asignación más conservadora con mayor peso en bonos y efectivo, y menor exposición a activos complejos. Esto reduce la probabilidad de errores costosos mientras te familiarizas con el mercado.",
-      ifDifferent: "Si tienes más experiencia de la reflejada (has invertido anteriormente, entiendes los mercados, o has estudiado inversión en profundidad), considera aumentar acciones y reducir bonos. Los inversores con experiencia pueden manejar mejor la volatilidad y activos más sofisticados."
+      ifDifferent: "Si tienes más experiencia de la reflejada (has invertido anteriormente, entiendes los mercados, o has estudiado inversión en profundidad), considera aumentar acciones y reducir bonos. Los inversores con experiencia tienden a manejar mejor la volatilidad y activos más sofisticados."
     },
     'Intermedia': {
       title: "Tu experiencia: Intermedia",
@@ -275,6 +275,368 @@ const PORTFOLIO_EXPLANATION_CONFIG = {
     moreStability: "Para más estabilidad: Aumenta bonos y efectivo, reduce acciones. Elimina o reduce criptomonedas.",
     moreIncome: "Para más ingresos: Aumenta bonos y acciones de dividendos.",
     moreProtection: "Para más protección: Aumenta efectivo, bonos y oro. Reduce acciones y criptomonedas."
+  },
+    // ===== ACCIONES DE AJUSTE BASADAS EN portfolioConfig.js =====
+  ADJUSTMENT_ACTIONS: {
+    
+    // Mensaje para usuarios no registrados
+    UNAUTHENTICATED_MESSAGE: {
+      title: "Registra tu cuenta para personalizar tu cartera",
+      description: "Para poder aplicar cambios a tu portafolio recomendado, primero debes crear una cuenta o iniciar sesión. Esto nos permitirá guardar tus preferencias y ajustes de forma segura.",
+      ctaText: "Crear cuenta / Iniciar sesión"
+    },
+
+    // ===== CAMBIOS POR PERFIL DE RIESGO =====
+    // Basado en OBJECTIVE_ADJUSTMENTS.RISK del portfolioConfig
+    RISK_ADJUSTMENTS: {
+      'Bajo Riesgo': {
+        toModerate: {
+          label: "Cambiar a Riesgo Moderado",
+          description: "Buscar equilibrio entre estabilidad y crecimiento",
+          icon: "TrendingUp",
+          category: "risk",
+          adjustments: { rentaVariable: 20, rentaFija: -15, crypto: 10, cash: -15 }
+        },
+        toHigh: {
+          label: "Cambiar a Alto Riesgo",
+          description: "Maximizar potencial de crecimiento",
+          icon: "Rocket",
+          category: "risk",
+          adjustments: { rentaVariable: 40, rentaFija: -30, crypto: 20, cash: -30 }
+        }
+      },
+      
+      'Riesgo Moderado': {
+        toLow: {
+          label: "Cambiar a Bajo Riesgo",
+          description: "Priorizar estabilidad y preservación",
+          icon: "Shield",
+          category: "risk",
+          adjustments: { rentaVariable: -20, rentaFija: 15, crypto: -10, cash: 15 }
+        },
+        toHigh: {
+          label: "Cambiar a Alto Riesgo",
+          description: "Aumentar exposición a activos de crecimiento",
+          icon: "Zap",
+          category: "risk",
+          adjustments: { rentaVariable: 20, rentaFija: -15, crypto: 10, cash: -15 }
+        }
+      },
+      
+      'Alto Riesgo': {
+        toModerate: {
+          label: "Cambiar a Riesgo Moderado",
+          description: "Equilibrar crecimiento y estabilidad",
+          icon: "Scale",
+          category: "risk",
+          adjustments: { rentaVariable: -20, rentaFija: 15, crypto: -10, cash: 15 }
+        },
+        toLow: {
+          label: "Cambiar a Bajo Riesgo",
+          description: "Reducir volatilidad significativamente",
+          icon: "Umbrella",
+          category: "risk",
+          adjustments: { rentaVariable: -40, rentaFija: 30, crypto: -20, cash: 30 }
+        }
+      }
+    },
+
+    // ===== CAMBIOS POR EXPERIENCIA =====
+    EXPERIENCE_ADJUSTMENTS: {
+      'Principiante': {
+        toIntermediate: {
+          label: "Tengo experiencia intermedia",
+          description: "Aumentar exposición moderadamente",
+          icon: "BarChart2",
+          category: "experience",
+          adjustments: { rentaVariable: 10, rentaFija: -5, crypto: 1, cash: -6 }
+        },
+        toAdvanced: {
+          label: "Tengo experiencia avanzada",
+          description: "Gestionar activos más complejos",
+          icon: "Award",
+          category: "experience",
+          adjustments: { rentaVariable: 30, rentaFija: -25, crypto: 3, cash: -8 }
+        }
+      },
+      
+      'Intermedia': {
+        toBeginner: {
+          label: "Soy más principiante",
+          description: "Simplificar la cartera",
+          icon: "BookOpen",
+          category: "experience",
+          adjustments: { rentaVariable: -10, rentaFija: 5, crypto: -1, cash: 6 }
+        },
+        toAdvanced: {
+          label: "Tengo experiencia avanzada",
+          description: "Incrementar complejidad",
+          icon: "TrendingUp",
+          category: "experience",
+          adjustments: { rentaVariable: 20, rentaFija: -20, crypto: 2, cash: -2 }
+        }
+      },
+      
+      'Avanzada': {
+        toIntermediate: {
+          label: "Soy intermedio",
+          description: "Moderar exposición",
+          icon: "Activity",
+          category: "experience",
+          adjustments: { rentaVariable: -20, rentaFija: 20, crypto: -2, cash: 2 }
+        },
+        toBeginner: {
+          label: "Soy principiante",
+          description: "Reducir complejidad significativamente",
+          icon: "Home",
+          category: "experience",
+          adjustments: { rentaVariable: -30, rentaFija: 25, crypto: -3, cash: 8 }
+        }
+      }
+    },
+
+    // ===== CAMBIOS POR EDAD =====
+    AGE_ADJUSTMENTS: {
+      'Joven': {
+        toYoungAdult: {
+          label: "Realmente tengo 26-30 años",
+          description: "Ajustar horizonte temporal",
+          icon: "Calendar",
+          category: "age",
+          adjustments: { rentaVariable: -3, rentaFija: 3, crypto: -1, cash: 1 }
+        },
+        toAdult: {
+          label: "Tengo 31-35 años",
+          description: "Horizonte más conservador",
+          icon: "Calendar",
+          category: "age",
+          adjustments: { rentaVariable: -5, rentaFija: 5, crypto: -2, cash: 2 }
+        }
+      },
+      'Adulto Joven': {
+        toYoung: {
+          label: "Soy más joven (18-25)",
+          description: "Mayor horizonte de inversión",
+          icon: "Calendar",
+          category: "age",
+          adjustments: { rentaVariable: 3, rentaFija: -3, crypto: 1, cash: -1 }
+        },
+        toAdult: {
+          label: "Tengo 31-35 años",
+          description: "Ajustar a mediana edad",
+          icon: "Calendar",
+          category: "age",
+          adjustments: { rentaVariable: -2, rentaFija: 2, crypto: -1, cash: 1 }
+        }
+      },
+      'Adulto': {
+        toYoungAdult: {
+          label: "Soy más joven (26-30)",
+          adjustments: { rentaVariable: 2, rentaFija: -2, crypto: 1, cash: -1 }
+        },
+        toMiddle: {
+          label: "Tengo 36-45 años",
+          adjustments: { rentaVariable: -5, rentaFija: 5, crypto: -2, cash: 2 }
+        }
+      },
+      'Media': {
+        toAdult: {
+          label: "Soy más joven (31-35)",
+          adjustments: { rentaVariable: 5, rentaFija: -5, crypto: 2, cash: -2 }
+        },
+        toExperienced: {
+          label: "Tengo 46-55 años",
+          adjustments: { rentaVariable: -10, rentaFija: 10, crypto: -2, cash: 2 }
+        }
+      },
+      'Maduro': {
+        toMiddle: {
+          label: "Soy más joven (36-45)",
+          adjustments: { rentaVariable: 10, rentaFija: -10, crypto: 2, cash: -2 }
+        },
+        toMature: {
+          label: "Tengo 56-66 años",
+          adjustments: { rentaVariable: -10, rentaFija: 10, crypto: -1, cash: 1 }
+        }
+      },
+      'Senior': {
+        toMature: {
+          label: "Soy más joven (56-66)",
+          adjustments: { rentaVariable: 5, rentaFija: -5, crypto: 2, cash: -2 }
+        }
+      }
+    },
+
+    // ===== CAMBIOS POR INGRESOS =====
+    INCOME_ADJUSTMENTS: {
+      'Bajos': {
+        toMedium: {
+          label: "Tengo ingresos medios",
+          description: "Mayor capacidad de ahorro",
+          icon: "DollarSign",
+          category: "income",
+          adjustments: { rentaVariable: 10, rentaFija: 0, crypto: 0, cash: -10 }
+        },
+        toHigh: {
+          label: "Tengo ingresos altos",
+          description: "Maximizar crecimiento del capital",
+          icon: "TrendingUp",
+          category: "income",
+          adjustments: { rentaVariable: 30, rentaFija: -10, crypto: 3, cash: -13 }
+        }
+      },
+      'Medios': {
+        toLow: {
+          label: "Tengo ingresos bajos",
+          description: "Priorizar liquidez",
+          icon: "DollarSign",
+          category: "income",
+          adjustments: { rentaVariable: -10, rentaFija: 0, crypto: 0, cash: 10 }
+        },
+        toHigh: {
+          label: "Tengo ingresos altos",
+          description: "Mayor agresividad",
+          icon: "TrendingUp",
+          category: "income",
+          adjustments: { rentaVariable: 20, rentaFija: -10, crypto: 3, cash: -3 }
+        }
+      },
+      'Altos': {
+        toMedium: {
+          label: "Tengo ingresos medios",
+          description: "Moderar agresividad",
+          icon: "DollarSign",
+          category: "income",
+          adjustments: { rentaVariable: -20, rentaFija: 10, crypto: -3, cash: 3 }
+        },
+        toLow: {
+          label: "Tengo ingresos bajos",
+          adjustments: { rentaVariable: -30, rentaFija: 10, crypto: -3, cash: 13 }
+        }
+      }
+    },
+
+    // ===== CAMBIOS POR HORIZONTE TEMPORAL =====
+    TIME_HORIZON_ADJUSTMENTS: {
+      'Corto plazo': {
+        toMedium: {
+          label: "Mi horizonte es medio plazo (3-7 años)",
+          description: "Incrementar crecimiento moderado",
+          icon: "Clock",
+          category: "time",
+          adjustments: { rentaVariable: 20, rentaFija: -15, crypto: 7, cash: -12 }
+        },
+        toLong: {
+          label: "Mi horizonte es largo plazo (7-15 años)",
+          description: "Maximizar crecimiento",
+          icon: "Clock",
+          category: "time",
+          adjustments: { rentaVariable: 30, rentaFija: -20, crypto: 10, cash: -20 }
+        }
+      },
+      'Medio plazo': {
+        toShort: {
+          label: "Mi horizonte es corto plazo (<3 años)",
+          description: "Priorizar liquidez",
+          icon: "Clock",
+          category: "time",
+          adjustments: { rentaVariable: -20, rentaFija: 15, crypto: -7, cash: 12 }
+        },
+        toLong: {
+          label: "Mi horizonte es largo plazo (7-15 años)",
+          description: "Aumentar exposición",
+          icon: "Clock",
+          category: "time",
+          adjustments: { rentaVariable: 10, rentaFija: -5, crypto: 3, cash: -8 }
+        }
+      },
+      'Largo plazo': {
+        toMedium: {
+          label: "Mi horizonte es medio plazo (3-7 años)",
+          description: "Moderar exposición",
+          icon: "Clock",
+          category: "time",
+          adjustments: { rentaVariable: -10, rentaFija: 5, crypto: -3, cash: 8 }
+        },
+        toVeryLong: {
+          label: "Mi horizonte es muy largo plazo (>15 años)",
+          description: "Máxima agresividad",
+          icon: "Clock",
+          category: "time",
+          adjustments: { rentaVariable: 5, rentaFija: -5, crypto: 5, cash: -5 }
+        }
+      },
+      'Muy largo plazo': {
+        toLong: {
+          label: "Mi horizonte es largo plazo (7-15 años)",
+          adjustments: { rentaVariable: -5, rentaFija: 5, crypto: -5, cash: 5 }
+        }
+      }
+    },
+
+    // ===== AJUSTES RÁPIDOS GENERALES =====
+    QUICK_ADJUSTMENTS: {
+      moreGrowth: {
+        label: "Quiero más crecimiento",
+        description: "Aumentar potencial de retorno",
+        icon: "TrendingUp",
+        category: "general",
+        adjustments: { rentaVariable: 10, rentaFija: -7, crypto: 0, cash: -3, gold: 0 }
+      },
+      moreStability: {
+        label: "Quiero más estabilidad",
+        description: "Reducir volatilidad",
+        icon: "Shield",
+        category: "general",
+        adjustments: { rentaVariable: -10, rentaFija: 7, crypto: 0, cash: 3, gold: 0 }
+      },
+      moreIncome: {
+        label: "Priorizar ingresos (dividendos)",
+        description: "Aumentar activos que generan flujo",
+        icon: "Percent",
+        category: "general",
+        adjustments: { rentaVariable: 0, rentaFija: 5, crypto: 0, cash: -5, gold: 0 }
+      },
+      moreProtection: {
+        label: "Más protección anti-inflación",
+        description: "Aumentar oro y activos defensivos",
+        icon: "Lock",
+        category: "general",
+        adjustments: { rentaVariable: -10, rentaFija: 0, crypto: 0, gold: 5, cash: 5 }
+      },
+      addCrypto: {
+        label: "Añadir criptomonedas (5%)",
+        description: "Exposición a activos digitales",
+        icon: "Bitcoin",
+        category: "general",
+        condition: (portfolio) => (portfolio.actualCrypto || portfolio.recommendedCrypto || 0) === 0,
+        adjustments: { crypto: 5, rentaVariable: -3, rentaFija: -2, cash: 0, gold: 0 }
+      },
+      removeCrypto: {
+        label: "Eliminar criptomonedas",
+        description: "Reducir riesgo especulativo",
+        icon: "XCircle",
+        category: "general",
+        condition: (portfolio) => (portfolio.actualCrypto || portfolio.recommendedCrypto || 0) > 0,
+        adjustments: { crypto: -5, rentaVariable: 3, rentaFija: 2, cash: 0, gold: 0 }
+      },
+      addGold: {
+        label: "Añadir oro (5%)",
+        description: "Activo de protección",
+        icon: "Coins",
+        category: "general",
+        condition: (portfolio) => (portfolio.actualGold || portfolio.recommendedGold || 0) === 0,
+        adjustments: { gold: 5, rentaVariable: -3, rentaFija: -2, cash: 0, crypto: 0 }
+      },
+      removeGold: {
+        label: "Eliminar oro",
+        description: "Redistribuir a otros activos",
+        icon: "XCircle",
+        category: "general",
+        condition: (portfolio) => (portfolio.actualGold || portfolio.recommendedGold || 0) > 0,
+        adjustments: { gold: -5, rentaVariable: 3, rentaFija: 2, cash: 0, crypto: 0 }
+      }
+    }
   }
 };
 
