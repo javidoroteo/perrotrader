@@ -18,15 +18,22 @@ const rebalanceRoutes = require('./routes/rebalanceRoutes');
 const priceUpdater = require('./jobs/priceUpdater');
 const recommendationRoutes = require('./routes/recommendationRoutes');
 
+console.log('Iniciando conexión con la base de datos...');
+let prisma;
+try {
+  const { PrismaClient } = require('@prisma/client');
+  prisma = new PrismaClient();
+  console.log('Base de datos conectada y lista');
+} catch (error) {
+  console.error('ERROR CRÍTICO: no se pudo inicializar Prisma Client');
+  console.error(error);
+  process.exit(1);
+}
+
+const getPrisma = () => prisma;
+
 const app = express();
 const PORT = process.env.PORT || 8080;
-let prismaInstance = null;
-const getPrisma = () => {
-  if (!prismaInstance) {
-    prismaInstance = require('./utils/prisma');
-  }
-  return prismaInstance;
-};
 
 // Middlewares de seguridad
 app.use(helmet({
@@ -75,16 +82,30 @@ app.use('/api/assets', assetRoutes);
 app.use('/api/rebalance', rebalanceRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 
-// Health check
-app.get(['/', '/health', '/ready', '/live'], (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    message: 'IsFinz backend vivo y funcionando',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
-    version: '1.0.0'
-  });
+// Health check robusto y rápido
+app.get(['/', '/health', '/ready', '/live'], async (req, res) => {
+  try {
+    // Prueba rápida a la DB (muy importante para Cloud Run)
+    await getPrisma().$queryRaw`SELECT 1`;
+    res.status(200).json({
+      status: 'OK',
+      message: 'IsFinz backend vivo y funcionando',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      version: '1.0.0',
+      database: 'connected'
+    });
+  } catch (error) {
+    // Si la DB falla, AÚN devolvemos 200 (Cloud Run solo quiere saber que el server vive)
+    console.warn('Health check: DB no responde todavía');
+    res.status(200).json({
+      status: 'STARTING',
+      message: 'Server vivo, base de datos inicializando...',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    });
+  }
 });
 
 // Endpoints adicionales
@@ -195,7 +216,7 @@ const gracefulShutdown = async (signal) => {
     console.log('✅ Servidor HTTP cerrado');
     
     try {
-      await getPrisma().$disconnect();
+      await prisma.$disconnect();
       console.log('✅ Base de datos desconectada');
       process.exit(0);
     } catch (error) {
