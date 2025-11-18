@@ -160,20 +160,19 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   • Quiz System: /api/quiz/*
   • Portfolio Analysis: /api/portfolio/*
   • Personality Test: /api/personality/*
-  • Reports & Email: /api/report/*
-  • Authentication: /api/auth/* [NEW]
-  • Assets Search: /api/assets/* [NEW]
-  • Portfolio Rebalance: /api/rebalance/* [NEW]
+  • Authentication: /api/auth/*
+  • Assets Search: /api/assets/*
+  • Portfolio Rebalance: /api/rebalance/*
 
 💡 New Features Added:
   ✓ PDF Report Generation
   ✓ Email Service with Brevo
   ✓ Practical Investment Guide
-  ✓ OAuth Authentication with Google [NEW]
+  ✓ OAuth Authentication with Google
   ✓ Portfolio Manager [NEW]
-  ✓ Asset Search & Recommendations [NEW]
-  ✓ Rebalancing Suggestions [NEW]
-  ✓ Daily Price Updates [NEW]
+  ✓ Asset Search & Recommendations
+  ✓ Rebalancing Suggestions
+  ✓ Daily Price Updates
 
 🔧 Health Check: http://localhost:${PORT}/health
 ==========================================
