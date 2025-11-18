@@ -8,13 +8,20 @@ steps:
       - '-f'
       - 'backend/Dockerfile'
       - 'backend/'
-    
+      # Estas dos líneas son la magia:
+      - '--no-cache'                     # rompe el cache cuando realmente lo necesitas
+      - '--build-arg'
+      - 'CACHEBUST=$COMMIT_SHA'          # cambia cada commit → rompe cache de npm/ci si hace falta
+
+    # Esto hace que cada commit rompa el cache de npm install (opcional pero muy útil)
+    id: 'build-image'
+    env:
+      - 'NPM_CONFIG_UPDATE_NOTIFIER=false'
+
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: 
-      - 'push'
-      - 'gcr.io/$PROJECT_ID/isfinz-backend:$COMMIT_SHA'
-  
+    args: ['push', 'gcr.io/$PROJECT_ID/isfinz-backend:$COMMIT_SHA']
+
   # Deploy container image to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
@@ -28,6 +35,7 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
+      - '--quiet'   # opcional: menos spam
 
 images:
   - 'gcr.io/$PROJECT_ID/isfinz-backend:$COMMIT_SHA'
