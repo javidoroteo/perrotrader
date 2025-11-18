@@ -1,6 +1,6 @@
 steps:
   # Build the container image desde la carpeta backend
-  - name: 'gcr.io/cloud-builders/docker'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     args: 
       - 'build'
       - '-t'
