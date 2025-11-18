@@ -15,8 +15,8 @@ COPY prisma ./prisma/
 RUN npm ci && \
     npm cache clean --force
 
-# Generar cliente Prisma (ahora siempre será 5.22.0+)
-RUN npx prisma generate
+# Generar cliente Prisma
+RUN npx -p prisma@6.19.0 prisma generate
 
 # Copiar el resto del código
 COPY . .
