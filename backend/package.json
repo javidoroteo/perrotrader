@@ -13,8 +13,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "migrate:products": "node src/scripts/migrateExistingProducts.js",
-    "setup:vectorization": "npm run migrate:products",
-    "postinstall": "node -e \"if (process.env.NODE_ENV !== 'production') { require('child_process').execSync('npx puppeteer browsers install chrome') }\""
+    "setup:vectorization": "npm run migrate:products"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
