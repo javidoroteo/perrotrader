@@ -35,7 +35,15 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-      - '--quiet'   # opcional: menos spam
+      - '--quiet'
+      - '--port=8080'
+      - '--cpu=1'
+      - '--timeout=900'
+      - '--max-instances=10'
+      - '--startup-cpu-boost'                    
+      - '--cpu-throttling=OFF'                   
+      - '--set-env-vars=PORT=8080'
+      - '--startup-timeout=300'
 
 images:
   - 'gcr.io/$PROJECT_ID/isfinz-backend:$COMMIT_SHA'
