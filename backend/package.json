@@ -9,14 +9,11 @@
     "dev": "nodemon src/index.js",
     "dev:with-ngrok": "node scripts/start-with-ngrok.js",
     "ngrok": "ngrok http 3001",
-    
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    
     "migrate:products": "node src/scripts/migrateExistingProducts.js",
     "setup:vectorization": "npm run migrate:products",
-    
     "postinstall": "node -e \"if (process.env.NODE_ENV !== 'production') { require('child_process').execSync('npx puppeteer browsers install chrome') }\""
   },
   "prisma": {
@@ -40,7 +37,6 @@
     "node-cron": "^4.2.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "puppeteer": "^24.22.1",
     "uuid": "^9.0.1",
     "yahoo-finance2": "^2.13.3"
   },
