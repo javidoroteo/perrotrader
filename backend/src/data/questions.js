@@ -1,5 +1,3 @@
-const { Children } = require("react");
-
 //Las preguntas
 const questions = [
     // Sección 1: Perfil del inversor
