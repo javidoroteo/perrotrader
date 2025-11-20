@@ -19,7 +19,7 @@ import Dashboard from './pages/Dashboard';
 import PortfoliosPage from './pages/PortfoliosPage';
 import PortfolioDetailsPage from './pages/PortfolioDetailsPage';
 import AssetsPage from './pages/AssetsPage';
-import ReportsPage from './pages/ReportsPage';
+import MyReportsPage from './pages/MyReportPage';
 import SettingsPage from './pages/SettingsPage';
 import OAuthCallback from './pages/OAuthCallback';
 import CreatePortfolioManualPage from './pages/CreatePortfolioManualPage';
@@ -147,10 +147,10 @@ function App() {
 
             {/* Mis reportes guardados */}
             <Route
-              path="/reports"
+              path="/Reporte"
               element={
                 <ProtectedRoute>
-                  <ReportsPage />
+                  <MyReportsPage />
                 </ProtectedRoute>
               }
             />
