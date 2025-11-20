@@ -19,7 +19,7 @@ import Dashboard from './pages/Dashboard';
 import PortfolioDetailsPage from './pages/PortfolioDetailsPage';
 import AssetsPage from './pages/AssetsPage';
 import MyReportsPage from './pages/MyReportPage';
-import SettingsPage from './pages/SettingsPage';
+import SettingsPage from './pages/SettingPages';
 import OAuthCallback from './pages/OAuthCallback';
 import CreatePortfolioManualPage from './pages/CreatePortfolioManualPage';
 
@@ -149,7 +149,7 @@ function App() {
               path="/settings"
               element={
                 <ProtectedRoute>
-                  <SettingsPage />
+                  <SettingPage />
                 </ProtectedRoute>
               }
             />
