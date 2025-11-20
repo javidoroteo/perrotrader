@@ -16,7 +16,6 @@ import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 // Páginas del Portfolio Manager
 import Dashboard from './pages/Dashboard';
-import PortfoliosPage from './pages/PortfoliosPage';
 import PortfolioDetailsPage from './pages/PortfolioDetailsPage';
 import AssetsPage from './pages/AssetsPage';
 import MyReportsPage from './pages/MyReportPage';
@@ -111,16 +110,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Portfolios */}
-            <Route
-              path="/portfolios"
-              element={
-                <ProtectedRoute>
-                  <PortfoliosPage />
                 </ProtectedRoute>
               }
             />
