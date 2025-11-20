@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
-import LoginButton from './Auth/LoginButton';
+import LoginButton from './Auth/LogginButton';
 import UserProfile from './Auth/UserProfile';
 import { LayoutDashboard, Home, Search, Menu, X } from 'lucide-react';
 
