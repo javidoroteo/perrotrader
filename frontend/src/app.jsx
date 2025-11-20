@@ -149,7 +149,7 @@ function App() {
               path="/settings"
               element={
                 <ProtectedRoute>
-                  <SettingPage />
+                  <SettingPages />
                 </ProtectedRoute>
               }
             />
