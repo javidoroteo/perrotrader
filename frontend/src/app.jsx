@@ -20,7 +20,7 @@ import PortfolioDetailsPage from './pages/PortfolioDetailsPage';
 import AssetsPage from './pages/AssetsPage';
 import MyReportsPage from './pages/MyReportPage';
 import SettingsPage from './pages/SettingPages';
-import OAuthCallback from './pages/OAuthCallback';
+import OAuthCallback from './pages/0AuthCallback';
 import CreatePortfolioManualPage from './pages/CreatePortfolioManualPage';
 
 //Página de portfolio compartido
@@ -149,7 +149,7 @@ function App() {
               path="/settings"
               element={
                 <ProtectedRoute>
-                  <SettingPages />
+                  <SettingsPage />
                 </ProtectedRoute>
               }
             />
