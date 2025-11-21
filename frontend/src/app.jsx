@@ -72,7 +72,7 @@ function App() {
         <main className="flex-grow">
           <Routes>
             {/* Ruta principal - Quiz */}
-            <Route path="/" element={<ModernInvestmentQuiz />} />
+            <Route path="/" element={<ModernInvestmentQuiz hasConsent={hasConsent} onOpenPrivacyPolicy={handlePrivacyClick} />} />
 
             {/* OAuth Callback */}
             <Route path="/auth/callback" element={<OAuthCallback />} />
