@@ -38,7 +38,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Rutas públicas que no requieren redirección
-      const publicRoutes = ['/shared/', '/quiz', '/oauth-callback'];
+      const publicRoutes = ['/shared/', '/quiz', '/oauth-callback', '/' ];
       const currentPath = window.location.pathname;
       
       const isPublicRoute = publicRoutes.some(route => 
