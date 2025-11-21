@@ -34,6 +34,7 @@ const getPrisma = () => prisma;
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+app.set('trust proxy', 1); 
 
 // Middlewares de seguridad
 app.use(helmet({
