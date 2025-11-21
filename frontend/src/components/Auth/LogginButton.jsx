@@ -23,9 +23,6 @@ const LoginButton = ({ variant = 'primary', fullWidth = false, showIcon = true }
       onClick={login}
       className={`${variants[variant]} ${widthClass} group`}
     >
-      {showIcon && (
-        <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform" />
-      )}
       <span>Iniciar Sesión con Google</span>
       <LogIn className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
     </button>
