@@ -1,24 +1,26 @@
-# backend/Dockerfile
-FROM node:20-alpine AS builder
+# 1. CAMBIO CLAVE: Usamos 'slim' en vez de 'alpine'.
+# Esto tiene mejor compatibilidad con Prisma y Node.
+FROM node:20-slim AS builder
 
-# Rompe cache cada vez que cambie el commit (para que nunca más te pase lo de Prisma viejo)
+# Instalamos OpenSSL (Prisma lo necesita obligatoriamente en Linux)
+RUN apt-get update -y && apt-get install -y openssl
+
 ARG CACHEBUST
 ENV CACHEBUST=${CACHEBUST}
 
 WORKDIR /app
 
-# Copiar package.json + lockfile
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Instalación limpia y rápida
-RUN npm ci && \
-    npm cache clean --force
+# Instalación limpia
+RUN npm ci && npm cache clean --force
 
-# Generar cliente Prisma
-RUN npx -p prisma@6.19.0 prisma generate
+# 2. CAMBIO CLAVE: Quitamos la versión inventada (@6.19.0).
+# Usamos el prisma que está en tu package.json.
+# Al correr esto DENTRO de Linux, genera el cliente correcto automáticamente.
+RUN npx prisma generate
 
-# Copiar el resto del código
 COPY . .
 
 ENV NODE_ENV=production
@@ -26,7 +28,6 @@ ENV PORT=8080
 
 EXPOSE 8080
 
-# Seguridad + tamaño mínimo
 USER node
 
 CMD ["npm", "start"]
