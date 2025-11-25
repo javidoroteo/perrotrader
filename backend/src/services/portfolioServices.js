@@ -50,7 +50,7 @@ class PortfolioService {
     // 🆕 9. CALCULAR RISK SCORE DINÁMICO (0-100)
   let personalityData = null;
   try {
-    personalityData = await PersonalityService.calculatePersonality(session.id);
+    personalityData = await PersonalityService.calculatePersonalityProfile(session.id);
   } catch (error) {
     console.warn('⚠️ No se pudo calcular personalidad para risk score:', error.message);
   }
