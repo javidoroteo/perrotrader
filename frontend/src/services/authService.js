@@ -1,13 +1,15 @@
 // frontend/src/services/authService.js
 import api from './api';
-
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const authService = {
   /**
    * Iniciar login con Google OAuth
    */
   loginWithGoogle() {
-    // Redirige al backend para OAuth
-    window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/auth/google`;
+    // Si tu BASE_URL ya tuviera /api al final, usa replace para evitar duplicados, 
+    // pero con la lógica de arriba basta con concatenar.
+    const targetUrl = `${BASE_URL.replace(/\/api$/, '')}/api/auth/google`;
+    window.location.href = targetUrl;
   },
 
   /**
