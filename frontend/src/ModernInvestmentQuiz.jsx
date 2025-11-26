@@ -10,7 +10,7 @@ import ErrorAlert from './components/ErrorAlert';
 import PostQuizActions from './components/PostQuizActions';
 
 
-const API_BASE_URL = 'https://isfinz-backend-561110821874.europe-west1.run.app'; // Cambia esto según tu configuración
+const API_BASE_URL = 'https://isfinz-backend-561110821874.europe-west1.run.app/api'; // Cambia esto según tu configuración
 
 function ModernInvestmentQuiz({ onOpenPrivacyPolicy, hasConsent = false }) {
   const [loading, setLoading] = useState(false);
