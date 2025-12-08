@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ModernSection from './ModernSection';
 import PortfolioAdjustmentButtons from './PortfolioAdjustmentButtons';
-import { portfolioService } from '../services/portfolioService';
+import portfolioService from '../services/portfolioService';
 import { 
   TrendingUp, 
   Shield, 
