@@ -1064,8 +1064,7 @@ async generatePortfolioExplanation(session) {
   async completeFinalResult(session) {
   const portfolio = await this.calculatePortfolio(session);
    const investorProfile = await this.generateInvestorProfile(
-    session, 
-    portfolioResult.riskScore  // Pasar el riskScore calculado
+    session,
   );
   const report = await this.generateReport(session);
   const rentaFijaAdvice = await this.generateRentaFijaAdvice(session);
@@ -1077,7 +1076,7 @@ async generatePortfolioExplanation(session) {
   return {
     sessionId: session.id,
     riskProfile: portfolio.riskProfile,
-    riskScore: portfolioResult.riskScore,
+    riskScore: portfolio.riskScore,
     experienceLevel: this.getExperienceLevel(session.experienceScore),
     portfolio: portfolio.allocation,               // Plano
     report,                                         // Objeto directo
