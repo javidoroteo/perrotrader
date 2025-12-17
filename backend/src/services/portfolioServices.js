@@ -661,10 +661,6 @@ async generateRentaVariableAdvice(session) {
       mainObjective = 'Educación hijos';
     }
 
-    // RiskScale: Normalizar totalScore a 0-100
-    const maxScore = 25;
-    const riskValue = Math.round((session.totalScore / maxScore) * 100);
-
     return {
       profile: {
         investorType,

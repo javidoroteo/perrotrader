@@ -3,11 +3,6 @@ export class DataMapper {
    * Mapea el perfil del inversor desde el backend
    */
   static mapInvestorProfile(backendData) {
-    const riskValues = {
-      'Bajo Riesgo': 25,
-      'Riesgo Moderado': 50,
-      'Alto Riesgo': 75
-    };
 
     return {
       profile: {
