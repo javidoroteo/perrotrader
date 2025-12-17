@@ -54,22 +54,9 @@ class PortfolioService {
   } catch (error) {
     console.warn('⚠️ No se pudo calcular personalidad para risk score:', error.message);
   }
-
-  const riskScore = this.calculateRiskScore(session, portfolio, personalityData);
-
-  // 🆕 10. DETERMINAR CATEGORÍA DE RIESGO BASADA EN SCORE
-  let riskProfileName;
-  if (riskScore <= 33) {
-    riskProfileName = 'Bajo Riesgo';
-  } else if (riskScore <= 66) {
-    riskProfileName = 'Riesgo Moderado';
-  } else {
-    riskProfileName = 'Alto Riesgo';
-  }
     
     return {
       riskProfile,
-      riskScore: riskScore, //Valor de 0 a 100
       allocation: portfolio
     };
   }
@@ -81,96 +68,6 @@ class PortfolioService {
  * @param {Object} personalityData - Datos de personalidad del usuario
  * @returns {number} Risk score de 0-100
  */
-calculateRiskScore(session, portfolio, personalityData) {
-  let riskScore = 0;
-
-  // 1. SCORE BASE DEL QUIZ (30% - max 30 puntos)
-  const quizScore = (session.totalScore / 25) * 30;
-  riskScore += quizScore;
-
-  // 2. COMPOSICIÓN DEL PORTFOLIO (30% - max 30 puntos)
-  const assetRiskWeights = {
-    criptomonedas: 1.0,   // Máximo riesgo
-    acciones: 0.75,       // Alto riesgo
-    oro: 0.25,            // Bajo-medio riesgo
-    bonos: 0.20,          // Bajo riesgo
-    efectivo: 0.0         // Sin riesgo
-  };
-
-  let portfolioRisk = 0;
-  for (const [asset, percentage] of Object.entries(portfolio)) {
-    const weight = assetRiskWeights[asset] || 0;
-    portfolioRisk += (percentage / 100) * weight;
-  }
-  
-  const portfolioScore = portfolioRisk * 30;
-  riskScore += portfolioScore;
-
-  // 3. FACTORES OBJETIVOS (25% - max 25 puntos)
-  let objectiveScore = 0;
-
-  // 3.1 Edad (0-7 puntos)
-  const age = session.age || 30;
-  if (age < 30) objectiveScore += 7;
-  else if (age < 40) objectiveScore += 5.5;
-  else if (age < 50) objectiveScore += 4;
-  else if (age < 60) objectiveScore += 2.5;
-  else objectiveScore += 1;
-
-  // 3.2 Experiencia (0-7 puntos)
-  const expPoints = session.expoints || 0;
-  if (expPoints >= 9) objectiveScore += 7;
-  else if (expPoints >= 5) objectiveScore += 4.5;
-  else objectiveScore += 2;
-
-  // 3.3 Horizonte temporal (0-6 puntos)
-  const horizon = session.horizon || 1;
-  if (horizon >= 10) objectiveScore += 6;
-  else if (horizon >= 5) objectiveScore += 4;
-  else if (horizon >= 3) objectiveScore += 2.5;
-  else objectiveScore += 1;
-
-  // 3.4 Fondo de emergencia (0-5 puntos)
-  const emergencyFund = session.emergencyFund || 0;
-  if (emergencyFund >= 6) objectiveScore += 5;
-  else if (emergencyFund >= 3) objectiveScore += 3;
-  else if (emergencyFund >= 1) objectiveScore += 1.5;
-
-  riskScore += objectiveScore;
-
-  // 4. FACTORES DE PERSONALIDAD (15% - max 15 puntos)
-  let personalityScore = 0;
-
-  if (personalityData && personalityData.percentages) {
-    const dims = personalityData.percentages;
-    
-    // Ambición (0-6 puntos)
-    personalityScore += (dims.B || 0) / 100 * 6;
-    
-    // Oportunismo (0-4 puntos)
-    personalityScore += (dims.O || 0) / 100 * 4;
-    
-    // Autonomía (0-3 puntos)
-    personalityScore += (dims.T || 0) / 100 * 3;
-    
-    // Intuición (0-2 puntos)
-    personalityScore += (dims.I || 0) / 100 * 2;
-  }
-
-  riskScore += personalityScore;
-
-  // 5. NORMALIZACIÓN
-  riskScore = Math.min(100, Math.max(0, Math.round(riskScore)));
-
-  console.log('📊 Risk Score Calculation:');
-  console.log('  Quiz Score:', quizScore.toFixed(2));
-  console.log('  Portfolio Score:', portfolioScore.toFixed(2));
-  console.log('  Objective Score:', objectiveScore.toFixed(2));
-  console.log('  Personality Score:', personalityScore.toFixed(2));
-  console.log('  FINAL RISK SCORE:', riskScore);
-
-  return riskScore;
-}
 
 
   /**
@@ -187,7 +84,6 @@ calculateRiskScore(session, portfolio, personalityData) {
       }
 
       const dimensions = personalityTest.profile.dimensions;
-      console.log('Aplicando ajustes de personalidad basados en porcentajes...');
       
       // Aplicar ajustes por cada dimensión en orden 1-4
       for (let dimNumber = 1; dimNumber <= 4; dimNumber++) {
@@ -776,21 +672,7 @@ async generateRentaVariableAdvice(session) {
       HIGH: 'red'
     };
 
-    // Determinar riskLevel basado en riskScore (0-100)
-  let riskLevelName;
-  if (riskScore <= 33) {
-    riskLevelName = 'Bajo Riesgo';
-  } else if (riskScore <= 66) {
-    riskLevelName = 'Riesgo Moderado';
-  } else {
-    riskLevelName = 'Alto Riesgo';
-  }
-
     return {
-      riskScale: {
-        value: riskScore,  // 🆕 Ahora es el valor real 0-100
-        color: riskScore <= 33 ? 'green' : riskScore <= 66 ? 'yellow' : 'red'
-      },
       profile: {
         investorType,
         mainObjective,
@@ -1076,7 +958,6 @@ async generatePortfolioExplanation(session) {
   return {
     sessionId: session.id,
     riskProfile: portfolio.riskProfile,
-    riskScore: portfolio.riskScore,
     experienceLevel: this.getExperienceLevel(session.experienceScore),
     portfolio: portfolio.allocation,               // Plano
     report,                                         // Objeto directo
