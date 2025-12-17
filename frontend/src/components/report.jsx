@@ -44,10 +44,6 @@ const ModernInvestorProfile = ({ result, sessionId, onRestart, hideEmailSection 
     timeHorizon: 'Largo plazo'
   };
 
-  // 🆕 OBTENER RISKSCORE REAL DEL BACKEND (0-100)
-  const riskScoreValue = backendResult.riskScore || 
-                         backendResult.investorProfile?.riskScore || 
-                         50; // Fallback por si no existe
 
   // 🆕 CALCULAR COLOR BASADO EN EL VALOR NUMÉRICO
   let riskColor = 'yellow';
@@ -58,12 +54,6 @@ const ModernInvestorProfile = ({ result, sessionId, onRestart, hideEmailSection 
   } else {
     riskColor = 'red';
   }
-
-  // 🆕 CREAR riskScale CON VALOR REAL
-  const riskScale = {
-    value: riskScoreValue,  // Número 0-100 del backend
-    color: riskColor        // Verde/Amarillo/Rojo según el valor
-  };
 
   const result = {
     investorProfile: { 
@@ -138,7 +128,7 @@ console.log('SessionId attempts:', {
         <p className="mb-4">
           Crea tu primera cuenta de broker, visita nuestra{' '}
           <a
-            href="/guia-brokers"
+            href="/broker-guide"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 underline hover:text-blue-800"

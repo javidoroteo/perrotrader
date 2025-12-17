@@ -176,14 +176,14 @@ function App() {
         </main>
 
         {/* Footer - visible en todas las páginas */}
-        <Footer onPrivacyClick={handlePrivacyClick} />
+        <Footer onOpenPrivacyPolicy={handlePrivacyClick} />
 
         {/* GDPR Consent Banner */}
         {showConsentBanner && (
           <GDPRConsentBanner
             onAccept={handleAcceptConsent}
             onReject={handleRejectConsent}
-            onPrivacyClick={handlePrivacyClick}
+            onOpenPrivacyPolicy={handlePrivacyClick}
           />
         )}
       </div>
