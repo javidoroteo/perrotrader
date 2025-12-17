@@ -1,7 +1,7 @@
 import React from 'react';
 import { Shield, Mail, Clock, Users, FileText, Lock, RefreshCw, AlertCircle, ArrowLeft } from 'lucide-react';
 
-const PrivacyPolicyPage = ({ onClose }) => {
+const PrivacyPolicyPage = ({ onBack }) => {
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 z-50 overflow-y-auto">
       <div className="min-h-screen py-8 px-4">
@@ -9,7 +9,7 @@ const PrivacyPolicyPage = ({ onClose }) => {
           {/* Header con botón cerrar */}
           <div className="mb-6">
             <button
-              onClick={onClose}
+              onClick={onBack}
               className="group inline-flex items-center gap-3 px-4 py-2 bg-white/60 hover:bg-white/80 border border-gray-200 hover:border-gray-300 text-gray-700 font-medium rounded-xl transition-all duration-300 hover:scale-105 shadow-lg backdrop-blur-sm"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />

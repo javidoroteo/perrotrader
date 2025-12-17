@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import LoginButton from './Auth/LogginButton';
 import UserProfile from './Auth/UserProfile';
-import { LayoutDashboard, Home, Search, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Search, Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const { isAuthenticated } = useAuth();
@@ -12,12 +12,9 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = isAuthenticated ? [
-    { name: 'Inicio', path: '/', icon: Home },
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Buscar Activos', path: '/assets', icon: Search },
-  ] : [
-    { name: 'Inicio', path: '/', icon: Home },
-  ];
+  ] : [];
 
   return (
     <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm">

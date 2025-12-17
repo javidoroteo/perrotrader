@@ -386,6 +386,16 @@ const getCompleteResult = async () => {
 
   if (loading && !currentQuestion && !showPersonalityTest) return <LoadingSpinner />;
 
+  console.log('QUIZ STATE', {
+  quizStarted,
+  isCompleted,
+  showPersonalityTest,
+  hasConsent,
+  sessionId,
+  currentQuestion,
+  finalResult,
+});
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
       {/* Background elements */}
@@ -446,7 +456,11 @@ const getCompleteResult = async () => {
                 </div>
               )}
             </>
-          ) : null}
+          ) : (
+            <div className="text-center text-red-600 font-medium mt-8">
+              No hay pregunta ni resultado para mostrar.
+            </div>
+          )}
         </div>
       </div>
     </div>
