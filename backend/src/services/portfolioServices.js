@@ -665,13 +665,6 @@ async generateRentaVariableAdvice(session) {
     const maxScore = 25;
     const riskValue = Math.round((session.totalScore / maxScore) * 100);
 
-    // Colores para riskScale basados en riskProfile
-    const riskColorMap = {
-      LOW: 'green',
-      MODERATE: 'yellow',
-      HIGH: 'red'
-    };
-
     return {
       profile: {
         investorType,

@@ -9,17 +9,7 @@ export class DataMapper {
       'Alto Riesgo': 75
     };
 
-    const riskColors = {
-      'Bajo Riesgo': '#10B981',
-      'Riesgo Moderado': '#F59E0B', 
-      'Alto Riesgo': '#EF4444'
-    };
-
     return {
-      riskScale: {
-        value: riskValues[backendData.riskProfile] || 50,
-        color: riskColors[backendData.riskProfile] || '#F59E0B'
-      },
       profile: {
         investorType: backendData.riskProfile || 'Riesgo Moderado',
         riskTolerance: this.mapRiskTolerance(backendData.riskProfile),
