@@ -44,17 +44,6 @@ const ModernInvestorProfile = ({ result, sessionId, onRestart, hideEmailSection 
     timeHorizon: 'Largo plazo'
   };
 
-
-  // 🆕 CALCULAR COLOR BASADO EN EL VALOR NUMÉRICO
-  let riskColor = 'yellow';
-  if (riskScoreValue <= 33) {
-    riskColor = 'green';
-  } else if (riskScoreValue <= 66) {
-    riskColor = 'yellow';
-  } else {
-    riskColor = 'red';
-  }
-
   const result = {
     investorProfile: { 
       profile: investorProfile, 

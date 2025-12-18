@@ -1,28 +1,37 @@
 // frontend/src/pages/Dashboard.jsx
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/authContext';
 import { useNavigate } from 'react-router-dom';
 import portfolioService from '../services/portfolioService';
 import rebalanceService from '../services/rebalanceService';
-import recommendationService from '../services/recommendationService';
+import recommendationService from '../services/recommendationService'; // 🆕 NUEVO IMPORT
 import { 
-  Loader2, PlusCircle, TrendingUp, TrendingDown, Wallet, 
-  AlertTriangle, ArrowRight, BarChart3, Target, Activity, 
-  Sparkles, X, Info, Star, Eye, CheckCircle, XCircle 
+  Loader2, 
+  PlusCircle, 
+  TrendingUp, 
+  TrendingDown, 
+  Wallet, 
+  AlertTriangle, 
+  ArrowRight, 
+  BarChart3, 
+  Target, 
+  Activity,
+  Sparkles, // 🆕 NUEVO ICONO
+  X, // 🆕 NUEVO ICONO
+  Info, // 🆕 NUEVO ICONO
+  Star, // 🆕 NUEVO ICONO
+  Eye // 🆕 NUEVO ICONO
 } from 'lucide-react';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
-  // ✅ NUEVO: Ref para cleanup y prevenir race conditions
-  const isMountedRef = useRef(true);
-  
+
   const [loading, setLoading] = useState(true);
   const [portfolios, setPortfolios] = useState([]);
   const [rebalanceAlerts, setRebalanceAlerts] = useState({});
-  
-  // Estados para recomendaciones IA
+
+  // 🆕 NUEVOS ESTADOS para recomendaciones IA
   const [aiRecommendations, setAiRecommendations] = useState([]);
   const [loadingAIRecommendations, setLoadingAIRecommendations] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -30,46 +39,28 @@ const Dashboard = () => {
   const [selectedPortfolioForAdd, setSelectedPortfolioForAdd] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addingToPortfolio, setAddingToPortfolio] = useState(false);
-  
-  // Estados para agregar activo
+
+  // 🆕 Estados para agregar activo
   const [quantity, setQuantity] = useState('');
   const [purchasePrice, setPurchasePrice] = useState('');
-  
-  // ✅ NUEVO: Estados para notificaciones (reemplaza alert())
-  const [notification, setNotification] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
 
-  // ✅ MEJORADO: useEffect con cleanup
   useEffect(() => {
-    isMountedRef.current = true;
     loadDashboardData();
-    
-    return () => {
-      isMountedRef.current = false;
-    };
   }, []);
 
-  // ✅ MEJORADO: Con verificación de mounted
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      setErrorMessage(null);
-      
+
       // Cargar portfolios
       const response = await portfolioService.getPortfolios();
-      
-      if (!isMountedRef.current) return;
-      
       setPortfolios(response.portfolios || []);
-      
+
       // Cargar alertas de rebalanceo para cada portfolio
       const alerts = {};
       for (const portfolio of response.portfolios || []) {
         try {
           const analysis = await rebalanceService.analyzePortfolio(portfolio.id);
-          
-          if (!isMountedRef.current) return;
-          
           if (analysis.needsRebalancing) {
             alerts[portfolio.id] = analysis;
           }
@@ -77,50 +68,36 @@ const Dashboard = () => {
           console.error(`Error analyzing portfolio ${portfolio.id}:`, err);
         }
       }
-      
-      if (!isMountedRef.current) return;
-      
       setRebalanceAlerts(alerts);
+
     } catch (error) {
       console.error('Error loading dashboard data:', error);
-      if (isMountedRef.current) {
-        setErrorMessage('Error al cargar los datos del dashboard');
-      }
     } finally {
-      if (isMountedRef.current) {
-        setLoading(false);
-        // Cargar recomendaciones IA después (lazy loading)
-        loadAIRecommendations();
-      }
+      setLoading(false);
+      // 🆕 Cargar recomendaciones IA después (lazy loading)
+      loadAIRecommendations();
     }
   };
 
-  // ✅ MEJORADO: Con verificación de mounted
+  // 🆕 NUEVA FUNCIÓN: Cargar recomendaciones IA (lazy loading)
   const loadAIRecommendations = async () => {
     try {
       setLoadingAIRecommendations(true);
       const response = await recommendationService.getPersonalizedRecommendations(5);
-      
-      if (!isMountedRef.current) return;
-      
       setAiRecommendations(response.recommendations || []);
     } catch (error) {
       console.error('Error loading AI recommendations:', error);
-      if (isMountedRef.current) {
-        setAiRecommendations([]);
-      }
+      setAiRecommendations([]);
     } finally {
-      if (isMountedRef.current) {
-        setLoadingAIRecommendations(false);
-      }
+      setLoadingAIRecommendations(false);
     }
   };
 
-  // ✅ MEJORADO: Con verificación de mounted
+  // 🆕 NUEVA FUNCIÓN: Abrir modal de producto con tracking
   const handleProductClick = async (product) => {
     setSelectedProduct(product);
     setShowProductModal(true);
-    
+
     // Trackear acción CLICKED
     try {
       await recommendationService.trackAction(product.id, 'CLICKED');
@@ -129,99 +106,53 @@ const Dashboard = () => {
     }
   };
 
+  // 🆕 NUEVA FUNCIÓN: Abrir modal para agregar a portfolio
   const handleAddToPortfolio = (product) => {
     setSelectedProduct(product);
     setShowProductModal(false);
     setShowAddModal(true);
     setQuantity('');
     setPurchasePrice('');
-    setErrorMessage(null);
-    
     // Pre-seleccionar el primer portfolio si existe
     if (portfolios.length > 0) {
       setSelectedPortfolioForAdd(portfolios[0].id);
     }
   };
 
-  // ✅ MEJORADO: Validación robusta de inputs + Notificaciones
+  // 🆕 NUEVA FUNCIÓN: Confirmar agregar al portfolio
   const confirmAddToPortfolio = async () => {
-    // Validar campos obligatorios
-    if (!selectedProduct || !selectedPortfolioForAdd) {
-      setErrorMessage('Selecciona un producto y un portfolio');
+    if (!selectedProduct || !selectedPortfolioForAdd || !quantity || !purchasePrice) {
+      alert('Por favor completa todos los campos');
       return;
     }
-    
-    // ✅ VALIDACIÓN ROBUSTA de quantity y purchasePrice
-    const qty = parseFloat(quantity);
-    const price = parseFloat(purchasePrice);
-    
-    if (!quantity || !purchasePrice) {
-      setErrorMessage('Por favor completa todos los campos');
-      return;
-    }
-    
-    if (isNaN(qty) || qty <= 0) {
-      setErrorMessage('La cantidad debe ser un número positivo mayor a 0');
-      return;
-    }
-    
-    if (isNaN(price) || price <= 0) {
-      setErrorMessage('El precio debe ser un número positivo mayor a 0');
-      return;
-    }
-    
+
     try {
       setAddingToPortfolio(true);
-      setErrorMessage(null);
-      
+
       await portfolioService.addAssetToPortfolio(selectedPortfolioForAdd, {
         ticker: selectedProduct.ticker,
-        quantity: qty,
-        purchasePrice: price
+        quantity: parseFloat(quantity),
+        purchasePrice: parseFloat(purchasePrice)
       });
-      
-      if (!isMountedRef.current) return;
-      
+
       // Trackear acción SELECTED
-      try {
-        await recommendationService.trackAction(selectedProduct.id, 'SELECTED');
-      } catch (err) {
-        console.error('Error tracking action:', err);
-      }
-      
+      await recommendationService.trackAction(selectedProduct.id, 'SELECTED');
+
       // Recargar portfolios
       await loadDashboardData();
-      
-      if (!isMountedRef.current) return;
-      
+
       // Cerrar modales y limpiar
       setShowAddModal(false);
       setSelectedProduct(null);
       setQuantity('');
       setPurchasePrice('');
-      
-      // ✅ Notificación de éxito en lugar de alert()
-      setNotification({
-        type: 'success',
-        message: '¡Activo agregado exitosamente!'
-      });
-      
-      // Auto-cerrar notificación después de 3 segundos
-      setTimeout(() => {
-        if (isMountedRef.current) {
-          setNotification(null);
-        }
-      }, 3000);
-      
+
+      alert('¡Activo agregado exitosamente!');
     } catch (error) {
       console.error('Error adding asset to portfolio:', error);
-      if (isMountedRef.current) {
-        setErrorMessage('Error al agregar el activo. Intenta de nuevo.');
-      }
+      alert('Error al agregar el activo. Intenta de nuevo.');
     } finally {
-      if (isMountedRef.current) {
-        setAddingToPortfolio(false);
-      }
+      setAddingToPortfolio(false);
     }
   };
 
@@ -236,73 +167,17 @@ const Dashboard = () => {
     }, 0);
   };
 
-  // ✅ MEJORADO: Devuelve string formateado consistentemente
   const calculateTotalGainsPercentage = () => {
-    const totalInvested = portfolios.reduce((sum, p) => 
-      sum + (p.totalInvested || 0), 0);
-    
-    if (totalInvested === 0) return '0.00';
-    
+    const totalInvested = portfolios.reduce((sum, p) => sum + (p.totalInvested || 0), 0);
+    if (totalInvested === 0) return 0;
     return ((calculateTotalGains() / totalInvested) * 100).toFixed(2);
-  };
-
-  // ✅ NUEVO: Componente de notificación (reemplaza alert())
-  const NotificationToast = ({ notification, onClose }) => {
-    if (!notification) return null;
-    
-    const isSuccess = notification.type === 'success';
-    
-    return (
-      <div className="fixed top-4 right-4 z-50 animate-slide-in">
-        <div className={`
-          p-4 rounded-xl shadow-lg border flex items-center gap-3 min-w-[300px]
-          ${isSuccess 
-            ? 'bg-green-50 border-green-200 text-green-800' 
-            : 'bg-red-50 border-red-200 text-red-800'
-          }
-        `}>
-          {isSuccess ? (
-            <CheckCircle className="w-5 h-5 flex-shrink-0" />
-          ) : (
-            <XCircle className="w-5 h-5 flex-shrink-0" />
-          )}
-          <p className="flex-1 font-medium">{notification.message}</p>
-          <button 
-            onClick={onClose}
-            className="p-1 hover:bg-white/50 rounded-lg transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // ✅ NUEVO: Componente de error global
-  const ErrorBanner = ({ message, onClose }) => {
-    if (!message) return null;
-    
-    return (
-      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-        <div className="flex-1">
-          <p className="text-red-800 font-medium">{message}</p>
-        </div>
-        <button 
-          onClick={onClose}
-          className="p-1 hover:bg-red-100 rounded-lg transition-colors"
-        >
-          <X className="w-4 h-4 text-red-600" />
-        </button>
-      </div>
-    );
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 animate-spin mx-auto text-blue-600 mb-4" />
           <p className="text-gray-600">Cargando dashboard...</p>
         </div>
       </div>
@@ -310,435 +185,478 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
-      {/* ✅ NUEVO: Notificaciones */}
-      <NotificationToast 
-        notification={notification} 
-        onClose={() => setNotification(null)} 
-      />
-      
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Dashboard
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Aquí está tu resumen de inversiones
-            </p>
-          </div>
-          <button
-            onClick={() => navigate('/portfolio/create')}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
-          >
-            <PlusCircle className="w-5 h-5" />
-            Crear Portfolio
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            ¡Hola, {user?.name?.split(' ')[0] || 'Inversor'}! 👋
+          </h1>
+          <p className="text-gray-600">
+            Aquí está tu resumen de inversiones
+          </p>
         </div>
 
-        {/* ✅ NUEVO: Error Banner */}
-        <ErrorBanner 
-          message={errorMessage} 
-          onClose={() => setErrorMessage(null)} 
-        />
-
-        {/* Resumen General */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-600 text-sm">Valor Total</p>
-              <Wallet className="w-5 h-5 text-blue-600" />
+        {/* Métricas Generales */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Total Invertido */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Wallet className="w-6 h-6 text-blue-600" />
+              </div>
+              <span className="text-sm text-gray-500">Total Invertido</span>
             </div>
             <p className="text-3xl font-bold text-gray-900">
               €{calculateTotalValue().toLocaleString('es-ES', { minimumFractionDigits: 2 })}
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-600 text-sm">Ganancias/Pérdidas</p>
-              {calculateTotalGains() >= 0 ? (
-                <TrendingUp className="w-5 h-5 text-green-600" />
-              ) : (
-                <TrendingDown className="w-5 h-5 text-red-600" />
-              )}
+          {/* Ganancias/Pérdidas */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-3 rounded-lg ${calculateTotalGains() >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
+                {calculateTotalGains() >= 0 ? (
+                  <TrendingUp className="w-6 h-6 text-green-600" />
+                ) : (
+                  <TrendingDown className="w-6 h-6 text-red-600" />
+                )}
+              </div>
+              <span className="text-sm text-gray-500">Ganancias/Pérdidas</span>
             </div>
             <p className={`text-3xl font-bold ${calculateTotalGains() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {calculateTotalGains() >= 0 ? '+' : ''}€{calculateTotalGains().toLocaleString('es-ES', { minimumFractionDigits: 2 })}
             </p>
-            <p className={`text-sm ${calculateTotalGains() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className="text-sm text-gray-500 mt-1">
               {calculateTotalGains() >= 0 ? '+' : ''}{calculateTotalGainsPercentage()}%
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-600 text-sm">Portfolios</p>
-              <BarChart3 className="w-5 h-5 text-purple-600" />
+          {/* Portfolios Activos */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <BarChart3 className="w-6 h-6 text-purple-600" />
+              </div>
+              <span className="text-sm text-gray-500">Portfolios</span>
             </div>
             <p className="text-3xl font-bold text-gray-900">
               {portfolios.length}
             </p>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-600 text-sm">Alertas</p>
-              <AlertTriangle className="w-5 h-5 text-orange-600" />
-            </div>
-            <p className="text-3xl font-bold text-orange-600">
-              {Object.keys(rebalanceAlerts).length}
-            </p>
-            <p className="text-sm text-gray-600">
-              necesita{Object.keys(rebalanceAlerts).length !== 1 ? 'n' : ''} rebalanceo
+            <p className="text-sm text-gray-500 mt-1">
+              {Object.keys(rebalanceAlerts).length} necesita{Object.keys(rebalanceAlerts).length !== 1 ? 'n' : ''} rebalanceo
             </p>
           </div>
         </div>
 
-        {/* Mis Portfolios */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Mis Portfolios</h2>
-          </div>
-
-          {portfolios.length === 0 ? (
-            <div className="text-center py-12">
-              <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-600 mb-4">
-                Crea tu primer portfolio respondiendo nuestro cuestionario
-              </p>
-              <button
-                onClick={() => navigate('/portfolio/create')}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all"
-              >
-                Empezar Ahora
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {portfolios.map(portfolio => (
-                <div
-                  key={portfolio.id}
-                  className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => navigate(`/portfolio/${portfolio.id}`)}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="font-bold text-lg text-gray-900">{portfolio.name}</h3>
-                      <p className="text-sm text-gray-600">{portfolio.riskProfile || 'Perfil no definido'}</p>
-                    </div>
-                    {rebalanceAlerts[portfolio.id] && (
-                      <AlertTriangle className="w-5 h-5 text-orange-600" />
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Valor:</span>
-                      <span className="font-semibold">
-                        €{(portfolio.totalValue || 0).toLocaleString('es-ES', { minimumFractionDigits: 2 })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Ganancia:</span>
-                      <span className={`font-semibold ${
-                        ((portfolio.totalValue || 0) - (portfolio.totalInvested || 0)) >= 0 
-                          ? 'text-green-600' 
-                          : 'text-red-600'
-                      }`}>
-                        {((portfolio.totalValue || 0) - (portfolio.totalInvested || 0)) >= 0 ? '+' : ''}
-                        €{((portfolio.totalValue || 0) - (portfolio.totalInvested || 0)).toLocaleString('es-ES', { minimumFractionDigits: 2 })}
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/portfolio/${portfolio.id}`);
-                    }}
-                    className="w-full mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center justify-center gap-2"
-                  >
-                    Ver Detalles
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+        {/* Alertas de Rebalanceo */}
+        {Object.keys(rebalanceAlerts).length > 0 && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  Algunos portfolios necesitan rebalanceo
+                </h3>
+                <div className="space-y-2">
+                  {Object.entries(rebalanceAlerts).map(([portfolioId, alert]) => {
+                    const portfolio = portfolios.find(p => p.id === portfolioId);
+                    return (
+                      <div key={portfolioId} className="flex items-center justify-between bg-white/60 p-3 rounded-lg">
+                        <span className="font-medium text-gray-900">{portfolio?.name}</span>
+                        <span className="text-sm text-yellow-700">
+                          Desviación: {alert.totalDeviation?.toFixed(1)}%
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* ✅ Recomendaciones IA Personalizadas */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-blue-100">
-          <div className="flex items-center gap-3 mb-6">
-            <Sparkles className="w-6 h-6 text-purple-600" />
+        {/* 🆕 NUEVA SECCIÓN: Selector de opciones SOLO si no hay portfolios */}
+{portfolios.length === 0 ? (
+  <div className="grid md:grid-cols-2 gap-6 mb-8">
+    {/* Opción 1: Crear desde cero */}
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-8 hover:shadow-lg transition-all">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <PlusCircle className="text-blue-600" size={24} />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">
+            Crear Cartera Desde Cero
+          </h3>
+        </div>
+      </div>
+      <p className="text-gray-600 mb-6">
+        Gestiona tu cartera manualmente. Busca activos, invierte a tu ritmo.
+        Perfecto si ya sabes en qué invertir.
+      </p>
+      <button
+        onClick={() => navigate('/create-portfolio')}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+      >
+        Comenzar <ArrowRight size={20} />
+      </button>
+    </div>
+
+    {/* Opción 2: Hacer test */}
+    <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-8 hover:shadow-lg transition-all">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <Star className="text-purple-600" size={24} />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">
+            Hacer Test de Inversión
+          </h3>
+        </div>
+      </div>
+      <p className="text-gray-600 mb-6">
+        Responde las preguntas y obtén recomendaciones personalizadas. Ideal si necesitas orientación.
+      </p>
+      <button
+        onClick={() => navigate('/quiz')}
+        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+      >
+        Comenzar Test <ArrowRight size={20} />
+      </button>
+    </div>
+  </div>
+) : null}
+
+{/* 📊 Sección de Portfolios del usuario (aparece cuando hay portfolios) */}
+{portfolios.length > 0 && (
+  <div className="mb-8">
+    <h2 className="text-2xl font-bold text-gray-900 mb-6">Mis Carteras</h2>
+    <div className="grid gap-4">
+      {portfolios.map((portfolio) => (
+        <div key={portfolio.id} className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+          <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Recomendaciones para ti</h2>
-              <p className="text-sm text-gray-600">Basadas en tu perfil de inversión y preferencias</p>
+              <h3 className="text-lg font-semibold text-gray-900">{portfolio.name}</h3>
+              <p className="text-sm text-gray-600">
+                {portfolio.riskProfile && `Perfil: ${portfolio.riskProfile}`}
+              </p>
             </div>
+            <div className="text-right">
+              <p className="text-lg font-bold text-gray-900">
+                €{portfolio.totalValue?.toLocaleString('es-ES', { minimumFractionDigits: 2 }) || '0.00'}
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+        {/* 🆕 NUEVA SECCIÓN: Recomendaciones Personalizadas IA */}
+        <div className="bg-gradient-to-r from-purple-50 via-blue-50 to-indigo-50 rounded-xl border border-purple-200 shadow-sm p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Sparkles className="w-6 h-6 text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-xl font-bold text-gray-900">
+                Recomendaciones Personalizadas IA
+              </h2>
+              <p className="text-sm text-gray-600">
+                Basadas en tu perfil de inversión y preferencias
+              </p>
+            </div>
+            <button
+              onClick={() => navigate('/assets')}
+              className="text-sm text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1"
+            >
+              Ver más
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
 
           {loadingAIRecommendations ? (
-            <div className="text-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-2" />
-              <p className="text-gray-600">Cargando recomendaciones personalizadas...</p>
+            <div className="text-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto text-purple-600 mb-3" />
+              <p className="text-gray-600 text-sm">Cargando recomendaciones personalizadas...</p>
             </div>
           ) : aiRecommendations.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {aiRecommendations.map((rec, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              {aiRecommendations.map((rec) => (
                 <div
-                  key={index}
-                  className="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                  key={rec.product.id}
                   onClick={() => handleProductClick(rec.product)}
+                  className="bg-white rounded-lg border border-purple-200 p-4 hover:border-purple-400 hover:shadow-md transition-all cursor-pointer group"
                 >
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-gray-900 text-sm">
-                      {rec.product.ticker}
-                    </h3>
-                    <div className="flex items-center gap-1 text-yellow-500">
-                      <Star className="w-4 h-4 fill-current" />
-                      <span className="text-xs font-medium">{rec.score.toFixed(1)}</span>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-900 text-sm mb-1 truncate">
+                        {rec.product.ticker}
+                      </h4>
+                      <p className="text-xs text-gray-600 line-clamp-2">
+                        {rec.product.name}
+                      </p>
                     </div>
+                    <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 ml-2" />
                   </div>
-                  <p className="text-xs text-gray-600 mb-3 line-clamp-2">
-                    {rec.product.name}
-                  </p>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-500">{rec.product.category}</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleProductClick(rec.product);
-                      }}
-                      className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
-                    >
-                      <Eye className="w-3 h-3" />
-                      Ver más
-                    </button>
+
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                    <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 font-medium rounded">
+                      {rec.product.type}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {(rec.similarity * 100).toFixed(0)}% match
+                    </span>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-center text-purple-600 group-hover:text-purple-700 text-xs font-medium">
+                    <Eye className="w-3 h-3 mr-1" />
+                    Ver detalles
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <Info className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-600">No hay recomendaciones disponibles</p>
-              <p className="text-sm text-gray-500 mt-1">
-                Completa el cuestionario para recibir recomendaciones personalizadas
-              </p>
+            <div className="text-center py-12 text-gray-500">
+              <Info className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p className="font-medium">No hay recomendaciones disponibles</p>
+              <p className="text-sm mt-1">Completa el cuestionario para recibir recomendaciones personalizadas</p>
+              <button
+                onClick={() => navigate('/quiz')}
+                className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+              >
+                Completar Quiz
+              </button>
             </div>
           )}
         </div>
+
+        {/* 🆕 NUEVO MODAL: Detalles del Producto */}
+        {showProductModal && selectedProduct && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        {selectedProduct.ticker}
+                      </h2>
+                      <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded">
+                        {selectedProduct.type}
+                      </span>
+                    </div>
+                    <p className="text-gray-600">{selectedProduct.name}</p>
+                  </div>
+                  <button
+                    onClick={() => setShowProductModal(false)}
+                    className="text-gray-400 hover:text-gray-600 p-2"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {selectedProduct.description && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2 font-semibold">Descripción</p>
+                      <p className="text-gray-700 leading-relaxed">
+                        {selectedProduct.description}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {selectedProduct.category && (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Categoría</p>
+                        <p className="font-semibold text-gray-900">{selectedProduct.category}</p>
+                      </div>
+                    )}
+                    {selectedProduct.expenseRatio && (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Ratio de Gastos</p>
+                        <p className="font-semibold text-gray-900">{selectedProduct.expenseRatio}%</p>
+                      </div>
+                    )}
+                    {selectedProduct.region && (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Región</p>
+                        <p className="font-semibold text-gray-900">{selectedProduct.region}</p>
+                      </div>
+                    )}
+                    {selectedProduct.sector && (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Sector</p>
+                        <p className="font-semibold text-gray-900">{selectedProduct.sector}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Explicación de por qué es recomendado */}
+                  {aiRecommendations.find(r => r.product.id === selectedProduct.id)?.explanation && (
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <p className="text-sm text-gray-600 mb-2 font-semibold flex items-center gap-2">
+                        <Info className="w-4 h-4 text-purple-600" />
+                        Por qué te lo recomendamos
+                      </p>
+                      <ul className="text-sm text-gray-700 space-y-1">
+                        {aiRecommendations.find(r => r.product.id === selectedProduct.id).explanation.map((reason, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <span className="text-purple-600 mt-1">•</span>
+                            <span>{reason}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      onClick={() => handleAddToPortfolio(selectedProduct)}
+                      disabled={portfolios.length === 0}
+                      className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <PlusCircle className="w-5 h-5" />
+                      Agregar a Portfolio
+                    </button>
+                    <button
+                      onClick={() => navigate('/assets')}
+                      className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Ver en Activos
+                    </button>
+                  </div>
+
+                  {portfolios.length === 0 && (
+                    <p className="text-sm text-yellow-600 text-center bg-yellow-50 p-2 rounded">
+                      Crea un portfolio primero para poder agregar activos
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 🆕 NUEVO MODAL: Agregar a Portfolio */}
+        {showAddModal && selectedProduct && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-md w-full">
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900 mb-1">
+                      Agregar a Portfolio
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      {selectedProduct.ticker} - {selectedProduct.name}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowAddModal(false)}
+                    className="text-gray-400 hover:text-gray-600 p-2"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Seleccionar Portfolio */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Seleccionar Portfolio
+                    </label>
+                    <select
+                      value={selectedPortfolioForAdd || ''}
+                      onChange={(e) => setSelectedPortfolioForAdd(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      {portfolios.map((portfolio) => (
+                        <option key={portfolio.id} value={portfolio.id}>
+                          {portfolio.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Cantidad */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Cantidad
+                    </label>
+                    <input
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      placeholder="Ej: 10"
+                      min="0"
+                      step="0.001"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Precio de Compra */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Precio de Compra (€)
+                    </label>
+                    <input
+                      type="number"
+                      value={purchasePrice}
+                      onChange={(e) => setPurchasePrice(e.target.value)}
+                      placeholder="Ej: 450.00"
+                      min="0"
+                      step="0.01"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Total */}
+                  {quantity && purchasePrice && (
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <p className="text-sm text-gray-600 mb-1">Inversión Total</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        €{(parseFloat(quantity) * parseFloat(purchasePrice)).toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      onClick={confirmAddToPortfolio}
+                      disabled={addingToPortfolio || !quantity || !purchasePrice || !selectedPortfolioForAdd}
+                      className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {addingToPortfolio ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Agregando...
+                        </>
+                      ) : (
+                        <>
+                          <PlusCircle className="w-5 h-5" />
+                          Confirmar
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setShowAddModal(false)}
+                      disabled={addingToPortfolio}
+                      className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
-
-      {/* Modal: Detalles del Producto */}
-      {showProductModal && selectedProduct && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                  {selectedProduct.ticker}
-                </h3>
-                <p className="text-gray-600">{selectedProduct.name}</p>
-              </div>
-              <button
-                onClick={() => setShowProductModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Descripción</h4>
-                <p className="text-gray-600">{selectedProduct.description}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-1">Categoría</h4>
-                  <p className="text-gray-600">{selectedProduct.category}</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-1">Ratio de Gastos</h4>
-                  <p className="text-gray-600">{selectedProduct.expenseRatio}%</p>
-                </div>
-                {selectedProduct.region && (
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Región</h4>
-                    <p className="text-gray-600">{selectedProduct.region}</p>
-                  </div>
-                )}
-                {selectedProduct.sector && (
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Sector</h4>
-                    <p className="text-gray-600">{selectedProduct.sector}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-6 flex gap-3">
-              <button
-                onClick={() => setShowProductModal(false)}
-                className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-medium"
-              >
-                Cerrar
-              </button>
-              <button
-                onClick={() => handleAddToPortfolio(selectedProduct)}
-                disabled={portfolios.length === 0}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                title={portfolios.length === 0 ? 'Crea un portfolio primero para poder agregar activos' : ''}
-              >
-                Agregar a Portfolio
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Agregar a Portfolio */}
-      {showAddModal && selectedProduct && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-6">
-            <div className="flex justify-between items-start">
-              <h3 className="text-2xl font-bold text-gray-900">
-                Agregar a Portfolio
-              </h3>
-              <button
-                onClick={() => {
-                  setShowAddModal(false);
-                  setErrorMessage(null);
-                }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-4 bg-blue-50 rounded-xl">
-              <p className="font-semibold text-gray-900">
-                {selectedProduct.ticker} - {selectedProduct.name}
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Portfolio
-                </label>
-                <select
-                  value={selectedPortfolioForAdd || ''}
-                  onChange={(e) => setSelectedPortfolioForAdd(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {portfolios.map(p => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Cantidad
-                </label>
-                <input
-                  type="number"
-                  min="0.001"
-                  step="0.001"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  placeholder="Ej: 10"
-                  className={`
-                    w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                    ${quantity && (isNaN(parseFloat(quantity)) || parseFloat(quantity) <= 0) 
-                      ? 'border-red-300 bg-red-50' 
-                      : 'border-gray-300'
-                    }
-                  `}
-                />
-                {quantity && (isNaN(parseFloat(quantity)) || parseFloat(quantity) <= 0) && (
-                  <p className="text-sm text-red-600 mt-1">
-                    Debe ser un número positivo
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Precio de Compra (€)
-                </label>
-                <input
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  value={purchasePrice}
-                  onChange={(e) => setPurchasePrice(e.target.value)}
-                  placeholder="Ej: 150.50"
-                  className={`
-                    w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                    ${purchasePrice && (isNaN(parseFloat(purchasePrice)) || parseFloat(purchasePrice) <= 0) 
-                      ? 'border-red-300 bg-red-50' 
-                      : 'border-gray-300'
-                    }
-                  `}
-                />
-                {purchasePrice && (isNaN(parseFloat(purchasePrice)) || parseFloat(purchasePrice) <= 0) && (
-                  <p className="text-sm text-red-600 mt-1">
-                    Debe ser un número positivo
-                  </p>
-                )}
-              </div>
-
-              {quantity && purchasePrice && 
-               !isNaN(parseFloat(quantity)) && !isNaN(parseFloat(purchasePrice)) &&
-               parseFloat(quantity) > 0 && parseFloat(purchasePrice) > 0 && (
-                <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
-                  <p className="text-sm text-gray-600">Inversión Total</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    €{(parseFloat(quantity) * parseFloat(purchasePrice)).toLocaleString('es-ES', { 
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2 
-                    })}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowAddModal(false);
-                  setErrorMessage(null);
-                }}
-                className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-medium"
-                disabled={addingToPortfolio}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={confirmAddToPortfolio}
-                disabled={addingToPortfolio || !quantity || !purchasePrice}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
-              >
-                {addingToPortfolio ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Agregando...
-                  </>
-                ) : (
-                  'Agregar'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

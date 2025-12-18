@@ -59,7 +59,6 @@ router.post('/calculate', async (req, res) => {
     
     res.json({
       riskProfile: portfolioResult.riskProfile,
-      riskScore: portfolioResult.riskScore,
       portfolio: portfolioResult.allocation
     });
   } catch (error) {
