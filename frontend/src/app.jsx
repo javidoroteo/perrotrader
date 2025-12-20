@@ -13,6 +13,7 @@ import BrokerGuide from './components/BrokerGuide';
 //componentes de autenticación y navegación
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import LoginPage from './pages/LoginPage';
 
 // Páginas del Portfolio Manager
 import Dashboard from './pages/Dashboard';
@@ -73,6 +74,9 @@ function App() {
           <Routes>
             {/* Ruta principal - Quiz */}
             <Route path="/" element={<ModernInvestmentQuiz hasConsent={hasConsent} onOpenPrivacyPolicy={handlePrivacyClick} />} />
+
+             {/* Login Page */}
+            <Route path="/login" element={<LoginPage />} />
 
             {/* OAuth Callback */}
             <Route path="/auth/callback" element={<OAuthCallback />} />

@@ -80,7 +80,7 @@ const UserProfile = ({ compact = false }) => {
 
                 <button
                   onClick={() => {
-                    navigate('/reports');
+                    navigate('/reporte');
                     setIsOpen(false);
                   }}
                   className="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-gray-50 transition-colors"
@@ -88,14 +88,6 @@ const UserProfile = ({ compact = false }) => {
                   <FileText className="w-5 h-5 text-gray-600" />
                   <span className="text-gray-700">Mis Reportes</span>
                 </button>
-                <button
-                    onClick={() => navigate('/report/latest')} // o /settings?tab=reports
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
->
-                    <FileText className="w-4 h-4" />
-                    <span>Ver mi Reporte</span>
-                </button>
-
                 <button
                   onClick={() => {
                     navigate('/settings');
