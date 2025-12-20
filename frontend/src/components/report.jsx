@@ -46,8 +46,7 @@ const ModernInvestorProfile = ({ result, sessionId, onRestart, hideEmailSection 
 
   const result = {
     investorProfile: { 
-      profile: investorProfile, 
-      riskScale 
+      profile: investorProfile,
     },
     portfolio: backendResult.portfolio,
     report: backendResult.report || null,
