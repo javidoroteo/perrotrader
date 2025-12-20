@@ -16,10 +16,6 @@ router.get('/google',
 
 // Callback de Google OAuth
 router.get('/google/callback',
-  passport.authenticate('google', {
-    failureRedirect: `${process.env.FRONTEND_URL}/auth/error`,
-    session: true
-  }),
   authController.googleCallback
 );
 
