@@ -8,16 +8,27 @@ googleAuth = passport.authenticate('google', {
 });
 
 googleCallback = (req, res, next) => {
+  console.log('📥 [googleCallback] Entrando en callback de Google');
   passport.authenticate('google', {
     failureRedirect: '/login',
     session: true
-  }, (err, user) => {
+  }, (err, user) => {console.log('📌 [googleCallback] Resultado de passport.authenticate:', {
+        hasError: !!err,
+        userId: user ? user.id : null,
+      });
+
     if (err || !user) {
+        console.error(
+          '❌ [googleCallback] Error o usuario nulo:',
+          err && err.message,
+          err && err.stack
+        );
       return res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
     }
     
     req.logIn(user, (err) => {
       if (err) {
+        console.error('❌ [googleCallback] Error en req.logIn:', loginErr);
         return res.redirect(`${process.env.FRONTEND_URL}/login?error=login_failed`);
       }
       
