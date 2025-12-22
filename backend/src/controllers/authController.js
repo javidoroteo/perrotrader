@@ -3,6 +3,19 @@ const passport = require('passport');
 const prisma = require('../utils/prisma');
 const jwt = require('jsonwebtoken');
 
+// Función auxiliar para generar JWT
+function generateToken(user) {
+  return jwt.sign(
+    { 
+      id: user.id, 
+      email: user.email,
+      name: user.name 
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+}
+
 googleAuth = passport.authenticate('google', {
   scope: ['profile', 'email']
 });
@@ -271,19 +284,6 @@ deleteAccount = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar cuenta' });
   }
 };
-
-// Función auxiliar para generar JWT
-function generateToken(user) {
-  return jwt.sign(
-    { 
-      id: user.id, 
-      email: user.email,
-      name: user.name 
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: '7d' }
-  );
-}
 
 // Actualizar perfil básico del usuario
 updateProfile = async (req, res) => {
