@@ -59,6 +59,22 @@ const portfolioService = {
       throw error;
     }
   },
+  /**
+   * Crear portfolio manual (sin quiz)
+   */
+  async createManualPortfolio(name, totalSavings, manualProfile) {
+    try {
+      const response = await api.post('/portfolio/create-manual', {
+        name,
+        totalSavings,
+        manualProfile
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating manual portfolio:', error);
+      throw error.response?.data || error;
+    }
+  },
 
   /**
    * Crear un nuevo portfolio
@@ -216,7 +232,7 @@ const portfolioService = {
       const totalValue = holdings.reduce((sum, h) => sum + (h.currentValue || 0), 0);
       const totalInvested = holdings.reduce((sum, h) => sum + (h.quantity * h.purchasePrice), 0);
       const totalGainLoss = totalValue - totalInvested;
-      const gainLossPercentage = totalInvested > 0 ? 
+      const gainLossPercentage = totalInvested > 0 ?
         ((totalGainLoss / totalInvested) * 100).toFixed(2) : '0.00';
 
       const summary = `
@@ -226,9 +242,9 @@ const portfolioService = {
 📈 Ganancia/Pérdida: €${totalGainLoss.toFixed(2)} (${gainLossPercentage}%)
 
 🎯 Activos (${holdings.length}):
-${holdings.map(h => 
-  `• ${h.ticker}: ${h.quantity} uds @ €${h.currentPrice?.toFixed(2) || 'N/A'}`
-).join('\n')}
+${holdings.map(h =>
+        `• ${h.ticker}: ${h.quantity} uds @ €${h.currentPrice?.toFixed(2) || 'N/A'}`
+      ).join('\n')}
 
 Creado con Isfinz 🚀
       `.trim();
