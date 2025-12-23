@@ -79,17 +79,27 @@ const authService = {
    * Guardar datos de usuario
    */
   saveUser(user) {
+    if (user === undefined) {
+      localStorage.removeItem('isfinz_user');
+      return;
+    }
     localStorage.setItem('isfinz_user', JSON.stringify(user));
   },
-
   /**
    * Obtener usuario guardado en localStorage
    */
   getStoredUser() {
-    const user = localStorage.getItem('isfinz_user');
-    return user ? JSON.parse(user) : null;
+    try {
+      const user = localStorage.getItem('isfinz_user');
+      if (!user || user === 'undefined') return null;
+      return JSON.parse(user);
+    } catch (error) {
+      console.error('Error parsing stored user:', error);
+      // Clean up corrupted data
+      localStorage.removeItem('isfinz_user');
+      return null;
+    }
   },
-
   /**
    * Obtener token guardado
    */
@@ -104,30 +114,30 @@ const authService = {
     return !!this.getToken();
   },
 
-getUserProfile: async () => {
-  const response = await api.get('/auth/profile');
-  return response.data;
-},
+  getUserProfile: async () => {
+    const response = await api.get('/auth/profile');
+    return response.data;
+  },
 
-updatePreferences: async (preferences) => {
-  const response = await api.put('/auth/preferences', preferences);
-  return response.data;
-},
+  updatePreferences: async (preferences) => {
+    const response = await api.put('/auth/preferences', preferences);
+    return response.data;
+  },
 
-updateInvestorProfile: async (profile) => {
-  const response = await api.put('/auth/investor-profile', profile);
-  return response.data;
-},
+  updateInvestorProfile: async (profile) => {
+    const response = await api.put('/auth/investor-profile', profile);
+    return response.data;
+  },
 
-exportUserData: async () => {
-  const response = await api.get('/auth/export-data');
-  return response.data;
-},
+  exportUserData: async () => {
+    const response = await api.get('/auth/export-data');
+    return response.data;
+  },
 
-deleteAccount: async () => {
-  const response = await api.delete('/auth/account');
-  return response.data;
-}
+  deleteAccount: async () => {
+    const response = await api.delete('/auth/account');
+    return response.data;
+  }
 
 };
 
