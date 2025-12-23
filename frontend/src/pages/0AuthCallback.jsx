@@ -40,19 +40,21 @@ const OAuthCallback = () => {
       authService.saveToken(token);
 
       // Verificar autenticación y obtener datos del usuario
-      await checkAuthentication();
+      const authResponse = await authService.checkAuth();
 
-      // Obtener perfil completo
-      const profile = await authService.getProfile();
-      authService.saveUser(profile.user);
+      if (!authResponse.authenticated || !authResponse.user) {
+        throw new Error('No se pudo verificar la autenticación');
+      }
+
+      // Guardar usuario limpio
+      authService.saveUser(authResponse.user);
 
       setStatus('success');
       setMessage('¡Autenticación exitosa!');
 
       // Verificar si el usuario tiene quiz completado
-      // Si no, redirigir al quiz. Si sí, al dashboard.
       setTimeout(() => {
-        if (profile.user.hasCompletedQuiz) {
+        if (authResponse.user.hasCompletedQuiz) {
           navigate('/dashboard');
         } else {
           navigate('/', { state: { message: 'Completa el test de inversión para comenzar' } });
@@ -113,3 +115,4 @@ const OAuthCallback = () => {
 };
 
 export default OAuthCallback;
+

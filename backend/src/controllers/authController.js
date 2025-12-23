@@ -69,7 +69,8 @@ getCurrentUser = async (req, res) => {
         name: true,
         dateOfBirth: true,
         createdAt: true,
-        lastLoginAt: true
+        lastLoginAt: true,
+        hasCompletedQuiz: true
       }
     });
 
@@ -332,7 +333,8 @@ checkAuth = async (req, res) => {
         email: true,
         name: true,
         createdAt: true,
-        lastLoginAt: true
+        lastLoginAt: true,
+        hasCompletedQuiz: true
       }
     });
 
