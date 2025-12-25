@@ -310,14 +310,14 @@ const AssetsPage = () => {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <div className="flex-1 relative">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative sm:flex-1">
               <input
                 type="text"
                 value={aiQuery}
                 onChange={(e) => setAiQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAISearch()}
-                placeholder="Ej: ETF global de bajo coste para largo plazo..."
+                placeholder="Ej: ETF global de bajo coste..."
                 className="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
               {aiQuery && (
@@ -332,7 +332,7 @@ const AssetsPage = () => {
             <button
               onClick={handleAISearch}
               disabled={loadingAI || !aiQuery.trim()}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
             {loadingAI ? "Buscando..." : "Buscar con IA"}
             </button>
@@ -517,12 +517,6 @@ const AssetsPage = () => {
                       <p className="text-sm text-gray-600 mb-1">Categoría</p>
                       <p className="font-semibold text-gray-900">
                         {selectedAsset.category || 'N/A'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Exchange</p>
-                      <p className="font-semibold text-gray-900">
-                        {selectedAsset.exchange || 'N/A'}
                       </p>
                     </div>
                     {selectedAsset.sector && (

@@ -42,28 +42,47 @@ const [loadingShare, setLoadingShare] = useState(false);
     loadPortfolioData();
   }, [portfolioId]);
 
-  const loadPortfolioData = async () => {
+    const loadPortfolioData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Cargar datos del portfolio
+      // 1. Cargar datos del portfolio PRIMERO
       const portfolioData = await portfolioService.getPortfolioDetails(portfolioId);
-      setPortfolio(portfolioData.portfolio);
-      setHoldings(portfolioData.portfolio.holdings || []);
+      
+      // Aseguramos que tenemos el objeto portfolio
+      const currentPortfolio = portfolioData.portfolio;
+      
+      setPortfolio(currentPortfolio);
+      setHoldings(currentPortfolio.holdings || []);
 
       // Verificar si necesita configurar inversión inicial
-      if (!portfolioData.portfolio.totalSavings || portfolioData.portfolio.totalSavings === 0) {
+      if (!currentPortfolio.totalSavings || currentPortfolio.totalSavings === 0) {
         setShowInvestmentModal(true);
       }
 
-      // Cargar sugerencias de inversión
-      const suggestionsData = await portfolioService.getSuggestions(portfolioId);
-      setSuggestions(suggestionsData);
+      // 2. Cargar sugerencias SOLO si tiene sentido (ej. si fue creado desde Quiz o tiene perfil de riesgo)
+      // Si es manual puro sin perfil de riesgo, saltamos este paso para evitar el error.
+      if (currentPortfolio.createdFromQuiz || currentPortfolio.riskProfile) {
+          try {
+            const suggestionsData = await portfolioService.getSuggestions(portfolioId);
+            setSuggestions(suggestionsData);
+          } catch (suggestionErr) {
+            console.warn("No se pudieron cargar sugerencias (normal para portfolios manuales):", suggestionErr);
+            setSuggestions(null); // Evita que la UI explote
+          }
+      } else {
+          setSuggestions(null);
+      }
 
-      // Cargar análisis de rebalanceo
-      const rebalanceData = await rebalanceService.analyzePortfolio(portfolioId);
-      setRebalanceInfo(rebalanceData);
+      // 3. Cargar análisis de rebalanceo (igual, protegemos con try/catch por si acaso)
+      try {
+        const rebalanceData = await rebalanceService.analyzePortfolio(portfolioId);
+        setRebalanceInfo(rebalanceData);
+      } catch (rebalanceErr) {
+         console.warn("Error cargando rebalanceo:", rebalanceErr);
+         setRebalanceInfo(null);
+      }
 
     } catch (err) {
       console.error('Error loading portfolio:', err);
