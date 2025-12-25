@@ -190,7 +190,7 @@ router.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     service: 'portfolio-service'
   });
-
+});
   // ===== CREAR PORTFOLIO MANUAL (SIN QUIZ) =====
 /**
  * POST /api/portfolio/create-manual
@@ -206,7 +206,7 @@ router.post('/create-manual', isAuthenticated, portfolioManagerController.create
  */
 router.put('/:portfolioId/convert-to-quiz', isAuthenticated, portfolioManagerController.convertToQuizPortfolio);
 
-});
+
 
 
 module.exports = router;
