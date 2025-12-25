@@ -424,7 +424,7 @@ const Dashboard = () => {
               <p className="font-medium">No hay recomendaciones disponibles</p>
               <p className="text-sm mt-1">Completa el cuestionario para recibir recomendaciones personalizadas</p>
               <button
-                onClick={() => navigate('/quiz')}
+                onClick={() => navigate('/')}
                 className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
               >
                 Completar Quiz
