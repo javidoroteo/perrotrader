@@ -28,7 +28,7 @@ class PortfolioManagerController {
         req.user.id,
         sessionId,
         name,
-        totalSavings
+        parseFloat(totalSavings)
       );
 
       res.json({
@@ -511,14 +511,14 @@ class PortfolioManagerController {
 
       if (!name || !totalSavings) {
         return res.status(400).json({
-          error: 'name y totalSavings son requeridos'
+          error: 'name y capital inicial son requeridos'
         });
       }
-
+      const savingsAmount = parseFloat(totalSavings);
       const portfolio = await portfolioManagerService.createManualPortfolio(
         req.user.id,
         name,
-        totalSavings,
+        savingsAmount,
         manualProfile // opcional: { riskTolerance, education, timeHorizon }
       );
 
