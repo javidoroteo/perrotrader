@@ -302,7 +302,7 @@ const AssetsPage = () => {
             <Sparkles className="w-6 h-6 text-purple-600 mt-1" />
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                Búsqueda Inteligente con IA
+                Búsqueda Inteligente
               </h3>
               <p className="text-sm text-gray-600">
                 Describe lo que buscas en lenguaje natural: "ETF sostenible bajo coste", "acciones tecnología emergente", etc.
@@ -332,20 +332,11 @@ const AssetsPage = () => {
             <button
               onClick={handleAISearch}
               disabled={loadingAI || !aiQuery.trim()}
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
-              {loadingAI ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Buscando...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  Buscar con IA
-                </>
-              )}
+            {loadingAI ? "Buscando..." : "Buscar con IA"}
             </button>
+
           </div>
 
           {/* Resultados de búsqueda IA */}
@@ -405,87 +396,6 @@ const AssetsPage = () => {
                   <Info className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p>No se encontraron productos con "{aiQuery}"</p>
                   <p className="text-sm mt-1">Intenta con otros términos o describe de otra forma</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Búsqueda tradicional */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="flex flex-wrap gap-2 mb-4">
-            {filters.map((filter) => {
-              const Icon = filter.icon;
-              return (
-                <button
-                  key={filter.id}
-                  onClick={() => setSelectedFilter(filter.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    selectedFilter === filter.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {filter.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar por ticker o nombre... (ej: VWCE, Apple, Bitcoin)"
-              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            {loading && (
-              <Loader2 className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 animate-spin text-blue-600" />
-            )}
-          </div>
-
-          {/* 🆕 MODIFICADO: Agregar source='traditional' */}
-          {searchQuery.length >= 2 && (
-            <div className="mt-4">
-              {searchResults.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {searchResults.map((asset) => (
-                    <div
-                      key={asset.id}
-                      onClick={() => handleAssetClick(asset, 'traditional')}
-                      className="bg-white p-4 rounded-lg border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 mb-1">
-                            {asset.ticker}
-                          </h4>
-                          <p className="text-sm text-gray-600 line-clamp-2">
-                            {asset.name}
-                          </p>
-                        </div>
-                        <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
-                          {asset.type}
-                        </span>
-                      </div>
-                      {asset.currentPrice && (
-                        <p className="text-sm font-semibold text-gray-900 mt-2">
-                          {asset.currentPrice.toLocaleString('es-ES', {
-                            style: 'currency',
-                            currency: 'EUR'
-                          })}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Info className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>No se encontraron activos con "{searchQuery}"</p>
                 </div>
               )}
             </div>
