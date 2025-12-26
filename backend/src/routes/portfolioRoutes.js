@@ -27,7 +27,18 @@ router.post('/generate', checkAuth, async (req, res) => {
     const result = await portfolioService.completeFinalResult(sessionData);
     result.sessionId = sessionData.id;
     result.session = sessionData;
-
+    // 🔍 ===== AÑADIR DEBUGS AQUÍ =====
+    console.log('🔍 ===== DEBUG GUARDADO DE REPORTE =====');
+    console.log('  - sessionId:', sessionData.id);
+    console.log('  - req.user existe?:', !!req.user);
+    console.log('  - userId:', req.user?.id);
+    console.log('  - email:', req.user?.email);
+    console.log('  - riskProfile:', result.riskProfile);
+    console.log('  - portfolio existe?:', !!result.portfolio);
+    console.log('  - experienceLevel:', result.experienceLevel);
+    console.log('  - sessionData.userId:', sessionData.userId); // 👈 IMPORTANTE
+    console.log('🔍 =====================================');
+    // ===== FIN DEBUGS =====
     if (req.user) {
       try {
         await reportService.saveReport(sessionData.id, result);

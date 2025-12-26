@@ -30,11 +30,6 @@ passport.use(
       proxy: true
     },
     async (accessToken, refreshToken, profile, done) => {
-      console.log('🔑 [GoogleStrategy] Profile recibido de Google:', {
-        id: profile.id,
-        displayName: profile.displayName,
-        emails: profile.emails,
-      });
       try {
         // Buscar usuario existente por Google ID
         let user = await prisma.user.findUnique({

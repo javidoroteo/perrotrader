@@ -22,7 +22,6 @@ const getFinancialDetails = async (req, res) => {
     try {
       marketData = await financialDataService.getYahooFinanceData(symbol);
     } catch (error) {
-      console.log(`Error obteniendo datos de mercado para ${symbol}:`, error.message);
       // Usar datos estáticos del producto si no hay datos de mercado
       marketData = {
         symbol,

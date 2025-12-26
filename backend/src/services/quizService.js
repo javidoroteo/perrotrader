@@ -152,11 +152,6 @@ async saveAnonymousStats(session, result) {
     try {
         // Aquí puedes implementar lógica para guardar estadísticas anónimas
         // Por ejemplo, contar cuántos usuarios han completado el quiz, etc.
-        console.log('Guardando estadísticas anónimas...', {
-            riskProfile: result.riskProfile,
-            completedAt: new Date(),
-            totalAnswers: session.answers?.length || 0
-        });
     } catch (error) {
         console.error('Error saving anonymous stats:', error);
         // No lanzar error ya que esto es opcional

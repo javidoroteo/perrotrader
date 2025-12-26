@@ -16,7 +16,6 @@ async function main() {
   // ========================================
   // 1. POBLAR ETFs desde productsConfig_v2.js
   // ========================================
-  console.log('📊 Poblando ETFs...');
   
   for (const [ticker, product] of Object.entries(FINANCIAL_PRODUCTS)) {
     try {

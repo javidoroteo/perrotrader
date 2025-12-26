@@ -189,7 +189,6 @@ function estimateSavingsFromConopoints(conopoints) {
             testStatus.session.userId
           );
           
-          console.log('✓ Perfil de inversión actualizado y vectorizado');
           
         } else {
           const { generateUserProfileEmbedding } = require('../services/embeddingService');

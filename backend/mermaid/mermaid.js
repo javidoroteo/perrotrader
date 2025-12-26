@@ -20,5 +20,3 @@ questions.forEach(q => {
 
 const outputPath = path.join(__dirname, 'flujo.mmd');
 fs.writeFileSync(outputPath, output);
-
-console.log('✅ Diagrama Mermaid generado en:', outputPath);

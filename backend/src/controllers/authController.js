@@ -21,7 +21,6 @@ googleAuth = passport.authenticate('google', {
 });
 
 googleCallback = (req, res, next) => {
-  console.log('📥 [googleCallback] Entrando en callback de Google');
   
   passport.authenticate('google', {
     failureRedirect: '/login',

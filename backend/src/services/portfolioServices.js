@@ -106,7 +106,6 @@ class PortfolioService {
               scaledAdjustments[asset] = baseAdjustment * multiplier;
             });
             
-            console.log(`Aplicando ${adjustmentKey}: ${positivePercentage}% →`, scaledAdjustments);
             this.applyAdjustments(portfolio, scaledAdjustments);
           }
         } else {

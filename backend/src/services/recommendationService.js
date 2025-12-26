@@ -79,8 +79,6 @@ async function getPersonalizedRecommendations(userId, options = {}) {
       throw new Error('Perfil no está vectorizado. Completa el cuestionario primero.');
     }
 
-    console.log(`Generando recomendaciones personalizadas para usuario ${userId}`);
-
     const products = await recommendProductsForUser(userId, { 
       limit: limit * 2
     });
