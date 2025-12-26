@@ -20,6 +20,20 @@ const portfolioService = {
       throw error.response?.data || error;
     }
   },
+   async createFromQuiz(sessionId, name, totalSavings) {
+    try {
+      // Llamamos a la ruta definida en el backend como: router.post('/create', ...)
+      const response = await api.post('/portfolio/create', {
+        sessionId,
+        name,
+        totalSavings
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating portfolio from quiz:', error);
+      throw error.response?.data || error;
+    }
+  },
 
   /**
    * Preview de ajuste sin guardar
