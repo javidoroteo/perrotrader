@@ -330,30 +330,40 @@ const Dashboard = () => {
 ) : null}
 
 {/* 📊 Sección de Portfolios del usuario (aparece cuando hay portfolios) */}
-{portfolios.length > 0 && (
-  <div className="mb-8">
-    <h2 className="text-2xl font-bold text-gray-900 mb-6">Mis Carteras</h2>
-    <div className="grid gap-4">
-      {portfolios.map((portfolio) => (
-        <div key={portfolio.id} className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">{portfolio.name}</h3>
-              <p className="text-sm text-gray-600">
-                {portfolio.riskProfile && `Perfil: ${portfolio.riskProfile}`}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-lg font-bold text-gray-900">
-                €{portfolio.totalValue?.toLocaleString('es-ES', { minimumFractionDigits: 2 }) || '0.00'}
-              </p>
+        {portfolios.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Mis Carteras</h2>
+            <div className="grid gap-4">
+              {portfolios.map((portfolio) => (
+                <div
+                  key={portfolio.id}
+                  onClick={() => navigate(`/portfolio/${portfolio.id}`)}
+                  className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-all cursor-pointer transform hover:scale-[1.02] group"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {portfolio.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {portfolio.riskProfile && `Perfil: ${portfolio.riskProfile}`}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-gray-900">
+                        €{portfolio.totalValue?.toLocaleString('es-ES', { minimumFractionDigits: 2 }) || '0.00'}
+                      </p>
+                      <div className="flex items-center justify-end gap-1 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity mt-1">
+                        <span className="text-sm font-medium">Ver detalles</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+        )}
         {/* 🆕 NUEVA SECCIÓN: Recomendaciones Personalizadas IA */}
         <div className="bg-gradient-to-r from-purple-50 via-blue-50 to-indigo-50 rounded-xl border border-purple-200 shadow-sm p-6">
           <div className="flex items-center gap-3 mb-4">
