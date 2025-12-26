@@ -47,13 +47,6 @@ class PortfolioService {
     
     const riskProfile = this.getRiskProfile(session.totalScore);
 
-    // 🆕 9. CALCULAR RISK SCORE DINÁMICO (0-100)
-  let personalityData = null;
-  try {
-    personalityData = await PersonalityService.calculatePersonalityProfile(session.id);
-  } catch (error) {
-    console.warn('⚠️ No se pudo calcular personalidad para risk score:', error.message);
-  }
     
     return {
       riskProfile,
@@ -65,8 +58,6 @@ class PortfolioService {
  * Calcula el nivel de riesgo real (0-100) basado en múltiples factores
  * @param {Object} session - Sesión del usuario con todos los datos
  * @param {Object} portfolio - Portfolio final calculado
- * @param {Object} personalityData - Datos de personalidad del usuario
- * @returns {number} Risk score de 0-100
  */
 
 

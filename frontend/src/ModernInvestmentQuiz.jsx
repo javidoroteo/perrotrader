@@ -335,7 +335,9 @@ const getCompleteResult = async () => {
     // 1️⃣ PRIMERO: Obtener la sesión completa con todos los datos
     const sessionResponse = await fetch(`${API_BASE_URL}/quiz/result/${sessionId}`);
     const sessionData = await sessionResponse.json();
-    
+        setFinalResult(reportData);
+      setIsCompleted(true);
+      setShowPersonalityTest(false);
     console.log('📡 Session data:', sessionData);
     
     if (!sessionData.success || !sessionData.completed) {
@@ -362,10 +364,6 @@ const getCompleteResult = async () => {
     console.log('📊 Report generated:', reportData);
     console.log('✅ Report saved?', reportData.reportSaved);
     
-    // 3️⃣ TERCERO: Mostrar el resultado al usuario
-    setFinalResult(reportData);
-    setIsCompleted(true);
-    setShowPersonalityTest(false);
     
   } catch (err) {
     setError('Error de conexión al obtener los resultados');

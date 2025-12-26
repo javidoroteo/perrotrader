@@ -9,62 +9,104 @@ class PortfolioManagerService {
   /**
    * Crear portfolio desde resultados del quiz
    */
-  async createFromQuiz(userId, sessionId, portfolioName, totalSavings) {
-    try {
-      // Obtener sesión del quiz
-      const session = await prisma.quizSession.findUnique({
-        where: { id: sessionId },
-        include: { personalityTest: true }
-      });
-
-      if (!session || !session.isCompleted) {
-        throw new Error('Quiz no completado');
+/**
+ * Crear portfolio desde resultados del quiz
+ */
+async createFromQuiz(userId, sessionId, portfolioName, totalSavings) {
+  try {
+    console.log('🔍 Creando portfolio desde quiz:', { userId, sessionId });
+    
+    // 1️⃣ Obtener sesión del quiz
+    const session = await prisma.quizSession.findUnique({
+      where: { id: sessionId },
+      include: { 
+        personalityTest: true,
+        answers: true 
       }
+    });
 
-      // Obtener reporte guardado (debería existir)
-      const savedReport = await prisma.savedReport.findUnique({
-        where: { sessionId }
-      });
-
-      if (!savedReport) {
-        throw new Error('Reporte no encontrado. Completa el quiz primero.');
-      }
-
-      const portfolioAllocation = JSON.parse(savedReport.portfolioAllocation);
-
-      // Crear portfolio
-      const portfolio = await prisma.portfolio.create({
-        data: {
-          userId,
-          name: portfolioName || 'Mi Portfolio',
-          totalSavings: totalSavings || 0,
-          currentValue: totalSavings || 0,
-          riskProfile: savedReport.riskProfile,
-          createdFromQuiz: true,
-          sessionId,
-          recommendedRentaFija: portfolioAllocation.bonos || 0,
-          recommendedRentaVariable: portfolioAllocation.acciones || 0,
-          recommendedCrypto: portfolioAllocation.criptomonedas || 0,
-          recommendedGold: portfolioAllocation.oro || 0,
-          recommendedCash: portfolioAllocation.efectivo || 0,
-          actualRentaFija: 0,
-          actualRentaVariable: 0,
-          actualCrypto: 0,
-          actualGold: 0,
-          actualCash: totalSavings || 0 // Todo empieza en cash
-        }
-      });
-      await prisma.user.update({
-        where: { id: userId },
-        data: { hasCompletedQuiz: true }
-      });
-
-      return portfolio;
-    } catch (error) {
-      console.error('Error creating portfolio from quiz:', error);
-      throw error;
+    if (!session) {
+      throw new Error('Sesión no encontrada');
     }
+
+    if (!session.isCompleted) {
+      throw new Error('Quiz no completado. Completa todas las preguntas primero.');
+    }
+
+    console.log('✅ Sesión encontrada:', {
+      isCompleted: session.isCompleted,
+      userId: session.userId,
+      hasPersonality: !!session.personalityTest
+    });
+
+    // 2️⃣ Buscar reporte guardado
+    let savedReport = await prisma.savedReport.findUnique({
+      where: { sessionId }
+    });
+
+    // 3️⃣ Si no existe el reporte, generarlo ahora
+    if (!savedReport) {
+      console.log('⚠️ Reporte no encontrado, generando ahora...');
+      
+      const portfolioService = require('./portfolioServices');
+      const reportService = require('./reportService');
+      
+      // Generar el reporte completo
+      const result = await portfolioService.completeFinalResult(session);
+      
+      console.log('📊 Reporte generado:', {
+        riskProfile: result.riskProfile,
+        hasPortfolio: !!result.portfolio
+      });
+      
+      // Guardar el reporte
+      savedReport = await reportService.saveReport(sessionId, result);
+      
+      console.log('✅ Reporte guardado con ID:', savedReport.id);
+    } else {
+      console.log('✅ Reporte ya existía:', savedReport.id);
+    }
+
+    const portfolioAllocation = JSON.parse(savedReport.portfolioAllocation);
+
+    // 4️⃣ Crear portfolio
+    const portfolio = await prisma.portfolio.create({
+      data: {
+        userId,
+        name: portfolioName || 'Mi Portfolio',
+        totalSavings: totalSavings || 0,
+        currentValue: totalSavings || 0,
+        riskProfile: savedReport.riskProfile,
+        createdFromQuiz: true,
+        sessionId,
+        recommendedRentaFija: portfolioAllocation.bonos || 0,
+        recommendedRentaVariable: portfolioAllocation.acciones || 0,
+        recommendedCrypto: portfolioAllocation.criptomonedas || 0,
+        recommendedGold: portfolioAllocation.oro || 0,
+        recommendedCash: portfolioAllocation.efectivo || 0,
+        actualRentaFija: 0,
+        actualRentaVariable: 0,
+        actualCrypto: 0,
+        actualGold: 0,
+        actualCash: totalSavings || 0 // Todo empieza en cash
+      }
+    });
+
+    // 5️⃣ Actualizar usuario
+    await prisma.user.update({
+      where: { id: userId },
+      data: { hasCompletedQuiz: true }
+    });
+
+    console.log('✅ Portfolio creado:', portfolio.id);
+
+    return portfolio;
+  } catch (error) {
+    console.error('❌ Error creating portfolio from quiz:', error);
+    throw error;
   }
+}
+
 
   /**
    * Obtener todos los portfolios de un usuario
