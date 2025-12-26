@@ -52,7 +52,7 @@ const portfolioService = {
    */
   async getPortfolios() {
     try {
-      const response = await api.get('/portfolio');
+      const response = await api.get('/portfolio/list');
       return response.data;
     } catch (error) {
       console.error('Error getting portfolios:', error);
