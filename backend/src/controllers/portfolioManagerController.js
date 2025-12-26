@@ -105,7 +105,7 @@ class PortfolioManagerController {
         });
       }
 
-      const holding = await portfolioManagerService.addAsset(
+      const holding = await portfolioManagerService.addHolding(
         portfolioId,
         req.user.id,
         ticker,

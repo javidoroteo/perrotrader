@@ -1,7 +1,7 @@
-// frontend/src/components/Portfolio/AddHoldingModal.jsx
 import { useState, useEffect } from 'react';
-import { X, Search, Loader2, TrendingUp, Info } from 'lucide-react';
+import { X, Search, Loader2, TrendingUp, Info, Sparkles } from 'lucide-react'; // Añadido Sparkles para icono de IA
 import assetService from '../../services/assetService';
+import recommendationService from '../../services/recommendationService'; // 1. Importar servicio de IA
 
 const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
   const [step, setStep] = useState(1); // 1: búsqueda, 2: cantidad
@@ -9,22 +9,52 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  // Estado para saber si los resultados actuales son de IA (para mostrar icono)
+  const [isAiResult, setIsAiResult] = useState(false);
+
   const [quantity, setQuantity] = useState('');
   const [purchasePrice, setPurchasePrice] = useState('');
 
-  // Buscar activos
+  // 2. Nueva lógica de búsqueda híbrida
   const handleSearch = async (query) => {
     if (!query || query.length < 2) {
       setSearchResults([]);
+      setIsAiResult(false);
       return;
     }
 
     try {
       setLoading(true);
+      setIsAiResult(false); // Reseteamos flag de IA
+
+      // A) Búsqueda Tradicional (Exacta/Parcial)
       const response = await assetService.searchAssets(query);
-      setSearchResults(response.assets || []);
+      
+      if (response.assets && response.assets.length > 0) {
+        setSearchResults(response.assets);
+      } else {
+        // B) Si no hay resultados tradicionales, intentamos con IA (Fallback)
+        // Solo si la query tiene longitud suficiente para tener sentido semántico
+        if (query.length > 3) {
+          // console.log("Búsqueda exacta sin resultados, intentando IA...");
+          const aiResponse = await recommendationService.searchProducts(query);
+          
+          if (aiResponse.products && aiResponse.products.length > 0) {
+            setSearchResults(aiResponse.products);
+            setIsAiResult(true); // Marcamos que son resultados de IA
+          } else {
+            setSearchResults([]);
+          }
+        } else {
+          setSearchResults([]);
+        }
+      }
     } catch (error) {
       console.error('Error searching assets:', error);
+      // En caso de error, podríamos intentar el fallback a IA si falló assetService, 
+      // pero por seguridad mejor dejamos array vacío
+      setSearchResults([]);
     } finally {
       setLoading(false);
     }
@@ -58,6 +88,7 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
 
     if (remaining <= 0) return null;
 
+    // Sugerimos invertir entre el 20% y 30% del faltante para ir promediando
     const suggestedMin = remaining * 0.2;
     const suggestedMax = remaining * 0.3;
 
@@ -84,159 +115,141 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">
-              {step === 1 ? 'Buscar Activo' : 'Configurar Inversión'}
-            </h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <h3 className="text-lg font-semibold text-slate-800">
+            {step === 1 ? 'Buscar Activo' : 'Detalles de la operación'}
+          </h3>
+          <button 
+            onClick={onClose}
+            className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600"
+          >
+            <X size={20} />
+          </button>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-          {/* PASO 1: BÚSQUEDA */}
-          {step === 1 && (
-            <>
-              {/* Buscador */}
-              <div className="relative mb-6">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        {/* Content */}
+        <div className="p-6">
+          {step === 1 ? (
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input
                   type="text"
-                  placeholder="Busca por nombre o ticker (ej: Apple, AAPL, Bitcoin)"
+                  placeholder="Buscar por nombre, ticker (ej. AAPL) o descripción..."
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
                   autoFocus
                 />
               </div>
 
-              {/* Resultados */}
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-                </div>
-              ) : searchResults.length > 0 ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600 mb-3">
-                    {searchResults.length} resultados encontrados
-                  </p>
-                  {searchResults.map((asset) => (
-                    <button
-                      key={asset.id}
-                      onClick={() => handleSelectAsset(asset)}
-                      className="w-full p-4 bg-gray-50 hover:bg-blue-50 rounded-xl transition-colors text-left border border-gray-200 hover:border-blue-300"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-gray-900">{asset.ticker}</span>
-                            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">
-                              {asset.type}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600">{asset.name}</p>
-                          {asset.description && (
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                              {asset.description}
-                            </p>
-                          )}
-                        </div>
-                        {asset.currentPrice && (
-                          <div className="text-right ml-4">
-                            <p className="font-semibold text-gray-900">
-                              {asset.currentPrice.toLocaleString('es-ES', {
-                                style: 'currency',
-                                currency: 'EUR'
-                              })}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ) : searchQuery.length >= 2 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <Search className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p>No se encontraron activos con "{searchQuery}"</p>
-                </div>
-              ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <Search className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p>Escribe al menos 2 caracteres para buscar</p>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* PASO 2: CANTIDAD E INVERSIÓN */}
-          {step === 2 && selectedAsset && (
-            <>
-              {/* Info del activo seleccionado */}
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 mb-6 border border-blue-200">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-bold text-xl text-gray-900 mb-1">
-                      {selectedAsset.ticker}
-                    </h3>
-                    <p className="text-gray-700">{selectedAsset.name}</p>
-                    <div className="flex gap-2 mt-2">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
-                        {selectedAsset.type}
-                      </span>
-                      <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">
-                        {selectedAsset.category}
-                      </span>
-                    </div>
+              <div className="min-h-[300px] max-h-[400px] overflow-y-auto custom-scrollbar">
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center h-40 text-slate-400">
+                    <Loader2 className="animate-spin mb-2" size={24} />
+                    <span className="text-sm">Buscando activos...</span>
                   </div>
-                  <button
-                    onClick={() => setStep(1)}
-                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                  >
-                    Cambiar
-                  </button>
+                ) : searchResults.length > 0 ? (
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center px-1 mb-2">
+                      <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                        {searchResults.length} resultados encontrados
+                      </span>
+                      {isAiResult && (
+                        <span className="flex items-center gap-1 text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                          <Sparkles size={10} />
+                          Sugeridos por IA
+                        </span>
+                      )}
+                    </div>
+                    
+                    {searchResults.map((asset) => (
+                      <button
+                        key={asset.ticker}
+                        onClick={() => handleSelectAsset(asset)}
+                        className="w-full flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl border border-transparent hover:border-slate-100 transition-all group text-left"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                            asset.type === 'CRYPTO' ? 'bg-orange-100 text-orange-600' :
+                            asset.type === 'ETF' ? 'bg-blue-100 text-blue-600' :
+                            'bg-emerald-100 text-emerald-600'
+                          }`}>
+                            <TrendingUp size={20} />
+                          </div>
+                          <div>
+                            <div className="font-semibold text-slate-900 flex items-center gap-2">
+                              {asset.ticker}
+                              <span className="text-xs font-normal text-slate-500 px-2 py-0.5 bg-slate-100 rounded-full">
+                                {asset.category}
+                              </span>
+                            </div>
+                            <div className="text-sm text-slate-500 line-clamp-1 group-hover:text-primary-600 transition-colors">
+                              {asset.name}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium text-slate-900">
+                            {asset.currentPrice?.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : searchQuery.length > 1 ? (
+                  <div className="flex flex-col items-center justify-center h-40 text-slate-400 text-center">
+                    <Search className="mb-2 opacity-50" size={32} />
+                    <p>No se encontraron activos con "{searchQuery}"</p>
+                    <p className="text-xs mt-1 text-slate-400">Prueba con otro término o categoría</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-40 text-slate-400 text-center">
+                    <Search className="mb-2 opacity-50" size={32} />
+                    <p>Escribe al menos 2 caracteres para buscar</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6 animate-in slide-in-from-right-4 duration-200">
+              {/* Resumen del activo seleccionado */}
+              <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
+                  selectedAsset.type === 'CRYPTO' ? 'bg-orange-100 text-orange-600' :
+                  selectedAsset.type === 'ETF' ? 'bg-blue-100 text-blue-600' :
+                  'bg-emerald-100 text-emerald-600'
+                }`}>
+                  <TrendingUp size={24} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 text-lg">{selectedAsset.ticker}</h4>
+                  <p className="text-slate-500 text-sm">{selectedAsset.name}</p>
                 </div>
               </div>
 
-              {/* Sugerencia personalizada */}
+              {/* Sugerencia inteligente */}
               {suggestion && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4">
                   <div className="flex items-start gap-3">
-                    <TrendingUp className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-yellow-900 mb-2">
-                        💡 Sugerencia Personalizada
-                      </h4>
-                      <p className="text-sm text-yellow-800 mb-2">
+                    <Info className="text-blue-500 mt-0.5 flex-shrink-0" size={18} />
+                    <div className="text-sm text-blue-900 space-y-1">
+                      <p>
                         Según tu portfolio, te faltan aproximadamente{' '}
-                        <span className="font-bold">
-                          {suggestion.remaining.toLocaleString('es-ES', {
-                            style: 'currency',
-                            currency: 'EUR'
-                          })}
+                        <span className="font-semibold text-blue-700">
+                          {suggestion.remaining.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
                         </span>{' '}
                         en {selectedAsset.category}.
                       </p>
-                      <p className="text-sm text-yellow-800">
+                      <p className="text-blue-700/80">
                         Rango sugerido para este activo:{' '}
-                        <span className="font-bold">
-                          {suggestion.min.toLocaleString('es-ES', {
-                            style: 'currency',
-                            currency: 'EUR'
-                          })}{' '}
+                        <span className="font-medium">
+                          {suggestion.min.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}{' '}
                           -{' '}
-                          {suggestion.max.toLocaleString('es-ES', {
-                            style: 'currency',
-                            currency: 'EUR'
-                          })}
+                          {suggestion.max.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
                         </span>
                       </p>
                     </div>
@@ -244,113 +257,68 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
                 </div>
               )}
 
-              {/* Formulario */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Precio de compra (por acción/unidad)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-                      €
-                    </span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={purchasePrice}
-                      onChange={(e) => setPurchasePrice(e.target.value)}
-                      className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  {selectedAsset.currentPrice && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      Precio actual: {selectedAsset.currentPrice.toLocaleString('es-ES', {
-                        style: 'currency',
-                        currency: 'EUR'
-                      })}
-                    </p>
-                  )}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700 block">Cantidad</label>
+                  <input
+                    type="number"
+                    step="0.000001"
+                    placeholder="0.00"
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                  />
                 </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    ¿Cuánto quieres invertir?
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-                      €
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700 block">
+                    Precio Compra
+                    <span className="ml-2 text-xs font-normal text-slate-400">
+                      (Actual: {selectedAsset.currentPrice.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })})
                     </span>
-                    <input
-                      type="number"
-                      step="10"
-                      value={quantity && purchasePrice ? (quantity * purchasePrice).toFixed(2) : ''}
-                      onChange={(e) => {
-                        const totalAmount = parseFloat(e.target.value) || 0;
-                        const pricePerUnit = parseFloat(purchasePrice) || 1;
-                        setQuantity((totalAmount / pricePerUnit).toFixed(4));
-                      }}
-                      className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
-                      placeholder="1000.00"
-                    />
-                  </div>
-                  {suggestion && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      Rango sugerido: €{suggestion.min} - €{suggestion.max}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Cantidad de acciones/unidades
                   </label>
                   <input
                     type="number"
-                    step="0.0001"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
-                    placeholder="10"
+                    step="0.01"
+                    placeholder="0.00"
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                    value={purchasePrice}
+                    onChange={(e) => setPurchasePrice(e.target.value)}
                   />
-                  {quantity && purchasePrice && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      Total a invertir: {(quantity * purchasePrice).toLocaleString('es-ES', {
-                        style: 'currency',
-                        currency: 'EUR'
-                      })}
-                    </p>
-                  )}
                 </div>
               </div>
 
-              {/* Info adicional */}
-              <div className="mt-6 p-4 bg-blue-50 rounded-xl">
-                <p className="text-sm text-blue-900 flex items-start gap-2">
-                  <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <span>
-                    Estos valores son referenciales. Podrás ajustarlos más adelante desde tu broker.
+              {quantity && purchasePrice && (
+                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                  <span className="text-slate-500">Total a invertir:</span>
+                  <span className="font-bold text-slate-900 text-lg">
+                    {(quantity * purchasePrice).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
                   </span>
-                </p>
-              </div>
+                </div>
+              )}
 
-              {/* Botones */}
-              <div className="flex gap-3 mt-6">
+              {suggestion && (quantity * purchasePrice) > suggestion.max && (
+                <p className="text-xs text-amber-600 flex items-center gap-1">
+                  <Info size={12} />
+                  Estás invirtiendo más del rango sugerido (€{suggestion.min} - €{suggestion.max})
+                </p>
+              )}
+
+              <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => setStep(1)}
-                  className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-semibold"
+                  className="flex-1 px-4 py-3 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl font-medium transition-colors"
                 >
-                  Volver
+                  Atrás
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={!quantity || !purchasePrice}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl transition-all font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-[2] px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors shadow-lg shadow-primary-500/20 flex items-center justify-center gap-2"
                 >
-                  Agregar a Portfolio
+                  <TrendingUp size={18} />
+                  Agregar Activo
                 </button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>

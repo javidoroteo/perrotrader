@@ -2,7 +2,6 @@ const prisma = require('../utils/prismaClient');
 const FINANCIAL_PRODUCTS = require('../config/productsConfig_v2');
 const yahooFinance = require('yahoo-finance2').default;
 
-
 /**
  * Servicio para gestión de activos financieros
  */
@@ -10,17 +9,20 @@ class AssetService {
 
   /**
    * Buscar activos por query (ticker o nombre)
-   * Primero busca en BD, luego en productsConfig
+   * 
+   * Busca SIMULTÁNEAMENTE en la BD y en productsConfig_v2.
+   * Combina ambos resultados, priorizando los de la BD.
    */
   async searchAssets(query, filters = {}) {
     try {
       const { type, category, riskLevel, limit = 20 } = filters;
+      const lowerQuery = query ? query.toLowerCase() : null;
 
-      // 1. Buscar en base de datos
-      let dbAssets = await prisma.asset.findMany({
+      // 1. Consulta a la base de datos (asíncrona)
+      const dbPromise = prisma.asset.findMany({
         where: {
           AND: [
-            query ? {
+            lowerQuery ? {
               OR: [
                 { name: { contains: query, mode: 'insensitive' } },
                 { ticker: { contains: query, mode: 'insensitive' } },
@@ -32,16 +34,50 @@ class AssetService {
             riskLevel ? { riskLevel } : {}
           ]
         },
-        take: limit
+        take: limit * 2 // Pedimos más para filtrar duplicados después
       });
 
-      // 2. Si no hay resultados en BD, buscar en config de productos
-      if (dbAssets.length === 0 && query) {
-        const configAssets = this.searchInProductsConfig(query, filters);
-        return configAssets.slice(0, limit);
-      }
+      // 2. Búsqueda en memoria en productsConfig (síncrona)
+      const configAssets = this.searchInProductsConfig(query, filters);
 
-      return dbAssets;
+      // 3. Esperamos la respuesta de la BD
+      const dbAssets = await dbPromise;
+
+      // 4. Combinar resultados sin duplicados usando Map (clave: ticker)
+      const uniqueAssetsMap = new Map();
+
+      // Primero: añadimos todos los de la BD (prioridad máxima, tienen ID y precio)
+      dbAssets.forEach(asset => {
+        uniqueAssetsMap.set(asset.ticker, asset);
+      });
+
+      // Segundo: añadimos los del config SOLO si no están ya en la BD
+      configAssets.forEach(product => {
+        if (!uniqueAssetsMap.has(product.ticker)) {
+          uniqueAssetsMap.set(product.ticker, {
+            id: null, // Importante: indica al front que no está persistido aún
+            ticker: product.ticker,
+            name: product.name,
+            type: product.type,
+            category: product.category || 'RENTA_VARIABLE',
+            description: product.description || null,
+            currentPrice: 0, // Placeholder hasta que se consulte Yahoo al guardar
+            currency: 'USD',
+            baseTicker: this.extractBaseTicker(product.ticker),
+            exchange: this.extractExchange(product.ticker),
+            isin: product.isin || null,
+            ter: product.ter || null,
+            riskLevel: this.mapRiskLevel(product.risk),
+            isRecommended: !!(product.recommended_for?.length),
+            recommendedFor: JSON.stringify(product.recommended_for || []),
+            lastUpdated: null
+          });
+        }
+      });
+
+      // Convertimos a array, limitamos y devolvemos
+      return Array.from(uniqueAssetsMap.values()).slice(0, limit);
+
     } catch (error) {
       console.error('Error searching assets:', error);
       throw error;
@@ -49,24 +85,24 @@ class AssetService {
   }
 
   /**
-   * Buscar en productsConfig_v2.js
+   * Buscar en productsConfig_v2.js (helper privado)
    */
   searchInProductsConfig(query, filters = {}) {
     const { type, category } = filters;
+    if (!query) return [];
+
     const lowerQuery = query.toLowerCase();
 
-    const results = Object.values(FINANCIAL_PRODUCTS).filter(product => {
-      const matchesQuery = 
+    return Object.values(FINANCIAL_PRODUCTS).filter(product => {
+      const matchesQuery =
         product.name.toLowerCase().includes(lowerQuery) ||
         product.ticker.toLowerCase().includes(lowerQuery);
-      
+
       const matchesType = !type || product.type === type;
       const matchesCategory = !category || product.category === category;
 
       return matchesQuery && matchesType && matchesCategory;
     });
-
-    return results;
   }
 
   /**
@@ -74,7 +110,6 @@ class AssetService {
    */
   async getRecommendedAssets(riskProfile, category = null) {
     try {
-      // Mapear perfil de riesgo a etiquetas
       const riskMapping = {
         'Bajo Riesgo': ['principiante', 'conservador'],
         'Riesgo Moderado': ['intermedio', 'moderado'],
@@ -83,7 +118,6 @@ class AssetService {
 
       const profileTags = riskMapping[riskProfile] || ['intermedio'];
 
-      // Buscar en productsConfig
       const recommended = Object.values(FINANCIAL_PRODUCTS).filter(product => {
         const matchesProfile = product.recommended_for?.some(tag =>
           profileTags.includes(tag)
@@ -92,7 +126,6 @@ class AssetService {
         return matchesProfile && matchesCategory;
       });
 
-      // Agrupar por categoría
       const grouped = {
         RENTA_FIJA: [],
         RENTA_VARIABLE: [],
@@ -122,20 +155,17 @@ class AssetService {
    */
   async getOrCreateAsset(ticker) {
     try {
-      // Buscar en BD
+      // 1. Buscar en BD
       let asset = await prisma.asset.findUnique({
         where: { ticker }
       });
 
-      if (asset) {
-        return asset;
-      }
+      if (asset) return asset;
 
-      // Buscar en productsConfig
+      // 2. Si no existe, buscar configuración para crearlo bien definido
       const productConfig = FINANCIAL_PRODUCTS[ticker];
       
       if (productConfig) {
-        // Crear desde config
         asset = await prisma.asset.create({
           data: {
             ticker: productConfig.ticker,
@@ -143,7 +173,7 @@ class AssetService {
             type: productConfig.type,
             category: productConfig.category || 'RENTA_VARIABLE',
             description: productConfig.description,
-            currentPrice: 0, // Se actualizará después
+            currentPrice: 0,
             currency: 'USD',
             baseTicker: this.extractBaseTicker(productConfig.ticker),
             exchange: this.extractExchange(productConfig.ticker),
@@ -155,27 +185,25 @@ class AssetService {
           }
         });
 
-        // Intentar obtener precio actual
+        // Actualizar precio inmediatamente
         await this.updateAssetPrice(asset.id, ticker);
-
         return asset;
       }
 
-      // Si no está en config, intentar obtener de Yahoo Finance
+      // 3. Fallback: Intentar obtener de Yahoo Finance si no está en config
       try {
         const quote = await yahooFinance.quote(ticker);
         asset = await prisma.asset.create({
           data: {
             ticker,
             name: quote.longName || quote.shortName || ticker,
-            type: 'ETF',
+            type: 'ETF', // Asumimos ETF/Stock por defecto si viene de Yahoo directo
             category: 'RENTA_VARIABLE',
             currentPrice: quote.regularMarketPrice || 0,
             currency: quote.currency || 'USD',
             baseTicker: this.extractBaseTicker(ticker)
           }
         });
-
         return asset;
       } catch (error) {
         throw new Error(`No se pudo obtener información del activo: ${ticker}`);
@@ -193,9 +221,7 @@ class AssetService {
     try {
       const quote = await yahooFinance.quote(ticker);
       
-      if (!quote.regularMarketPrice) {
-        return null;
-      }
+      if (!quote.regularMarketPrice) return null;
 
       // Actualizar precio en Asset
       await prisma.asset.update({
@@ -248,8 +274,10 @@ class AssetService {
   mapRiskLevel(risk) {
     if (!risk) return 'MEDIUM';
     const riskLower = risk.toLowerCase();
+    
     if (riskLower.includes('bajo') || riskLower.includes('low')) return 'LOW';
     if (riskLower.includes('alto') || riskLower.includes('high')) return 'HIGH';
+    
     return 'MEDIUM';
   }
 
@@ -259,7 +287,7 @@ class AssetService {
   async getAssetDetails(ticker) {
     try {
       const asset = await this.getOrCreateAsset(ticker);
-      
+
       // Obtener histórico de precios (últimos 30 días)
       const priceHistory = await prisma.assetPrice.findMany({
         where: { assetId: asset.id },
