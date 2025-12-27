@@ -332,12 +332,9 @@ const getCompleteResult = async () => {
   setLoading(true);
   setError(null);
   try {
-    // 1️⃣ PRIMERO: Obtener la sesión completa con todos los datos
+    // 1️⃣ Fetch session data
     const sessionResponse = await fetch(`${API_BASE_URL}/quiz/result/${sessionId}`);
     const sessionData = await sessionResponse.json();
-        setFinalResult(reportData);
-      setIsCompleted(true);
-      setShowPersonalityTest(false);
     console.log('📡 Session data:', sessionData);
     
     if (!sessionData.success || !sessionData.completed) {
@@ -345,26 +342,28 @@ const getCompleteResult = async () => {
       return;
     }
 
-    // 2️⃣ SEGUNDO: Generar Y GUARDAR el reporte completo
+    // 2️⃣ Fetch and generate report
     const reportResponse = await fetch(`${API_BASE_URL}/portfolio/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // ✅ IMPORTANTE: Incluir token si está autenticado
         ...(localStorage.getItem('isfinz_token') && {
           'Authorization': `Bearer ${localStorage.getItem('isfinz_token')}`
         })
       },
-      credentials: 'include', // Para cookies de sesión
-      body: JSON.stringify(sessionData.session) // Enviar la sesión completa
+      credentials: 'include',
+      body: JSON.stringify(sessionData.session)
     });
 
     const reportData = await reportResponse.json();
-    
     console.log('📊 Report generated:', reportData);
     console.log('✅ Report saved?', reportData.reportSaved);
-    
-    
+
+    // NOW set states after reportData is available
+    setFinalResult(reportData);
+    setIsCompleted(true);
+    setShowPersonalityTest(false);
+
   } catch (err) {
     setError('Error de conexión al obtener los resultados');
     console.error('Error getting complete results:', err);
