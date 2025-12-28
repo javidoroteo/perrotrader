@@ -20,7 +20,7 @@ const portfolioService = {
       throw error.response?.data || error;
     }
   },
-   async createFromQuiz(sessionId, name, totalSavings) {
+  async createFromQuiz(sessionId, name, totalSavings) {
     try {
       // Llamamos a la ruta definida en el backend como: router.post('/create', ...)
       const response = await api.post('/portfolio/create', {
@@ -31,6 +31,19 @@ const portfolioService = {
       return response.data;
     } catch (error) {
       console.error('Error creating portfolio from quiz:', error);
+      throw error.response?.data || error;
+    }
+  },
+
+  /**
+   * Vincular sesión de quiz a usuario autenticado
+   */
+  async linkSessionToUser(sessionId) {
+    try {
+      const response = await api.post('/quiz/link-session', { sessionId });
+      return response.data;
+    } catch (error) {
+      console.error('Error linking session to user:', error);
       throw error.response?.data || error;
     }
   },

@@ -22,6 +22,11 @@ const PostQuizActions = ({ sessionId, result }) => {
       setLoading(true);
       setError('');
 
+      // 1. Vincular la sesión actual al usuario antes de crear el portfolio
+      // Esto asegura que el reporte generado se guarde en "UserInvestmentProfile"
+      // y aparezca en la sección "Mis Reportes"
+      await portfolioService.linkSessionToUser(sessionId);
+
       const portfolioName = `Mi Portfolio - ${new Date().toLocaleDateString('es-ES')}`;
       const totalSavings = 10000;
 

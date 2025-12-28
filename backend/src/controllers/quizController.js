@@ -9,7 +9,7 @@ const { generateUserProfileEmbedding } = require('../services/embeddingService')
 
 
 class QuizController {
-  
+
   /**
    * Verifica si tanto el quiz como el test de personalidad están completos
    */
@@ -52,117 +52,117 @@ class QuizController {
    * Genera resultado final solo cuando ambos tests estén completos
    */
   async generateFinalResultIfBothComplete(sessionId) {
-  const testStatus = await this.checkBothTestsComplete(sessionId);
+    const testStatus = await this.checkBothTestsComplete(sessionId);
 
-  if (!testStatus.bothComplete) {
-    return {
-      success: true,
-      completed: false,
-      quizComplete: testStatus.quizComplete,
-      personalityComplete: testStatus.personalityComplete,
-      message: testStatus.quizComplete
-        ? 'Quiz completado. Esperando test de personalidad.'
-        : 'Test de personalidad completado. Esperando quiz.',
-      nextStep: testStatus.quizComplete ? 'personality_test' : 'continue_quiz',
-      canLinkToUser: testStatus.quizComplete && !testStatus.session.userId
-    };
-  }
+    if (!testStatus.bothComplete) {
+      return {
+        success: true,
+        completed: false,
+        quizComplete: testStatus.quizComplete,
+        personalityComplete: testStatus.personalityComplete,
+        message: testStatus.quizComplete
+          ? 'Quiz completado. Esperando test de personalidad.'
+          : 'Test de personalidad completado. Esperando quiz.',
+        nextStep: testStatus.quizComplete ? 'personality_test' : 'continue_quiz',
+        canLinkToUser: testStatus.quizComplete && !testStatus.session.userId
+      };
+    }
 
-  try {
-    // Resultado del quiz
-    const quizResult = await portfolioService.completeFinalResult(testStatus.session);
+    try {
+      // Resultado del quiz
+      const quizResult = await portfolioService.completeFinalResult(testStatus.session);
 
-    // Resultado de personalidad
-    const personalityResult = testStatus.personalityTest
-      ? await personalityService.processCompleteTest(
+      // Resultado de personalidad
+      const personalityResult = testStatus.personalityTest
+        ? await personalityService.processCompleteTest(
           sessionId,
           Array.isArray(testStatus.personalityTest.responses)
             ? testStatus.personalityTest.responses
             : JSON.parse(testStatus.personalityTest.responses)
         )
-      : null;
+        : null;
 
-    // ========================================
-    // NUEVO: Crear y vectorizar perfil de inversión
-    // ========================================
-    try {
-      // Solo crear perfil si el usuario está vinculado
-      if (testStatus.session.userId) {
-        
-        // Extraer datos del perfil desde el quiz result
-// Extraer datos del perfil desde TU quiz result REAL
-const profileData = {
-  // Edad: desde session.age (valores 1-7 del quiz)
-  age: calculateAgeFromLevel(testStatus.session.age) || 35,
-  
-  // Ingresos y ahorros: NO los guardas directamente
-  // Los estimamos desde experienceScore (conopoints acumulados)
-  income: estimateIncomeFromConopoints(testStatus.session.experienceScore),
-  savings: estimateSavingsFromConopoints(testStatus.session.experienceScore),
-  
-  // Nivel de conocimientos: basado en experienceScore (expoints)
-  financialKnowledge: testStatus.session.experienceScore >= 9 ? 'ADVANCED' 
-    : testStatus.session.experienceScore >= 5 ? 'INTERMEDIATE' 
-    : 'BEGINNER',
-  
-  // Tolerancia al riesgo: desde riskProfile del resultado
-  riskTolerance: quizResult.riskProfile || 'Riesgo Moderado',
-  
-  // Preferencias: extraídas de los valores del quiz
-  investmentPreferences: extractPreferences(testStatus.session),
-  
-  // Horizonte temporal: basado en timeValue del quiz
-  timeHorizon: testStatus.session.timeValue >= 4 ? 'LARGO' 
-    : testStatus.session.timeValue >= 2 ? 'MEDIO' 
-    : 'CORTO'
-};
+      // ========================================
+      // NUEVO: Crear y vectorizar perfil de inversión
+      // ========================================
+      try {
+        // Solo crear perfil si el usuario está vinculado
+        if (testStatus.session.userId) {
 
-// Funciones auxiliares para estimar ingresos y ahorros
-function calculateAgeFromLevel(ageLevel) {
-  const ageMap = {
-    1: 22,  // 18-25
-    2: 28,  // 26-30
-    3: 33,  // 31-35
-    4: 40,  // 36-45
-    5: 50,  // 46-55
-    6: 60,  // 56-66
-    7: 70   // 66+
-  };
-  return ageMap[ageLevel] || 35;
-}
+          // Extraer datos del perfil desde el quiz result
+          // Extraer datos del perfil desde TU quiz result REAL
+          const profileData = {
+            // Edad: desde session.age (valores 1-7 del quiz)
+            age: calculateAgeFromLevel(testStatus.session.age) || 35,
 
-function estimateIncomeFromConopoints(conopoints) {
-  // Conopoints reflejan patrimonio + ingresos + ahorro
-  // Valores típicos: -1 a 22 puntos
-  if (conopoints <= 3) return 15000;   // Bajo
-  if (conopoints <= 7) return 30000;   // Medio-bajo
-  if (conopoints <= 12) return 50000;  // Medio
-  if (conopoints <= 18) return 80000;  // Medio-alto
-  return 120000;                        // Alto
-}
+            // Ingresos y ahorros: NO los guardas directamente
+            // Los estimamos desde experienceScore (conopoints acumulados)
+            income: estimateIncomeFromConopoints(testStatus.session.experienceScore),
+            savings: estimateSavingsFromConopoints(testStatus.session.experienceScore),
 
-function estimateSavingsFromConopoints(conopoints) {
-  // Estimación de ahorros basada en conopoints
-  if (conopoints <= 3) return 5000;
-  if (conopoints <= 7) return 15000;
-  if (conopoints <= 12) return 30000;
-  if (conopoints <= 18) return 60000;
-  return 100000;
-}
+            // Nivel de conocimientos: basado en experienceScore (expoints)
+            financialKnowledge: testStatus.session.experienceScore >= 9 ? 'ADVANCED'
+              : testStatus.session.experienceScore >= 5 ? 'INTERMEDIATE'
+                : 'BEGINNER',
+
+            // Tolerancia al riesgo: desde riskProfile del resultado
+            riskTolerance: quizResult.riskProfile || 'Riesgo Moderado',
+
+            // Preferencias: extraídas de los valores del quiz
+            investmentPreferences: extractPreferences(testStatus.session),
+
+            // Horizonte temporal: basado en timeValue del quiz
+            timeHorizon: testStatus.session.timeValue >= 4 ? 'LARGO'
+              : testStatus.session.timeValue >= 2 ? 'MEDIO'
+                : 'CORTO'
+          };
+
+          // Funciones auxiliares para estimar ingresos y ahorros
+          function calculateAgeFromLevel(ageLevel) {
+            const ageMap = {
+              1: 22,  // 18-25
+              2: 28,  // 26-30
+              3: 33,  // 31-35
+              4: 40,  // 36-45
+              5: 50,  // 46-55
+              6: 60,  // 56-66
+              7: 70   // 66+
+            };
+            return ageMap[ageLevel] || 35;
+          }
+
+          function estimateIncomeFromConopoints(conopoints) {
+            // Conopoints reflejan patrimonio + ingresos + ahorro
+            // Valores típicos: -1 a 22 puntos
+            if (conopoints <= 3) return 15000;   // Bajo
+            if (conopoints <= 7) return 30000;   // Medio-bajo
+            if (conopoints <= 12) return 50000;  // Medio
+            if (conopoints <= 18) return 80000;  // Medio-alto
+            return 120000;                        // Alto
+          }
+
+          function estimateSavingsFromConopoints(conopoints) {
+            // Estimación de ahorros basada en conopoints
+            if (conopoints <= 3) return 5000;
+            if (conopoints <= 7) return 15000;
+            if (conopoints <= 12) return 30000;
+            if (conopoints <= 18) return 60000;
+            return 100000;
+          }
 
 
-        // Verificar si ya existe perfil para este usuario
-        const existingProfile = await prisma.userInvestmentProfile.findUnique({
-          where: { userId: testStatus.session.userId }
-        });
+          // Verificar si ya existe perfil para este usuario
+          const existingProfile = await prisma.userInvestmentProfile.findUnique({
+            where: { userId: testStatus.session.userId }
+          });
 
-        if (existingProfile) {
-          // Actualizar perfil existente
-          const { generateUserProfileEmbedding } = require('../services/embeddingService');
-          const { embedding, profileText } = await generateUserProfileEmbedding(profileData);
-          const embeddingStr = `[${embedding.join(',')}]`;
-          
-          await prisma.$executeRawUnsafe(`
+          if (existingProfile) {
+            // Actualizar perfil existente
+            const { generateUserProfileEmbedding } = require('../services/embeddingService');
+            const { embedding, profileText } = await generateUserProfileEmbedding(profileData);
+            const embeddingStr = `[${embedding.join(',')}]`;
+
+            await prisma.$executeRawUnsafe(`
             UPDATE user_investment_profiles 
             SET 
               age = $1,
@@ -176,79 +176,79 @@ function estimateSavingsFromConopoints(conopoints) {
               embedding = $9::vector,
               "updatedAt" = NOW()
             WHERE "userId" = $10
-          `, 
-            profileData.age,
-            profileData.income,
-            profileData.savings,
-            profileData.financialKnowledge,
-            profileData.riskTolerance,
-            profileData.investmentPreferences,
-            profileData.timeHorizon,
-            profileText,
-            embeddingStr,
-            testStatus.session.userId
-          );
-          
-          
-        } else {
-          const { generateUserProfileEmbedding } = require('../services/embeddingService');
-          const { embedding, profileText } = await generateUserProfileEmbedding(profileData);
-          
-          const profile = await prisma.userInvestmentProfile.create({
-            data: {
-              userId: testStatus.session.userId,
-              ...profileData,
-              profileText
-            }
-          });
+          `,
+              profileData.age,
+              profileData.income,
+              profileData.savings,
+              profileData.financialKnowledge,
+              profileData.riskTolerance,
+              profileData.investmentPreferences,
+              profileData.timeHorizon,
+              profileText,
+              embeddingStr,
+              testStatus.session.userId
+            );
 
-          // Vectorizar el perfil
-          const embeddingStr = `[${embedding.join(',')}]`;
-          await prisma.$executeRawUnsafe(`
+
+          } else {
+            const { generateUserProfileEmbedding } = require('../services/embeddingService');
+            const { embedding, profileText } = await generateUserProfileEmbedding(profileData);
+
+            const profile = await prisma.userInvestmentProfile.create({
+              data: {
+                userId: testStatus.session.userId,
+                ...profileData,
+                profileText
+              }
+            });
+
+            // Vectorizar el perfil
+            const embeddingStr = `[${embedding.join(',')}]`;
+            await prisma.$executeRawUnsafe(`
             UPDATE user_investment_profiles 
             SET embedding = $1::vector
             WHERE id = $2
           `, embeddingStr, profile.id);
-          
-          console.log('✓ Perfil de inversión creado y vectorizado');
-        }
-      }
-    } catch (vectorError) {
-      console.error('Error creando/vectorizando perfil:', vectorError);
-      // No fallar si falla la vectorización
-    }
-    // ========================================
 
-    return {
-      success: true,
-      completed: true,
-      result: {
-        sessionId: sessionId,
-        userId: testStatus.session.userId,
-        isLinkedToUser: !!testStatus.session.userId,
-        // Datos del quiz (portfolioService.completeFinalResult)
-        riskProfile: quizResult.riskProfile,
-        experienceLevel: quizResult.experienceLevel,
-        portfolio: quizResult.portfolio,
-        report: quizResult.report,
-        rentaFijaAdvice: quizResult.rentaFijaAdvice,
-        rentaVariableAdvice: quizResult.rentaVariableAdvice,
-        investmentStrategies: quizResult.investmentStrategies,
-        educationalGuide: quizResult.educationalGuide,
-        investorProfile: quizResult.investorProfile,
-        portfolioExplanation: quizResult.portfolioExplanation,
-        // Datos de personalidad (solo el profile)
-        personality: personalityResult ? personalityResult.profile : null
+            console.log('✓ Perfil de inversión creado y vectorizado');
+          }
+        }
+      } catch (vectorError) {
+        console.error('Error creando/vectorizando perfil:', vectorError);
+        // No fallar si falla la vectorización
       }
-    };
-  } catch (error) {
-    console.error('Error generating final result:', error);
-    return {
-      success: false,
-      error: error.message
-    };
+      // ========================================
+
+      return {
+        success: true,
+        completed: true,
+        result: {
+          sessionId: sessionId,
+          userId: testStatus.session.userId,
+          isLinkedToUser: !!testStatus.session.userId,
+          // Datos del quiz (portfolioService.completeFinalResult)
+          riskProfile: quizResult.riskProfile,
+          experienceLevel: quizResult.experienceLevel,
+          portfolio: quizResult.portfolio,
+          report: quizResult.report,
+          rentaFijaAdvice: quizResult.rentaFijaAdvice,
+          rentaVariableAdvice: quizResult.rentaVariableAdvice,
+          investmentStrategies: quizResult.investmentStrategies,
+          educationalGuide: quizResult.educationalGuide,
+          investorProfile: quizResult.investorProfile,
+          portfolioExplanation: quizResult.portfolioExplanation,
+          // Datos de personalidad (solo el profile)
+          personality: personalityResult ? personalityResult.profile : null
+        }
+      };
+    } catch (error) {
+      console.error('Error generating final result:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
   }
-}
 
   /**
    * Iniciar nueva sesión del cuestionario
@@ -330,6 +330,13 @@ function estimateSavingsFromConopoints(conopoints) {
         }
       });
 
+      // ===========================================
+      // NUEVO: Generar/Actualizar perfil de inversión
+      // ===========================================
+      // Ahora que la sesión tiene usuario, forzamos la regeneración del resultado
+      // para que se cree el registro en UserInvestmentProfile
+      await this.generateFinalResultIfBothComplete(sessionId);
+
       res.json({
         success: true,
         message: 'Sesión vinculada correctamente al usuario',
@@ -401,7 +408,7 @@ function estimateSavingsFromConopoints(conopoints) {
 
       const session = await prisma.quizSession.findUnique({
         where: { id: sessionId },
-        include: { 
+        include: {
           answers: { orderBy: { createdAt: 'asc' } },
           user: true
         }
@@ -786,47 +793,47 @@ function estimateSavingsFromConopoints(conopoints) {
 // Basada en tus valores REALES del quiz
 function extractPreferences(session) {
   const preferences = [];
-  
+
   // ESG/Sostenibilidad (session.esgValue: 0, 1 o 2)
   if (session.esgValue && session.esgValue > 0) {
     preferences.push('sostenibilidad');
   }
-  
+
   // Dividendos (session.dividend: 0 o 1)
   if (session.dividend === 1) {
     preferences.push('dividendos');
   }
-  
+
   // Fondo de pensión (session.pensionFund: 0 o 1)
   if (session.pensionFund === 1) {
     preferences.push('pensión');
   }
-  
+
   // Oro (session.gold: 0, 1 o 2)
   if (session.gold && session.gold > 0) {
     preferences.push('oro');
   }
-  
+
   // Criptomonedas (session.cryptoScore: -1, 1, 2 o 3)
   if (session.cryptoScore && session.cryptoScore > 1) {
     preferences.push('criptomonedas');
   }
-  
+
   // Comprar vivienda (session.buyHouse: 0 o 1)
   if (session.buyHouse === 1) {
     preferences.push('vivienda');
   }
-  
+
   // Educación hijos (session.childrenEducation: 0 o 1)
   if (session.childrenEducation === 1) {
     preferences.push('educación');
   }
-  
+
   // Crecimiento patrimonial (session.wealthGrowth: 0 o 1)
   if (session.wealthGrowth === 1) {
     preferences.push('crecimiento');
   }
-  
+
   // Si no hay preferencias, poner "diversificación"
   return preferences.length > 0 ? preferences : ['diversificación'];
 }
