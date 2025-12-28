@@ -10,23 +10,27 @@ const RebalanceAlert = ({ rebalanceInfo, portfolioId, onRebalanced }) => {
   const [rebalanceProposal, setRebalanceProposal] = useState(null);
 
   const deviation = rebalanceInfo.totalDeviation || 0;
-  const isHighDeviation = deviation >= 10;
+  const isHighDeviation = deviation >= 5; // Updated threshold to match backend logic (5%)
 
   const handleAutoRebalance = async () => {
     try {
       setRebalancing(true);
       // Simular propuesta de rebalanceo (en producción viene del backend)
       const proposal = {
-        adjustments: rebalanceInfo.suggestions.map(sug => ({
-          category: sug.category,
-          current: sug.current,
-          target: sug.target,
-          difference: sug.difference,
-          action: sug.difference > 0 ? 'reduce' : 'increase',
-          assets: sug.recommendedAssets || []
-        }))
+        adjustments: rebalanceInfo.suggestions.map(sug => {
+          const diff = sug.currentPercentage - sug.targetPercentage;
+          return {
+            category: sug.category,
+            categoryName: sug.categoryName || sug.category,
+            current: sug.currentPercentage,
+            target: sug.targetPercentage,
+            difference: diff,
+            action: diff > 0 ? 'reduce' : 'increase',
+            assets: sug.suggestedAssets || sug.recommendedAssets || [] // Handle both naming conventions if any
+          };
+        })
       };
-      
+
       setRebalanceProposal(proposal);
       setShowAutoRebalance(true);
     } catch (error) {
@@ -54,19 +58,16 @@ const RebalanceAlert = ({ rebalanceInfo, portfolioId, onRebalanced }) => {
 
   return (
     <>
-      <div className={`rounded-2xl shadow-xl p-6 mb-6 border-2 ${
-        isHighDeviation 
-          ? 'bg-gradient-to-br from-red-50 to-orange-50 border-red-300'
-          : 'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-300'
-      }`}>
+      <div className={`rounded-2xl shadow-xl p-6 mb-6 border-2 ${isHighDeviation
+        ? 'bg-gradient-to-br from-red-50 to-orange-50 border-red-300'
+        : 'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-300'
+        }`}>
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className={`p-3 rounded-xl ${
-              isHighDeviation ? 'bg-red-100' : 'bg-yellow-100'
-            }`}>
-              <AlertTriangle className={`w-6 h-6 ${
-                isHighDeviation ? 'text-red-600' : 'text-yellow-600'
-              }`} />
+            <div className={`p-3 rounded-xl ${isHighDeviation ? 'bg-red-100' : 'bg-yellow-100'
+              }`}>
+              <AlertTriangle className={`w-6 h-6 ${isHighDeviation ? 'text-red-600' : 'text-yellow-600'
+                }`} />
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-900">
@@ -93,19 +94,23 @@ const RebalanceAlert = ({ rebalanceInfo, portfolioId, onRebalanced }) => {
               <span className="font-semibold">Acciones recomendadas:</span>
             </p>
             <ul className="space-y-1 text-sm text-gray-600">
-              {rebalanceInfo.suggestions.slice(0, 2).map((sug, idx) => (
-                <li key={idx} className="flex items-center gap-2">
-                  {sug.difference > 0 ? (
-                    <TrendingDown className="w-4 h-4 text-red-500 flex-shrink-0" />
-                  ) : (
-                    <TrendingUp className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  )}
-                  <span>
-                    {sug.category}: {sug.difference > 0 ? 'Reducir' : 'Aumentar'}{' '}
-                    {Math.abs(sug.difference).toFixed(1)}%
-                  </span>
-                </li>
-              ))}
+              {rebalanceInfo.suggestions.slice(0, 2).map((sug, idx) => {
+                const diff = (sug.currentPercentage || 0) - (sug.targetPercentage || 0);
+                const isReduce = diff > 0;
+                return (
+                  <li key={idx} className="flex items-center gap-2">
+                    {isReduce ? (
+                      <TrendingDown className="w-4 h-4 text-red-500 flex-shrink-0" />
+                    ) : (
+                      <TrendingUp className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    )}
+                    <span>
+                      {sug.categoryName || sug.category}: {isReduce ? 'Reducir' : 'Aumentar'}{' '}
+                      {Math.abs(diff).toFixed(1)}%
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
@@ -113,45 +118,65 @@ const RebalanceAlert = ({ rebalanceInfo, portfolioId, onRebalanced }) => {
         {/* Detalles expandidos */}
         {showDetails && (
           <div className="space-y-3 mb-4">
-            {rebalanceInfo.suggestions.map((suggestion, idx) => (
-              <div key={idx} className="bg-white rounded-xl p-4 border border-yellow-200">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {suggestion.difference > 0 ? (
-                      <TrendingDown className="w-5 h-5 text-red-500" />
-                    ) : (
-                      <TrendingUp className="w-5 h-5 text-green-500" />
-                    )}
-                    <h4 className="font-semibold text-gray-900 capitalize">
-                      {suggestion.category.replace(/([A-Z])/g, ' $1').trim()}
-                    </h4>
+            {rebalanceInfo.suggestions.map((suggestion, idx) => {
+              const diff = (suggestion.currentPercentage || 0) - (suggestion.targetPercentage || 0);
+              const isReduce = diff > 0;
+
+              return (
+                <div key={idx} className="bg-white rounded-xl p-4 border border-yellow-200">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      {isReduce ? (
+                        <TrendingDown className="w-5 h-5 text-red-500" />
+                      ) : (
+                        <TrendingUp className="w-5 h-5 text-green-500" />
+                      )}
+                      <h4 className="font-semibold text-gray-900 capitalize">
+                        {suggestion.categoryName || suggestion.category.replace(/_/g, ' ').toLowerCase()}
+                      </h4>
+                    </div>
+                    <span className={`text-sm font-bold ${isReduce ? 'text-red-600' : 'text-green-600'
+                      }`}>
+                      {isReduce ? '-' : '+'}{Math.abs(diff).toFixed(1)}%
+                    </span>
                   </div>
-                  <span className={`text-sm font-bold ${
-                    suggestion.difference > 0 ? 'text-red-600' : 'text-green-600'
-                  }`}>
-                    {suggestion.difference > 0 ? '-' : '+'}{Math.abs(suggestion.difference).toFixed(1)}%
-                  </span>
-                </div>
 
-                <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                  <span>Actual: <span className="font-semibold">{suggestion.current}%</span></span>
-                  <span>→</span>
-                  <span>Target: <span className="font-semibold">{suggestion.target}%</span></span>
-                </div>
-
-                <p className="text-sm text-gray-700">{suggestion.message}</p>
-
-                {suggestion.recommendedAssets && suggestion.recommendedAssets.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {suggestion.recommendedAssets.map((asset, assetIdx) => (
-                      <span key={assetIdx} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
-                        {asset.ticker}
-                      </span>
-                    ))}
+                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                    <span>Actual: <span className="font-semibold">{Number(suggestion.currentPercentage || 0).toFixed(1)}%</span></span>
+                    <span>→</span>
+                    <span>Target: <span className="font-semibold">{Number(suggestion.targetPercentage || 0).toFixed(1)}%</span></span>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  <p className="text-sm text-gray-700">{suggestion.message}</p>
+
+                  {suggestion.suggestedAssets && suggestion.suggestedAssets.length > 0 && (
+                    <div className="mt-2 text-sm">
+                      <p className="mb-1 font-medium text-blue-800">Sugeridos:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {suggestion.suggestedAssets.map((asset, assetIdx) => (
+                          <span key={assetIdx} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                            {asset.ticker}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {suggestion.holdingsToConsider && suggestion.holdingsToConsider.length > 0 && (
+                    <div className="mt-2 text-sm">
+                      <p className="mb-1 font-medium text-red-800">Considera vender:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {suggestion.holdingsToConsider.map((h, hIdx) => (
+                          <span key={hIdx} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
+                            {h.ticker}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -163,7 +188,7 @@ const RebalanceAlert = ({ rebalanceInfo, portfolioId, onRebalanced }) => {
           >
             {showDetails ? 'Ocultar Detalles' : 'Ver Detalles'}
           </button>
-          
+
           <button
             onClick={handleAutoRebalance}
             disabled={rebalancing}
@@ -196,7 +221,7 @@ const RebalanceAlert = ({ rebalanceInfo, portfolioId, onRebalanced }) => {
                 <p className="text-sm text-blue-900 flex items-start gap-2">
                   <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                   <span>
-                    <span className="font-semibold">Importante:</span> Esta plataforma NO ejecuta 
+                    <span className="font-semibold">Importante:</span> Esta plataforma NO ejecuta
                     compras ni ventas. Te mostramos qué ajustes hacer en tu broker.
                   </span>
                 </p>
@@ -207,13 +232,12 @@ const RebalanceAlert = ({ rebalanceInfo, portfolioId, onRebalanced }) => {
                   <div key={idx} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-bold text-gray-900 capitalize">
-                        {adjustment.category.replace(/([A-Z])/g, ' $1').trim()}
+                        {adjustment.categoryName || adjustment.category.replace(/_/g, ' ').toLowerCase()}
                       </h4>
-                      <span className={`px-3 py-1 rounded-lg text-sm font-semibold ${
-                        adjustment.action === 'reduce' 
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-green-100 text-green-700'
-                      }`}>
+                      <span className={`px-3 py-1 rounded-lg text-sm font-semibold ${adjustment.action === 'reduce'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-green-100 text-green-700'
+                        }`}>
                         {adjustment.action === 'reduce' ? 'Reducir' : 'Aumentar'}
                       </span>
                     </div>
@@ -230,7 +254,7 @@ const RebalanceAlert = ({ rebalanceInfo, portfolioId, onRebalanced }) => {
 
                     <div className="bg-white rounded-lg p-3 border border-gray-200">
                       <p className="text-sm text-gray-700 font-semibold mb-2">
-                        {adjustment.action === 'reduce' 
+                        {adjustment.action === 'reduce'
                           ? '📉 No compres más en esta categoría por ahora'
                           : '📈 Agrega activos de esta categoría:'}
                       </p>
