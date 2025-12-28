@@ -10,10 +10,12 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isAiResult, setIsAiResult] = useState(false);
-  
+
   // Estado para el formulario de cantidad
   const [quantity, setQuantity] = useState('');
   const [purchasePrice, setPurchasePrice] = useState('');
+
+
 
   // Lógica de búsqueda corregida
   const handleSearch = async (query) => {
@@ -29,8 +31,8 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
 
       // 1. Intentar búsqueda tradicional explícita
       // Pasamos un objeto vacío como segundo argumento para asegurar compatibilidad
-      const response = await assetService.searchAssets(query, {}); 
-      
+      const response = await assetService.searchAssets(query, {});
+
       if (response.assets && response.assets.length > 0) {
         setSearchResults(response.assets);
       } else {
@@ -51,23 +53,29 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
       console.error('Error searching assets:', error);
       // Intento final de fallback a IA en caso de error del servicio tradicional
       if (query.length > 3) {
-          try {
-            const aiResponse = await recommendationService.searchProducts(query);
-            if (aiResponse.products && aiResponse.products.length > 0) {
-                setSearchResults(aiResponse.products);
-                setIsAiResult(true);
-            }
-          } catch (aiError) {
-              setSearchResults([]);
+        try {
+          const aiResponse = await recommendationService.searchProducts(query);
+          if (aiResponse.products && aiResponse.products.length > 0) {
+            setSearchResults(aiResponse.products);
+            setIsAiResult(true);
           }
-      } else {
+        } catch (aiError) {
           setSearchResults([]);
+        }
+      } else {
+        setSearchResults([]);
       }
     } finally {
       setLoading(false);
     }
   };
-
+  // 🆕 NUEVA FUNCIÓN: Confirmar agregar a portfolio
+  const handleConfirmAddToPortfolio = async () => {
+    if (!selectedAsset || !selectedPortfolioId || !quantity || !purchasePrice) {
+      alert('Por favor completa todos los campos');
+      return;
+    }
+  }
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       handleSearch(searchQuery);
@@ -78,8 +86,8 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
   const handleSelectAsset = (asset) => {
     // Aseguramos que el asset tenga ticker, si no, usamos symbol o id como fallback
     const assetToSave = {
-        ...asset,
-        ticker: asset.ticker || asset.symbol || asset.id 
+      ...asset,
+      ticker: asset.ticker || asset.symbol || asset.id
     };
     setSelectedAsset(assetToSave);
     setPurchasePrice(asset.currentPrice?.toString() || '');
@@ -89,7 +97,7 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
   // Cálculo de sugerencia (sin cambios, solo defensivo)
   const calculateSuggestion = () => {
     if (!portfolio || !selectedAsset) return null;
-    
+
     // Protección contra valores nulos/indefinidos en portfolio.recommended
     const category = selectedAsset.category || 'General';
     const recommended = portfolio.recommended?.[category] || 0;
@@ -119,8 +127,8 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
 
     // Verificación final antes de enviar
     if (!selectedAsset || !selectedAsset.ticker) {
-        alert('Error: Activo inválido seleccionado');
-        return;
+      alert('Error: Activo inválido seleccionado');
+      return;
     }
 
     onAdd({
@@ -132,7 +140,7 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
 
   // ... (Resto del renderizado igual, asegurando que uses los handlers nuevos)
   // Asegúrate de que el input de búsqueda llame a setSearchQuery
-  
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] flex flex-col">
@@ -176,9 +184,9 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
                     >
                       <div>
                         <div className="font-bold text-gray-900 flex items-center gap-2">
-                            {asset.ticker}
-                            {/* Mostrar badge si es resultado de IA */}
-                            {isAiResult && <Sparkles className="w-3 h-3 text-purple-500" />}
+                          {asset.ticker}
+                          {/* Mostrar badge si es resultado de IA */}
+                          {isAiResult && <Sparkles className="w-3 h-3 text-purple-500" />}
                         </div>
                         <div className="text-sm text-gray-500">{asset.name}</div>
                       </div>
@@ -192,7 +200,7 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
                       </div>
                     </button>
                   ))}
-                  
+
                   {searchQuery.length > 2 && searchResults.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
                       No se encontraron resultados
@@ -227,6 +235,24 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
               )}
 
               <div className="space-y-4">
+                {/* Seleccionar Portfolio */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Seleccionar Portfolio
+                  </label>
+                  <select
+                    value={selectedPortfolioId}
+                    onChange={(e) => setSelectedPortfolioId(e.target.value)}
+                    disabled={addingToPortfolio}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {portfolios.map((portfolio) => (
+                      <option key={portfolio.id} value={portfolio.id}>
+                        {portfolio.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Cantidad (Unidades)
@@ -264,8 +290,8 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
                   Atrás
                 </button>
                 <button
-                  onClick={handleSubmit}
-                  disabled={!quantity || !purchasePrice}
+                  onClick={handleConfirmAddToPortfolio}
+                  disabled={addingToPortfolio || !quantity || !purchasePrice || !selectedPortfolioId}
                   className="flex-1 px-4 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Agregar Activo

@@ -387,10 +387,6 @@ const handleExportCSV = async () => {
             </div>
           </div>
         </div>
-        {/* 🆕 AGREGAR AQUÍ - Sección de Compartir Portfolio */}
-        <div className="mb-8">
-          <SharePortfolioSection portfolioId={portfolioId} />
-        </div>
         {/* PARTE 5 - SUGERENCIAS DE INVERSIÓN (si existen) */}
         {suggestions && suggestions.suggestions && suggestions.suggestions.length > 0 && (
           <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl shadow-xl p-6 mb-6 border border-yellow-200">
@@ -558,7 +554,10 @@ const handleExportCSV = async () => {
             </div>
           </div>
         </div>
-
+                {/* 🆕 AGREGAR AQUÍ - Sección de Compartir Portfolio */}
+        <div className="mb-8">
+          <SharePortfolioSection portfolioId={portfolioId} />
+        </div>
         {/* MODALES */}
         
         {/* Modal: Agregar Activo */}
