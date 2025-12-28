@@ -158,12 +158,12 @@ class PortfolioManagerController {
   async updatePortfolio(req, res) {
     try {
       const { portfolioId } = req.params;
-      const { name, description } = req.body;
+      const { name, totalSavings, recommended } = req.body;
 
       const portfolio = await portfolioManagerService.updatePortfolio(
         portfolioId,
         req.user.id,
-        { name, description }
+        { name, totalSavings, recommended }
       );
 
       res.json({
@@ -309,7 +309,7 @@ class PortfolioManagerController {
 
       // Registrar visualización (analytics)
       const ipHash = crypto.createHash('sha256').update(ipAddress).digest('hex');
-      
+
       await prisma.sharedPortfolioView.create({
         data: {
           sharedLinkId: shareLink.id,
@@ -501,10 +501,10 @@ class PortfolioManagerController {
       });
     }
   }
-    /**
-   * ⭐ NUEVO: Crear portfolio manual (sin quiz)
-   * POST /api/portfolio/create-manual
-   */
+  /**
+ * ⭐ NUEVO: Crear portfolio manual (sin quiz)
+ * POST /api/portfolio/create-manual
+ */
   async createManualPortfolio(req, res) {
     try {
       const { name, totalSavings, manualProfile } = req.body;

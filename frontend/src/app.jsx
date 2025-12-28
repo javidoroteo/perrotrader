@@ -23,6 +23,7 @@ import MyReportsPage from './pages/MyReportPage';
 import SettingsPage from './pages/SettingPages';
 import OAuthCallback from './pages/0AuthCallback';
 import CreatePortfolioManualPage from './pages/CreatePortfolioManualPage';
+import PortfolioSettingsPage from './pages/PortfolioSettingsPage';
 
 //Página de portfolio compartido
 import SharedPortfolioView from './pages/SharedPortfolioView';
@@ -75,7 +76,7 @@ function App() {
             {/* Ruta principal - Quiz */}
             <Route path="/" element={<ModernInvestmentQuiz hasConsent={hasConsent} onOpenPrivacyPolicy={handlePrivacyClick} />} />
 
-             {/* Login Page */}
+            {/* Login Page */}
             <Route path="/login" element={<LoginPage />} />
 
             {/* OAuth Callback */}
@@ -103,11 +104,11 @@ function App() {
               path="/create-portfolio"
               element={
                 <ProtectedRoute>
-                <CreatePortfolioManualPage />
+                  <CreatePortfolioManualPage />
                 </ProtectedRoute>
               }
             />
-            
+
             {/* Dashboard principal */}
             <Route
               path="/dashboard"
@@ -148,12 +149,22 @@ function App() {
               }
             />
 
-            {/* Configuración de perfil */}
+            {/* Configuración de perfil (Usuario) */}
             <Route
               path="/settings"
               element={
                 <ProtectedRoute>
                   <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Configuración de Portfolio (Específico) */}
+            <Route
+              path="/portfolio/:portfolioId/settings"
+              element={
+                <ProtectedRoute>
+                  <PortfolioSettingsPage />
                 </ProtectedRoute>
               }
             />

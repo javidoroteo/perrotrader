@@ -9,103 +9,103 @@ class PortfolioManagerService {
   /**
    * Crear portfolio desde resultados del quiz
    */
-/**
- * Crear portfolio desde resultados del quiz
- */
-async createFromQuiz(userId, sessionId, portfolioName, totalSavings) {
-  try {
-    console.log('🔍 Creando portfolio desde quiz:', { userId, sessionId });
-    
-    // 1️⃣ Obtener sesión del quiz
-    const session = await prisma.quizSession.findUnique({
-      where: { id: sessionId },
-      include: { 
-        personalityTest: true,
-        answers: true 
-      }
-    });
+  /**
+   * Crear portfolio desde resultados del quiz
+   */
+  async createFromQuiz(userId, sessionId, portfolioName, totalSavings) {
+    try {
+      console.log('🔍 Creando portfolio desde quiz:', { userId, sessionId });
 
-    if (!session) {
-      throw new Error('Sesión no encontrada');
-    }
-
-    if (!session.isCompleted) {
-      throw new Error('Quiz no completado. Completa todas las preguntas primero.');
-    }
-
-    console.log('✅ Sesión encontrada:', {
-      isCompleted: session.isCompleted,
-      userId: session.userId,
-      hasPersonality: !!session.personalityTest
-    });
-
-    // 2️⃣ Buscar reporte guardado
-    let savedReport = await prisma.savedReport.findUnique({
-      where: { sessionId }
-    });
-
-    // 3️⃣ Si no existe el reporte, generarlo ahora
-    if (!savedReport) {
-      console.log('⚠️ Reporte no encontrado, generando ahora...');
-      
-      const portfolioService = require('./portfolioServices');
-      const reportService = require('./reportService');
-      
-      // Generar el reporte completo
-      const result = await portfolioService.completeFinalResult(session);
-      
-      console.log('📊 Reporte generado:', {
-        riskProfile: result.riskProfile,
-        hasPortfolio: !!result.portfolio
+      // 1️⃣ Obtener sesión del quiz
+      const session = await prisma.quizSession.findUnique({
+        where: { id: sessionId },
+        include: {
+          personalityTest: true,
+          answers: true
+        }
       });
-      
-      // Guardar el reporte
-      savedReport = await reportService.saveReport(sessionId, result);
-      
-      console.log('✅ Reporte guardado con ID:', savedReport.id);
-    } else {
-      console.log('✅ Reporte ya existía:', savedReport.id);
-    }
 
-    const portfolioAllocation = JSON.parse(savedReport.portfolioAllocation);
-
-    // 4️⃣ Crear portfolio
-    const portfolio = await prisma.portfolio.create({
-      data: {
-        userId,
-        name: portfolioName || 'Mi Portfolio',
-        totalSavings: totalSavings || 0,
-        currentValue: totalSavings || 0,
-        riskProfile: savedReport.riskProfile,
-        createdFromQuiz: true,
-        sessionId,
-        recommendedRentaFija: portfolioAllocation.bonos || 0,
-        recommendedRentaVariable: portfolioAllocation.acciones || 0,
-        recommendedCrypto: portfolioAllocation.criptomonedas || 0,
-        recommendedGold: portfolioAllocation.oro || 0,
-        recommendedCash: portfolioAllocation.efectivo || 0,
-        actualRentaFija: 0,
-        actualRentaVariable: 0,
-        actualCrypto: 0,
-        actualGold: 0,
-        actualCash: totalSavings || 0 // Todo empieza en cash
+      if (!session) {
+        throw new Error('Sesión no encontrada');
       }
-    });
 
-    // 5️⃣ Actualizar usuario
-    await prisma.user.update({
-      where: { id: userId },
-      data: { hasCompletedQuiz: true }
-    });
+      if (!session.isCompleted) {
+        throw new Error('Quiz no completado. Completa todas las preguntas primero.');
+      }
 
-    console.log('✅ Portfolio creado:', portfolio.id);
+      console.log('✅ Sesión encontrada:', {
+        isCompleted: session.isCompleted,
+        userId: session.userId,
+        hasPersonality: !!session.personalityTest
+      });
 
-    return portfolio;
-  } catch (error) {
-    console.error('❌ Error creating portfolio from quiz:', error);
-    throw error;
+      // 2️⃣ Buscar reporte guardado
+      let savedReport = await prisma.savedReport.findUnique({
+        where: { sessionId }
+      });
+
+      // 3️⃣ Si no existe el reporte, generarlo ahora
+      if (!savedReport) {
+        console.log('⚠️ Reporte no encontrado, generando ahora...');
+
+        const portfolioService = require('./portfolioServices');
+        const reportService = require('./reportService');
+
+        // Generar el reporte completo
+        const result = await portfolioService.completeFinalResult(session);
+
+        console.log('📊 Reporte generado:', {
+          riskProfile: result.riskProfile,
+          hasPortfolio: !!result.portfolio
+        });
+
+        // Guardar el reporte
+        savedReport = await reportService.saveReport(sessionId, result);
+
+        console.log('✅ Reporte guardado con ID:', savedReport.id);
+      } else {
+        console.log('✅ Reporte ya existía:', savedReport.id);
+      }
+
+      const portfolioAllocation = JSON.parse(savedReport.portfolioAllocation);
+
+      // 4️⃣ Crear portfolio
+      const portfolio = await prisma.portfolio.create({
+        data: {
+          userId,
+          name: portfolioName || 'Mi Portfolio',
+          totalSavings: totalSavings || 0,
+          currentValue: totalSavings || 0,
+          riskProfile: savedReport.riskProfile,
+          createdFromQuiz: true,
+          sessionId,
+          recommendedRentaFija: portfolioAllocation.bonos || 0,
+          recommendedRentaVariable: portfolioAllocation.acciones || 0,
+          recommendedCrypto: portfolioAllocation.criptomonedas || 0,
+          recommendedGold: portfolioAllocation.oro || 0,
+          recommendedCash: portfolioAllocation.efectivo || 0,
+          actualRentaFija: 0,
+          actualRentaVariable: 0,
+          actualCrypto: 0,
+          actualGold: 0,
+          actualCash: totalSavings || 0 // Todo empieza en cash
+        }
+      });
+
+      // 5️⃣ Actualizar usuario
+      await prisma.user.update({
+        where: { id: userId },
+        data: { hasCompletedQuiz: true }
+      });
+
+      console.log('✅ Portfolio creado:', portfolio.id);
+
+      return portfolio;
+    } catch (error) {
+      console.error('❌ Error creating portfolio from quiz:', error);
+      throw error;
+    }
   }
-}
 
 
   /**
@@ -211,9 +211,9 @@ async createFromQuiz(userId, sessionId, portfolioName, totalSavings) {
       if (existingHolding) {
         // Actualizar holding existente (promedio ponderado)
         const newQuantity = existingHolding.quantity + quantity;
-        const newAveragePrice = 
+        const newAveragePrice =
           ((existingHolding.quantity * existingHolding.averagePrice) +
-           (quantity * purchasePrice)) / newQuantity;
+            (quantity * purchasePrice)) / newQuantity;
 
         holding = await prisma.holding.update({
           where: { id: existingHolding.id },
@@ -293,10 +293,10 @@ async createFromQuiz(userId, sessionId, portfolioName, totalSavings) {
 
       // Actualizar allocations de cada holding
       for (const holding of holdings) {
-        const allocation = totalValue > 0 
-          ? (holding.currentValue / totalValue) * 100 
+        const allocation = totalValue > 0
+          ? (holding.currentValue / totalValue) * 100
           : 0;
-        
+
         await prisma.holding.update({
           where: { id: holding.id },
           data: { allocation }
@@ -519,9 +519,9 @@ async createFromQuiz(userId, sessionId, portfolioName, totalSavings) {
       rebalanceHistory: portfolio.rebalanceHistory || []
     };
   }
-    /**
-   * ⭐ NUEVO: Crear portfolio manual (sin quiz)
-   */
+  /**
+ * ⭐ NUEVO: Crear portfolio manual (sin quiz)
+ */
   async createManualPortfolio(userId, name, totalSavings, manualProfile = null) {
     try {
       // Si proporciona perfil manual, úsalo; si no, portfolio neutro
@@ -632,6 +632,89 @@ async createFromQuiz(userId, sessionId, portfolioName, totalSavings) {
       return updatedPortfolio;
     } catch (error) {
       console.error('Error converting portfolio to quiz:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Actualizar portfolio (Configuración)
+   */
+  async updatePortfolio(portfolioId, userId, data) {
+    try {
+      const { name, totalSavings, recommended } = data;
+
+      // Verificar portfolio
+      const portfolio = await prisma.portfolio.findFirst({
+        where: { id: portfolioId, userId }
+      });
+
+      if (!portfolio) {
+        throw new Error('Portfolio no encontrado');
+      }
+
+      const updateData = {};
+
+      if (name) updateData.name = name;
+
+      // Actualizar Capital (Total Savings)
+      if (totalSavings !== undefined && totalSavings !== null) {
+        updateData.totalSavings = parseFloat(totalSavings);
+        // El cash se recalculará automáticamente
+      }
+
+      // Actualizar Distribución Recomendada
+      if (recommended) {
+        updateData.recommendedRentaFija = recommended.rentaFija || 0;
+        updateData.recommendedRentaVariable = recommended.rentaVariable || 0;
+        updateData.recommendedCrypto = recommended.crypto || 0;
+        updateData.recommendedGold = recommended.gold || 0;
+        updateData.recommendedCash = recommended.cash || 0;
+      }
+
+      updateData.updatedAt = new Date();
+
+      // Guardar cambios
+      const updatedPortfolio = await prisma.portfolio.update({
+        where: { id: portfolioId },
+        data: updateData
+      });
+
+      // Si cambió el capital, recalcular para ajustar el cash actual
+      if (totalSavings !== undefined) {
+        await this.recalculatePortfolio(portfolioId);
+      }
+
+      return updatedPortfolio;
+    } catch (error) {
+      console.error('Error updating portfolio:', error);
+      throw error;
+    }
+  }
+
+  /**
+ * Eliminar portfolio completamente
+ */
+  async deletePortfolio(portfolioId, userId) {
+    try {
+      // Verificar portfolio
+      const portfolio = await prisma.portfolio.findFirst({
+        where: { id: portfolioId, userId }
+      });
+
+      if (!portfolio) {
+        throw new Error('Portfolio no encontrado');
+      }
+
+      // Eliminar (Cascade se encargará de holdings, transacciones, etc si está configurado en Prisma, 
+      // pero por seguridad eliminamos explícitamente si es necesario, aunque Prisma schema tiene onDelete: Cascade)
+
+      await prisma.portfolio.delete({
+        where: { id: portfolioId }
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting portfolio:', error);
       throw error;
     }
   }
