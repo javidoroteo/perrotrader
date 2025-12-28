@@ -14,7 +14,7 @@ const { generateSearchEmbedding } = require('./embeddingService.js');
  */
 async function searchSimilarProducts(queryEmbedding, options = {}) {
   const {
-    limit = 10,
+    limit = 30,
     minSimilarity = 0.7,
     type = null,
     category = null,
