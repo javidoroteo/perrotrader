@@ -12,8 +12,11 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
   const [isAiResult, setIsAiResult] = useState(false);
 
   // Estado para el formulario de cantidad
+  // const [selectedPortfolioId, setSelectedPortfolioId] = useState(''); // Removed: Context is already specific
+
   const [quantity, setQuantity] = useState('');
   const [purchasePrice, setPurchasePrice] = useState('');
+  const [addingToPortfolio, setAddingToPortfolio] = useState(false);
 
 
 
@@ -71,11 +74,24 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
   };
   // 🆕 NUEVA FUNCIÓN: Confirmar agregar a portfolio
   const handleConfirmAddToPortfolio = async () => {
-    if (!selectedAsset || !selectedPortfolioId || !quantity || !purchasePrice) {
+    if (!selectedAsset || !quantity || !purchasePrice) {
       alert('Por favor completa todos los campos');
       return;
     }
-  }
+
+    setAddingToPortfolio(true);
+    try {
+      await onAdd({
+        ticker: selectedAsset.ticker,
+        quantity: parseFloat(quantity),
+        purchasePrice: parseFloat(purchasePrice)
+      });
+    } catch (err) {
+      console.error(err);
+      setAddingToPortfolio(false);
+    }
+  };
+  // setAddingToPortfolio(true); // ERROR: This caused infinite loop
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       handleSearch(searchQuery);
@@ -236,22 +252,14 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
 
               <div className="space-y-4">
                 {/* Seleccionar Portfolio */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Seleccionar Portfolio
-                  </label>
-                  <select
-                    value={selectedPortfolioId}
-                    onChange={(e) => setSelectedPortfolioId(e.target.value)}
-                    disabled={addingToPortfolio}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {portfolios.map((portfolio) => (
-                      <option key={portfolio.id} value={portfolio.id}>
-                        {portfolio.name}
-                      </option>
-                    ))}
-                  </select>
+                {/* Seleccionar Portfolio - Reemplazado por info fija ya que estamos en contexto de un portfolio */}
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                  <p className="text-xs text-blue-600 font-semibold uppercase tracking-wider mb-1">
+                    Portfolio Destino
+                  </p>
+                  <p className="text-lg font-bold text-blue-900">
+                    {portfolio?.name || 'Portfolio Actual'}
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -291,7 +299,7 @@ const AddHoldingModal = ({ portfolioId, portfolio, onClose, onAdd }) => {
                 </button>
                 <button
                   onClick={handleConfirmAddToPortfolio}
-                  disabled={addingToPortfolio || !quantity || !purchasePrice || !selectedPortfolioId}
+                  disabled={addingToPortfolio || !quantity || !purchasePrice}
                   className="flex-1 px-4 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Agregar Activo
