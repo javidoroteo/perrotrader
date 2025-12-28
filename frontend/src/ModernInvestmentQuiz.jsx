@@ -332,38 +332,16 @@ const getCompleteResult = async () => {
   setLoading(true);
   setError(null);
   try {
-    // 1️⃣ Fetch session data
-    const sessionResponse = await fetch(`${API_BASE_URL}/quiz/result/${sessionId}`);
-    const sessionData = await sessionResponse.json();
-    console.log('📡 Session data:', sessionData);
-    
-    if (!sessionData.success || !sessionData.completed) {
-      setError(sessionData.message || 'Sesión incompleta');
-      return;
+    const response = await fetch(`${API_BASE_URL}/quiz/result/${sessionId}`);
+    const data = await response.json();
+    console.log('📡 Quiz result:', data); // ← Log después de obtener datos
+    if (data.success && data.completed) {
+      setFinalResult(data.result); // ← Directo, incluye quiz + personality
+      setIsCompleted(true);
+      setShowPersonalityTest(false);
+    } else {
+      setError(data.message || 'Resultados incompletos o error en el servidor');
     }
-
-    // 2️⃣ Fetch and generate report
-    const reportResponse = await fetch(`${API_BASE_URL}/portfolio/generate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(localStorage.getItem('isfinz_token') && {
-          'Authorization': `Bearer ${localStorage.getItem('isfinz_token')}`
-        })
-      },
-      credentials: 'include',
-      body: JSON.stringify(sessionData.session)
-    });
-
-    const reportData = await reportResponse.json();
-    console.log('📊 Report generated:', reportData);
-    console.log('✅ Report saved?', reportData.reportSaved);
-
-    // NOW set states after reportData is available
-    setFinalResult(reportData);
-    setIsCompleted(true);
-    setShowPersonalityTest(false);
-
   } catch (err) {
     setError('Error de conexión al obtener los resultados');
     console.error('Error getting complete results:', err);
@@ -371,7 +349,6 @@ const getCompleteResult = async () => {
     setLoading(false);
   }
 };
-
   const handleRestart = () => {
     setQuizStarted(false);
     setSessionId(null);
