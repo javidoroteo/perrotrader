@@ -71,23 +71,21 @@ class ReportController {
   }
 
   /**
-   * Obtener reporte del usuario autenticado
+   * Obtiene el último reporte guardado del usuario autenticado
    */
   async getMyReport(req, res) {
     try {
-      const { sessionId } = req.params;
-      const report = await reportService.getReportBySession(sessionId);
+      // Usar el ID del usuario autenticado (extraído del token)
+      const userId = req.user.id; 
+
+      // Buscar el reporte más reciente asociado a este usuario
+      // Asumiendo que reportService tiene un método para esto, o llamando a prisma directamente
+      const report = await reportService.getLastReportByUser(userId);
 
       if (!report) {
         return res.status(404).json({
-          error: 'Reporte no encontrado'
-        });
-      }
-
-      // Verificar que el reporte pertenece al usuario autenticado
-      if (report.userId !== req.user.id) {
-        return res.status(403).json({
-          error: 'No tienes permiso para ver este reporte'
+          success: false, // Importante para el frontend
+          error: 'No se encontró ningún reporte para este usuario'
         });
       }
 
@@ -95,10 +93,11 @@ class ReportController {
         success: true,
         report
       });
+
     } catch (error) {
       console.error('Error getting my report:', error);
       res.status(500).json({
-        error: 'Error obteniendo reporte',
+        error: 'Error obteniendo reporte del usuario',
         message: error.message
       });
     }

@@ -1,4 +1,4 @@
-// frontend/src/pages/MyReportPage.jsx (ARCHIVO NUEVO)
+// frontend/src/pages/MyReportPage.jsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, Loader2, BookOpen } from 'lucide-react';

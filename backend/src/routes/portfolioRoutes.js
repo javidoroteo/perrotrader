@@ -41,7 +41,7 @@ router.post('/generate', checkAuth, async (req, res) => {
     // ===== FIN DEBUGS =====
     if (req.user) {
       try {
-        await reportService.saveReport(sessionData.id, result);
+        await reportService.saveReport(sessionData.id, result, req.user.id);
         result.reportSaved = true;
       } catch (error) {
         console.error('Error saving report:', error);

@@ -5,30 +5,39 @@ class ReportApiService {
     this.baseURL = baseURL;
   }
 
-  /**
+    /**
    * Genera un reporte completo basado en los datos de sesión
    */
   async generateReport(sessionData) {
     try {
+      // Obtener 
+      const token = localStorage.getItem('token');
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${this.baseURL}/portfolio/generate`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: headers, // Usar headers con token
         body: JSON.stringify(sessionData)
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error generating report:', error);
       throw error;
     }
   }
+
 
   /**
    * Obtiene solo la cartera calculada

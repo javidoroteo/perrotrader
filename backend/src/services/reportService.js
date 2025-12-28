@@ -18,6 +18,7 @@ class ReportService {
       if (!session) {
         throw new Error('Sesión no encontrada');
       }
+      const finalUserId = userId || session.userId;
 
       // Verificar si ya existe un reporte guardado
       const existingReport = await prisma.savedReport.findUnique({
@@ -26,7 +27,7 @@ class ReportService {
 
       const reportPayload = {
         sessionId,
-        userId: session.userId,
+        userId: finalUserId,
         riskProfile: reportData.riskProfile,
         experienceLevel: reportData.experienceLevel,
         portfolioAllocation: JSON.stringify(reportData.portfolio),
@@ -61,6 +62,12 @@ class ReportService {
           data: reportPayload
         });
       }
+      if (finalUserId && !session.userId) {
+        await prisma.quizSession.update({
+            where: { id: sessionId },
+            data: { userId: finalUserId }
+        });
+    }
 
       return savedReport;
     } catch (error) {
@@ -138,6 +145,13 @@ class ReportService {
         : null
     };
   }
+  async getLastReportByUser(userId) {
+  return await prisma.savedReport.findFirst({
+    where: { userId: userId },
+    orderBy: { createdAt: 'desc' }, // El más reciente
+    include: { session: true } // Incluir datos de sesión si es necesario
+  });
+}
 
   /**
    * Eliminar reporte
