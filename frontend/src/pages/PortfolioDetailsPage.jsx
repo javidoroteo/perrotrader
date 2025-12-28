@@ -24,7 +24,7 @@ const PortfolioDetailsPage = () => {
   const [holdings, setHoldings] = useState([]);
   const [suggestions, setSuggestions] = useState(null);
   const [rebalanceInfo, setRebalanceInfo] = useState(null);
-  
+
   // Estados de carga y modales
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,26 +33,26 @@ const PortfolioDetailsPage = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   // 🆕 Estados de compartir
-const [showShareMenu, setShowShareMenu] = useState(false);
-const [shareLink, setShareLink] = useState(null);
-const [loadingShare, setLoadingShare] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [shareLink, setShareLink] = useState(null);
+  const [loadingShare, setLoadingShare] = useState(false);
 
 
   useEffect(() => {
     loadPortfolioData();
   }, [portfolioId]);
 
-    const loadPortfolioData = async () => {
+  const loadPortfolioData = async () => {
     try {
       setLoading(true);
       setError(null);
 
       // 1. Cargar datos del portfolio PRIMERO
       const portfolioData = await portfolioService.getPortfolioDetails(portfolioId);
-      
+
       // Aseguramos que tenemos el objeto portfolio
       const currentPortfolio = portfolioData.portfolio;
-      
+
       setPortfolio(currentPortfolio);
       setHoldings(currentPortfolio.holdings || []);
 
@@ -64,15 +64,15 @@ const [loadingShare, setLoadingShare] = useState(false);
       // 2. Cargar sugerencias SOLO si tiene sentido (ej. si fue creado desde Quiz o tiene perfil de riesgo)
       // Si es manual puro sin perfil de riesgo, saltamos este paso para evitar el error.
       if (currentPortfolio.createdFromQuiz || currentPortfolio.riskProfile) {
-          try {
-            const suggestionsData = await portfolioService.getSuggestions(portfolioId);
-            setSuggestions(suggestionsData);
-          } catch (suggestionErr) {
-            console.warn("No se pudieron cargar sugerencias (normal para portfolios manuales):", suggestionErr);
-            setSuggestions(null); // Evita que la UI explote
-          }
+        try {
+          const suggestionsData = await portfolioService.getSuggestions(portfolioId);
+          setSuggestions(suggestionsData);
+        } catch (suggestionErr) {
+          console.warn("No se pudieron cargar sugerencias (normal para portfolios manuales):", suggestionErr);
+          setSuggestions(null); // Evita que la UI explote
+        }
       } else {
-          setSuggestions(null);
+        setSuggestions(null);
       }
 
       // 3. Cargar análisis de rebalanceo (igual, protegemos con try/catch por si acaso)
@@ -80,8 +80,8 @@ const [loadingShare, setLoadingShare] = useState(false);
         const rebalanceData = await rebalanceService.analyzePortfolio(portfolioId);
         setRebalanceInfo(rebalanceData);
       } catch (rebalanceErr) {
-         console.warn("Error cargando rebalanceo:", rebalanceErr);
-         setRebalanceInfo(null);
+        console.warn("Error cargando rebalanceo:", rebalanceErr);
+        setRebalanceInfo(null);
       }
 
     } catch (err) {
@@ -100,13 +100,16 @@ const [loadingShare, setLoadingShare] = useState(false);
 
   const handleAddHolding = async (holdingData) => {
     try {
-      await portfolioService.addHolding(
+      await portfolioService.addAssetToPortfolio(
         portfolioId,
-        holdingData.ticker,
-        holdingData.quantity,
-        holdingData.purchasePrice
+        {
+          ticker: holdingData.ticker,
+          quantity: parseFloat(holdingData.quantity),
+          purchasePrice: parseFloat(holdingData.purchasePrice),
+          purchaseDate: holdingData.purchaseDate || new Date().toISOString()
+        }
       );
-      
+
       setShowAddHoldingModal(false);
       await handleRefresh();
     } catch (err) {
@@ -120,7 +123,7 @@ const [loadingShare, setLoadingShare] = useState(false);
       await portfolioService.updatePortfolio(portfolioId, {
         totalSavings: parseFloat(amount)
       });
-      
+
       setShowInvestmentModal(false);
       await handleRefresh();
     } catch (err) {
@@ -166,51 +169,51 @@ const [loadingShare, setLoadingShare] = useState(false);
 
   // 🆕 AGREGAR ESTAS FUNCIONES
 
-const handleGenerateShareLink = async () => {
-  try {
-    setLoadingShare(true);
-    const result = await portfolioService.createShareLink(portfolioId);
-    setShareLink(result);
-    setShowShareMenu(false);
-  } catch (error) {
-    alert('Error generando link: ' + error.message);
-  } finally {
-    setLoadingShare(false);
-  }
-};
+  const handleGenerateShareLink = async () => {
+    try {
+      setLoadingShare(true);
+      const result = await portfolioService.createShareLink(portfolioId);
+      setShareLink(result);
+      setShowShareMenu(false);
+    } catch (error) {
+      alert('Error generando link: ' + error.message);
+    } finally {
+      setLoadingShare(false);
+    }
+  };
 
-const handleCopyShareLink = () => {
-  if (shareLink?.shareUrl) {
-    navigator.clipboard.writeText(shareLink.shareUrl);
-    alert('Link copiado al portapapeles');
-  }
-};
+  const handleCopyShareLink = () => {
+    if (shareLink?.shareUrl) {
+      navigator.clipboard.writeText(shareLink.shareUrl);
+      alert('Link copiado al portapapeles');
+    }
+  };
 
-const handleCopyPortfolioSummary = async () => {
-  try {
-    await portfolioService.copyPortfolioSummary(portfolio, holdings);
-    alert('Resumen copiado al portapapeles');
-    setShowShareMenu(false);
-  } catch (error) {
-    alert('Error: ' + error.message);
-  }
-};
+  const handleCopyPortfolioSummary = async () => {
+    try {
+      await portfolioService.copyPortfolioSummary(portfolio, holdings);
+      alert('Resumen copiado al portapapeles');
+      setShowShareMenu(false);
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  };
 
-const handleExportCSV = async () => {
-  try {
-    await portfolioService.exportPortfolioAsCSV(portfolio, holdings);
-  } catch (error) {
-    alert('Error exportando: ' + error.message);
-  }
-};
+  const handleExportCSV = async () => {
+    try {
+      await portfolioService.exportPortfolioAsCSV(portfolio, holdings);
+    } catch (error) {
+      alert('Error exportando: ' + error.message);
+    }
+  };
 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* PARTE 2 - HEADER Y ESTADÍSTICAS */}
-        
+
         {/* Header con nombre y acciones */}
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -350,7 +353,7 @@ const handleExportCSV = async () => {
 
         {/* PARTE 3 - ALERTA DE REBALANCEO (si aplica) */}
         {rebalanceInfo?.needsRebalancing && (
-          <RebalanceAlert 
+          <RebalanceAlert
             rebalanceInfo={rebalanceInfo}
             portfolioId={portfolioId}
             onRebalanced={handleRefresh}
@@ -363,7 +366,7 @@ const handleExportCSV = async () => {
             <Info className="w-6 h-6 text-blue-500" />
             Distribución de tu Portfolio
           </h2>
-          
+
           {portfolio.recommended && (
             <ModernPortfolioChart
               portfolio={portfolio.recommended}
@@ -379,8 +382,8 @@ const handleExportCSV = async () => {
               <div className="text-sm text-blue-900">
                 <p className="font-semibold mb-1">¿Qué significa esto?</p>
                 <p>
-                  El gráfico muestra tu distribución <span className="font-semibold">recomendada</span> vs 
-                  tu distribución <span className="font-semibold">actual</span>. Intenta mantener las barras 
+                  El gráfico muestra tu distribución <span className="font-semibold">recomendada</span> vs
+                  tu distribución <span className="font-semibold">actual</span>. Intenta mantener las barras
                   cerca de los valores recomendados para un portfolio balanceado.
                 </p>
               </div>
@@ -434,7 +437,7 @@ const handleExportCSV = async () => {
               <p className="text-sm text-gray-600 flex items-start gap-2">
                 <Info className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
                 <span>
-                  Estas sugerencias te ayudan a mantener tu portfolio balanceado según tu perfil de riesgo. 
+                  Estas sugerencias te ayudan a mantener tu portfolio balanceado según tu perfil de riesgo.
                   No es obligatorio seguirlas al pie de la letra.
                 </span>
               </p>
@@ -496,7 +499,7 @@ const handleExportCSV = async () => {
               <p className="text-sm text-blue-900 flex items-start gap-2">
                 <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                 <span>
-                  <span className="font-semibold">Recuerda:</span> Los precios se actualizan automáticamente 
+                  <span className="font-semibold">Recuerda:</span> Los precios se actualizan automáticamente
                   cada día. Las ganancias/pérdidas son calculadas en base a tus precios de compra.
                 </span>
               </p>
@@ -554,12 +557,12 @@ const handleExportCSV = async () => {
             </div>
           </div>
         </div>
-                {/* 🆕 AGREGAR AQUÍ - Sección de Compartir Portfolio */}
+        {/* 🆕 AGREGAR AQUÍ - Sección de Compartir Portfolio */}
         <div className="mb-8">
           <SharePortfolioSection portfolioId={portfolioId} />
         </div>
         {/* MODALES */}
-        
+
         {/* Modal: Agregar Activo */}
         {showAddHoldingModal && (
           <AddHoldingModal
