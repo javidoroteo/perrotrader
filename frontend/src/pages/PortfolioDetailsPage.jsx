@@ -371,6 +371,7 @@ const PortfolioDetailsPage = () => {
             <ModernPortfolioChart
               portfolio={portfolio.recommended}
               currentAllocation={portfolio.actual || {}}
+              holdings={holdings}
               showComparison={true}
             />
           )}

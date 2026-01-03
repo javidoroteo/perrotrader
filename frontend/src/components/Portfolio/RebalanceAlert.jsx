@@ -71,7 +71,7 @@ const RebalanceAlert = ({ rebalanceInfo, portfolioId, onRebalanced }) => {
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-900">
-                {isHighDeviation ? '⚠️ Rebalanceo Urgente' : 'Portfolio Desbalanceado'}
+                {isHighDeviation ? 'Rebalanceo Urgente' : 'Portfolio Desbalanceado'}
               </h3>
               <p className="text-sm text-gray-700">
                 Desviación total: <span className="font-bold">{deviation.toFixed(1)}%</span>
@@ -256,7 +256,7 @@ const RebalanceAlert = ({ rebalanceInfo, portfolioId, onRebalanced }) => {
                       <p className="text-sm text-gray-700 font-semibold mb-2">
                         {adjustment.action === 'reduce'
                           ? '📉 No compres más en esta categoría por ahora'
-                          : '📈 Agrega activos de esta categoría:'}
+                          : '📈 Agrega activos de esta categoría'}
                       </p>
                       {adjustment.action === 'increase' && adjustment.assets.length > 0 && (
                         <div className="flex flex-wrap gap-2">
