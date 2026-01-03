@@ -40,10 +40,19 @@ class AssetService {
       // 2. Búsqueda en memoria en productsConfig (síncrona)
       const configAssets = this.searchInProductsConfig(query, filters);
 
-      // 3. Esperamos la respuesta de la BD
-      const dbAssets = await dbPromise;
+      // 3. Búsqueda externa en Yahoo Finance (asíncrona)
+      let yahooPromise = Promise.resolve([]);
+      if (query && query.length > 2) {
+        yahooPromise = yahooFinance.search(query).catch(err => {
+          console.warn('Yahoo Finance search failed:', err.message);
+          return { quotes: [] };
+        }).then(result => result.quotes || []);
+      }
 
-      // 4. Combinar resultados sin duplicados usando Map (clave: ticker)
+      // 4. Esperar todas las respuestas
+      const [dbAssets, yahooResults] = await Promise.all([dbPromise, yahooPromise]);
+
+      // 5. Combinar resultados sin duplicados usando Map (clave: ticker)
       const uniqueAssetsMap = new Map();
 
       // Primero: añadimos todos los de la BD (prioridad máxima, tienen ID y precio)
@@ -55,13 +64,13 @@ class AssetService {
       configAssets.forEach(product => {
         if (!uniqueAssetsMap.has(product.ticker)) {
           uniqueAssetsMap.set(product.ticker, {
-            id: null, // Importante: indica al front que no está persistido aún
+            id: null,
             ticker: product.ticker,
             name: product.name,
             type: product.type,
             category: product.category || 'RENTA_VARIABLE',
             description: product.description || null,
-            currentPrice: 0, // Placeholder hasta que se consulte Yahoo al guardar
+            currentPrice: 0,
             currency: 'USD',
             baseTicker: this.extractBaseTicker(product.ticker),
             exchange: this.extractExchange(product.ticker),
@@ -70,7 +79,33 @@ class AssetService {
             riskLevel: this.mapRiskLevel(product.risk),
             isRecommended: !!(product.recommended_for?.length),
             recommendedFor: JSON.stringify(product.recommended_for || []),
-            lastUpdated: null
+            lastUpdated: null,
+            source: 'config' // Flag para debug
+          });
+        }
+      });
+
+      // Tercero: añadimos los de Yahoo SOLO si no están ya en el mapa
+      yahooResults.forEach(quote => {
+        // Filtramos solo equity y etf para evitar ruido, o lo incluimos todo
+        if (!quote.symbol) return;
+
+        const symbol = quote.symbol;
+        if (!uniqueAssetsMap.has(symbol)) {
+          uniqueAssetsMap.set(symbol, {
+            id: null,
+            ticker: symbol,
+            name: quote.longname || quote.shortname || symbol,
+            type: quote.quoteType === 'ETF' ? 'ETF' : 'STOCK', // Mapeo simple
+            category: 'RENTA_VARIABLE', // Default
+            description: `Importado de Yahoo Finance (${quote.exchDisp || ''})`,
+            currentPrice: 0, // Se obtendrá al seleccionar/guardar
+            currency: 'USD', // Default, se actualizará
+            baseTicker: this.extractBaseTicker(symbol),
+            exchange: quote.exchDisp || 'UNKNOWN',
+            riskLevel: 'MEDIUM',
+            isRecommended: false,
+            source: 'yahoo'
           });
         }
       });
@@ -94,6 +129,9 @@ class AssetService {
     const lowerQuery = query.toLowerCase();
 
     return Object.values(FINANCIAL_PRODUCTS).filter(product => {
+      // Safety check: ensure name and ticker exist
+      if (!product.name || !product.ticker) return false;
+
       const matchesQuery =
         product.name.toLowerCase().includes(lowerQuery) ||
         product.ticker.toLowerCase().includes(lowerQuery);
@@ -160,11 +198,22 @@ class AssetService {
         where: { ticker }
       });
 
-      if (asset) return asset;
+      if (asset) {
+        // Actualizar precio si es necesario (respetando caché)
+        try {
+          const freshPrice = await this.updateAssetPrice(asset.id, ticker);
+          if (freshPrice !== null) {
+            asset.currentPrice = freshPrice;
+          }
+        } catch (err) {
+          console.warn(`Could not refresh price for ${ticker}: ${err.message}`);
+        }
+        return asset;
+      }
 
       // 2. Si no existe, buscar configuración para crearlo bien definido
       const productConfig = FINANCIAL_PRODUCTS[ticker];
-      
+
       if (productConfig) {
         asset = await prisma.asset.create({
           data: {
@@ -219,32 +268,62 @@ class AssetService {
    */
   async updateAssetPrice(assetId, ticker) {
     try {
-      const quote = await yahooFinance.quote(ticker);
-      
-      if (!quote.regularMarketPrice) return null;
-
-      // Actualizar precio en Asset
-      await prisma.asset.update({
-        where: { id: assetId },
-        data: {
-          currentPrice: quote.regularMarketPrice,
-          lastUpdated: new Date()
-        }
+      // 1. Verificar Caché (15 minutos)
+      const asset = await prisma.asset.findUnique({
+        where: { id: assetId }
       });
 
-      // Guardar histórico
-      await prisma.assetPrice.create({
-        data: {
-          assetId,
-          price: quote.regularMarketPrice,
-          date: new Date()
-        }
-      });
+      if (!asset) return null;
 
-      return quote.regularMarketPrice;
+      const CACHE_DURATION = 15 * 60 * 1000; // 15 min
+      const now = new Date();
+
+      if (asset.lastUpdated && (now - new Date(asset.lastUpdated) < CACHE_DURATION)) {
+        // console.log(`[Cache] Using cached price for ${ticker}`);
+        return asset.currentPrice;
+      }
+
+      // 2. Intentar obtener de Yahoo Finance
+      try {
+        const quote = await yahooFinance.quote(ticker);
+
+        if (!quote || quote.regularMarketPrice === undefined) {
+          console.warn(`No price found for ${ticker} in Yahoo`);
+          return asset.currentPrice; // Fallback
+        }
+
+        const newPrice = quote.regularMarketPrice;
+
+        // 3. Actualizar BD
+        await prisma.asset.update({
+          where: { id: assetId },
+          data: {
+            currentPrice: newPrice,
+            lastUpdated: now
+          }
+        });
+
+        // 4. Guardar histórico
+        await prisma.assetPrice.create({
+          data: {
+            assetId,
+            price: newPrice,
+            date: now
+          }
+        });
+
+        return newPrice;
+
+      } catch (yahooError) {
+        console.warn(`Yahoo Finance error for ${ticker}: ${yahooError.message}`);
+        return asset.currentPrice; // Fallback robusto a precio anterior
+      }
+
     } catch (error) {
       console.error(`Error updating price for ${ticker}:`, error.message);
-      return null;
+      // Intentar devolver el último precio conocido de la DB si falla todo
+      const asset = await prisma.asset.findUnique({ where: { id: assetId } });
+      return asset ? asset.currentPrice : null;
     }
   }
 
@@ -274,10 +353,10 @@ class AssetService {
   mapRiskLevel(risk) {
     if (!risk) return 'MEDIUM';
     const riskLower = risk.toLowerCase();
-    
+
     if (riskLower.includes('bajo') || riskLower.includes('low')) return 'LOW';
     if (riskLower.includes('alto') || riskLower.includes('high')) return 'HIGH';
-    
+
     return 'MEDIUM';
   }
 
@@ -298,8 +377,8 @@ class AssetService {
       return {
         ...asset,
         priceHistory,
-        recommendedFor: asset.recommendedFor 
-          ? JSON.parse(asset.recommendedFor) 
+        recommendedFor: asset.recommendedFor
+          ? JSON.parse(asset.recommendedFor)
           : []
       };
     } catch (error) {
@@ -313,7 +392,7 @@ class AssetService {
    */
   getAssetAlternatives(ticker) {
     const baseTicker = this.extractBaseTicker(ticker);
-    
+
     const alternatives = Object.values(FINANCIAL_PRODUCTS).filter(product => {
       const productBase = this.extractBaseTicker(product.ticker);
       return productBase === baseTicker && product.ticker !== ticker;
