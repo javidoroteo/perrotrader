@@ -5,16 +5,16 @@ import { useNavigate } from 'react-router-dom';
 import portfolioService from '../services/portfolioService';
 import rebalanceService from '../services/rebalanceService';
 import recommendationService from '../services/recommendationService'; // 🆕 NUEVO IMPORT
-import { 
-  Loader2, 
-  PlusCircle, 
-  TrendingUp, 
-  TrendingDown, 
-  Wallet, 
-  AlertTriangle, 
-  ArrowRight, 
-  BarChart3, 
-  Target, 
+import {
+  Loader2,
+  PlusCircle,
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  AlertTriangle,
+  ArrowRight,
+  BarChart3,
+  Target,
   Activity,
   Sparkles, // 🆕 NUEVO ICONO
   X, // 🆕 NUEVO ICONO
@@ -160,15 +160,16 @@ const Dashboard = () => {
     return portfolios.reduce((sum, p) => sum + (p.totalValue || 0), 0);
   };
 
+  const calculateTotalInvested = () => {
+    return portfolios.reduce((sum, p) => sum + (p.totalInvested || 0), 0);
+  };
+
   const calculateTotalGains = () => {
-    return portfolios.reduce((sum, p) => {
-      const gains = (p.totalValue || 0) - (p.totalInvested || 0);
-      return sum + gains;
-    }, 0);
+    return calculateTotalValue() - calculateTotalInvested();
   };
 
   const calculateTotalGainsPercentage = () => {
-    const totalInvested = portfolios.reduce((sum, p) => sum + (p.totalInvested || 0), 0);
+    const totalInvested = calculateTotalInvested();
     if (totalInvested === 0) return 0;
     return ((calculateTotalGains() / totalInvested) * 100).toFixed(2);
   };
@@ -187,7 +188,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -209,7 +210,7 @@ const Dashboard = () => {
               <span className="text-sm text-gray-500">Total Invertido</span>
             </div>
             <p className="text-3xl font-bold text-gray-900">
-              €{calculateTotalValue().toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+              €{calculateTotalInvested().toLocaleString('es-ES', { minimumFractionDigits: 2 })}
             </p>
           </div>
 
@@ -278,58 +279,58 @@ const Dashboard = () => {
         )}
 
         {/* 🆕 NUEVA SECCIÓN: Selector de opciones SOLO si no hay portfolios */}
-{portfolios.length === 0 ? (
-  <div className="grid md:grid-cols-2 gap-6 mb-8">
-    {/* Opción 1: Crear desde cero */}
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-8 hover:shadow-lg transition-all">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-            <PlusCircle className="text-blue-600" size={24} />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900">
-            Crear Cartera Desde Cero
-          </h3>
-        </div>
-      </div>
-      <p className="text-gray-600 mb-6">
-        Gestiona tu cartera manualmente. Busca activos, invierte a tu ritmo.
-        Perfecto si ya sabes en qué invertir.
-      </p>
-      <button
-        onClick={() => navigate('/create-portfolio')}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
-      >
-        Comenzar <ArrowRight size={20} />
-      </button>
-    </div>
+        {portfolios.length === 0 ? (
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            {/* Opción 1: Crear desde cero */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-8 hover:shadow-lg transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <PlusCircle className="text-blue-600" size={24} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Crear Cartera Desde Cero
+                  </h3>
+                </div>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Gestiona tu cartera manualmente. Busca activos, invierte a tu ritmo.
+                Perfecto si ya sabes en qué invertir.
+              </p>
+              <button
+                onClick={() => navigate('/create-portfolio')}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                Comenzar <ArrowRight size={20} />
+              </button>
+            </div>
 
-    {/* Opción 2: Hacer test */}
-    <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-8 hover:shadow-lg transition-all">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-            <Star className="text-purple-600" size={24} />
+            {/* Opción 2: Hacer test */}
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-8 hover:shadow-lg transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Star className="text-purple-600" size={24} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Hacer Test de Inversión
+                  </h3>
+                </div>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Responde las preguntas y obtén recomendaciones personalizadas. Ideal si necesitas orientación.
+              </p>
+              <button
+                onClick={() => navigate('/quiz')}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                Comenzar Test <ArrowRight size={20} />
+              </button>
+            </div>
           </div>
-          <h3 className="text-xl font-bold text-gray-900">
-            Hacer Test de Inversión
-          </h3>
-        </div>
-      </div>
-      <p className="text-gray-600 mb-6">
-        Responde las preguntas y obtén recomendaciones personalizadas. Ideal si necesitas orientación.
-      </p>
-      <button
-        onClick={() => navigate('/quiz')}
-        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
-      >
-        Comenzar Test <ArrowRight size={20} />
-      </button>
-    </div>
-  </div>
-) : null}
+        ) : null}
 
-{/* 📊 Sección de Portfolios del usuario (aparece cuando hay portfolios) */}
+        {/* 📊 Sección de Portfolios del usuario (aparece cuando hay portfolios) */}
         {portfolios.length > 0 && (
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Mis Carteras</h2>
