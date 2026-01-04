@@ -255,7 +255,8 @@ class AssetService {
         });
         return asset;
       } catch (error) {
-        throw new Error(`No se pudo obtener información del activo: ${ticker}`);
+        console.error(`Error fetching from Yahoo Finance for ${ticker}:`, error);
+        throw new Error(`No se pudo obtener información del activo: ${ticker}. ${error.message || error}`);
       }
     } catch (error) {
       console.error('Error getting or creating asset:', error);
