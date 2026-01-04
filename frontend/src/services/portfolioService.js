@@ -216,7 +216,7 @@ const portfolioService = {
    */
   async getMyShareLinks() {
     try {
-      const response = await api.get('/portfolio/share/my-links');
+      const response = await api.get('/portfolio/my-share-links');
       return response.data;
     } catch (error) {
       console.error('Error getting share links:', error);
@@ -229,7 +229,7 @@ const portfolioService = {
    */
   async deleteShareLink(shareId) {
     try {
-      const response = await api.delete(`/portfolio/share/${shareId}`);
+      const response = await api.delete(`/portfolio/share-links/${shareId}`);
       return response.data;
     } catch (error) {
       console.error('Error deleting share link:', error);

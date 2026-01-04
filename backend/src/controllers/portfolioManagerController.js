@@ -238,6 +238,7 @@ class PortfolioManagerController {
           token,
           portfolioId,
           userId,
+          createdBy: userId, // Required field
           expiresAt,
           viewCount: 0
         }
