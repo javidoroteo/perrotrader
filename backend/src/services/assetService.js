@@ -1,5 +1,6 @@
 const prisma = require('../utils/prismaClient');
-const FINANCIAL_PRODUCTS = require('../config/productsConfig_v2');
+const { FINANCIAL_PRODUCTS } = require('../config/productsConfig_v2');
+const { INDIVIDUAL_STOCKS } = require('../data/individualAssets');
 const yahooFinance = require('yahoo-finance2').default;
 
 /**
@@ -128,7 +129,8 @@ class AssetService {
 
     const lowerQuery = query.toLowerCase();
 
-    return Object.values(FINANCIAL_PRODUCTS).filter(product => {
+    const combinedAssets = { ...FINANCIAL_PRODUCTS, ...INDIVIDUAL_STOCKS };
+    return Object.values(combinedAssets).filter(product => {
       // Safety check: ensure name and ticker exist
       if (!product.name || !product.ticker) return false;
 
@@ -212,7 +214,8 @@ class AssetService {
       }
 
       // 2. Si no existe, buscar configuración para crearlo bien definido
-      const productConfig = FINANCIAL_PRODUCTS[ticker];
+      // 2. Si no existe, buscar configuración para crearlo bien definido
+      const productConfig = FINANCIAL_PRODUCTS[ticker] || INDIVIDUAL_STOCKS[ticker];
 
       if (productConfig) {
         asset = await prisma.asset.create({

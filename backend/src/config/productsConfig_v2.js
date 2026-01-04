@@ -2775,6 +2775,3 @@ module.exports = {
   getTopBrokers
 };
 
-module.exports = {
-  FINANCIAL_PRODUCTS
-};
